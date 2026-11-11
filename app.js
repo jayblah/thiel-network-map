@@ -298,7 +298,8 @@ const side = panelToggle({
     if (pinned) draw(pinned, pinned !== 'T');
   },
 });
-panelToggle({ store: 'thielLegend', key: 'l', buttons: [$('#legendBtn')], apply: open => { $('#legend').hidden = !open; } });
+panelToggle({ store: 'thielLegend', key: 'l', buttons: [$('#legendBtn'), $('#legendTab')],
+  apply: open => { $('#legend').hidden = !open; $('#legendTab .chev').innerHTML = open ? '&#9652;' : '&#9662;'; } });
 
 $('#side').innerHTML = '<h2>Details</h2><p class="hint">Hover any card to trace its links through the map. Click one to pin it and read its companies, Thiel funding, views, Christian associations and every connection. Click the background to clear. Use the filters above to spotlight anti-democracy views, Christian ties, Thiel funding or network states.</p>';
 
