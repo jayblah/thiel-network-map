@@ -3,12 +3,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thiel Network Map</title>
 <!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
-<link rel="stylesheet" href="styles.css?v=1.16">
+<link rel="stylesheet" href="styles.css?v=1.17">
 </head><body>
 <header>
  <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
  <div class="tools">
-  <input type="search" id="q" placeholder="Search a name or company" aria-label="Search a name or company">
+  <div class="search">
+   <input type="search" id="q" placeholder="Search a name or company" aria-label="Search a name or company">
+   <button type="button" id="qClear" aria-label="Clear search" title="Clear search" hidden>&times;</button>
+  </div>
   <button id="helpBtn" title="How to Read This Map (?)" aria-label="How to read this map" aria-haspopup="dialog">?</button>
   <button id="legendBtn" title="Show or Hide the Legend (L)">Legend</button>
   <button id="sideBtn" title="Show or Hide the Details Panel (D)">Details Panel</button>
@@ -42,6 +45,6 @@
  <div id="helpBody"></div>
 </dialog>
 
-<script src="data.js?v=1.16"></script>
-<script src="app.js?v=1.16"></script>
+<script src="data.js?v=1.17"></script>
+<script src="app.js?v=1.17"></script>
 </body></html>

@@ -356,7 +356,15 @@
     if (c) { pin(c.dataset.id); return; }
     if (!e.target.closest('aside,header,.bar') && pinned) clearSelection();
   });
-  $('#q').addEventListener('input', e => { term = e.target.value; clearSelection(); });
+  const searchBox = $('#q'), searchClear = $('#qClear');
+  function setSearch(value) {
+    term = value;
+    searchBox.value = value;
+    searchClear.hidden = !value;
+    clearSelection();
+  }
+  searchBox.addEventListener('input', () => setSearch(searchBox.value));
+  searchClear.addEventListener('click', () => { setSearch(''); searchBox.focus(); });
   $('#theme').addEventListener('click', () => {
     const r = document.documentElement;
     const dark = r.dataset.theme === 'dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme:dark)').matches);
