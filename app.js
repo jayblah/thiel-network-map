@@ -12,7 +12,7 @@
   const TRAY_GAP = 24;                     // breathing room needed around the tray
   const TRAY_MIN_HEIGHT = 110;
   const LABEL_MAX = 46;                    // longest line label drawn on the map
-  const STORE = { side: 'thielSide', legend: 'thielLegend' };
+  const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
 
   // Category sections in display order; span = grid columns (of 12) on wide screens.
   const SECTIONS = [['infl', 5], ['pp', 7], ['neo', 12], ['pol', 12], ['prot', 12], ['faith', 12], ['net', 12], ['oth', 12]];
@@ -365,10 +365,18 @@
   }
   searchBox.addEventListener('input', () => setSearch(searchBox.value));
   searchClear.addEventListener('click', () => { setSearch(''); searchBox.focus(); });
-  $('#theme').addEventListener('click', () => {
-    const r = document.documentElement;
-    const dark = r.dataset.theme === 'dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme:dark)').matches);
-    r.dataset.theme = dark ? 'light' : 'dark';
+  // light/dark: an explicit choice (saved) overrides the operating-system setting
+  const root = document.documentElement, themeSwitch = $('#theme'), systemDark = matchMedia('(prefers-color-scheme:dark)');
+  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : systemDark.matches;
+  const syncThemeSwitch = () => themeSwitch.setAttribute('aria-checked', isDark());
+  const savedTheme = storage.get(STORE.theme);
+  if (savedTheme === 'light' || savedTheme === 'dark') root.dataset.theme = savedTheme;
+  syncThemeSwitch();
+  systemDark.addEventListener('change', syncThemeSwitch);
+  themeSwitch.addEventListener('click', () => {
+    root.dataset.theme = isDark() ? 'light' : 'dark';
+    storage.set(STORE.theme, root.dataset.theme);
+    syncThemeSwitch();
   });
   addEventListener('resize', redrawPinned);
 })();
