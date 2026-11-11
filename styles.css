@@ -53,6 +53,7 @@
 .c-pink{--k:var(--pink);--ks:var(--pink-solid)}
 .c-navy{--k:var(--navy);--ks:var(--navy-solid)}    .c-gold{--k:var(--gold);--ks:var(--gold-solid)}
 .c-slate{--k:var(--slate);--ks:var(--slate-solid)} .c-teal{--k:var(--teal);--ks:var(--teal-solid)}
+.c-net{--k:var(--t-net);--ks:var(--cat-net);--on-ks:#1a1300}
 .c-accent{--k:var(--accent)}
 .c-mute{--k:var(--mute);--kb:var(--line)}
 .t-red{color:var(--red)} .t-purple{color:var(--purple)}
@@ -90,6 +91,10 @@ input[type=search] { padding: 7px 12px; border: 1px solid var(--ctl); border-rad
 /* filter bar and legend */
 .bar { background: var(--panel); border-bottom: 1px solid var(--line); padding: 8px 18px; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; font-size: .82rem; color: var(--mute); }
 .chip.on { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+/* chips with a colour wear their association's colour: outlined when off, filled when on */
+.chip[class*=" c-"] { border: 2px solid var(--k); color: var(--k); padding: 3px 12px; display: inline-flex; align-items: center; gap: 5px; }
+.chip[class*=" c-"].on { background: var(--ks); border-color: var(--ks); color: var(--on-ks, #fff); }
+.chip .ic { width: 1.1em; height: 1.1em; }
 #legendTab { padding: 2px 10px; line-height: 1; }
 #legendTab .chev { font-size: 1rem; }
 .filters { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 8px; }

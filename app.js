@@ -29,13 +29,13 @@
   // Filters. Entries with `chip` become buttons in the bar; the rest are triggered from the summary counts.
   const FILTERS = {
     all: { chip: 'Everyone', test: () => true },
-    anti: { chip: 'Anti-Democracy / Exit Views', test: n => n.anti },
-    faith: { chip: 'Christian Nationalism', test: n => n.faith || n.cat === 'faith' },
-    fund: { chip: 'Funded by Thiel', test: n => n.fund },
+    anti: { chip: 'Anti-Democracy / Exit Views', color: 'red', icon: 'views', test: n => n.anti },
+    faith: { chip: 'Christian Nationalism', color: 'purple', icon: 'faith', test: n => n.faith || n.cat === 'faith' },
+    fund: { chip: 'Funded by Thiel', color: 'green', icon: 'fund', test: n => n.fund },
     views: { test: n => n.anti || n.views },
     cos: { test: n => n.cos && n.cat !== 'net' },
-    net: { chip: 'Network States', test: n => n.cat === 'net' },
-    gov: { chip: 'Government Reach', test: n => n.gov },
+    net: { chip: 'Network States', color: 'net', icon: 'net', test: n => n.cat === 'net' },
+    gov: { chip: 'Government Reach', color: 'navy', icon: 'official', test: n => n.gov },
     ...Object.fromEntries(Object.keys(GOV).map(k => [`gov:${k}`, { test: n => n.gov && n.gov.kinds.includes(k) }])),
   };
 
@@ -77,6 +77,7 @@
     contractor: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 13h18"/>',
     official: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
     influence: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM16 8.5a5 5 0 0 1 0 7"/>',
+    net: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="9" cy="18" r="2.5"/><path d="M8 7l8 1M7 8l2 8M17 10l-6 6"/>',
     abroad: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.5 3.2 3.5 14.8 0 18M12 3c-3.5 3.2-3.5 14.8 0 18"/>',
   };
   const icon = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
@@ -161,7 +162,7 @@
   }
   function renderChips() {
     const chips = Object.entries(FILTERS).filter(([, f]) => f.chip)
-      .map(([k, f]) => `<button class="chip" data-f="${k}">${f.chip}</button>`).join('');
+      .map(([k, f]) => `<button class="chip${f.color ? ` c-${f.color}` : ''}" data-f="${k}">${f.icon ? icon(f.icon) : ''}${f.chip}</button>`).join('');
     $('#filters').insertAdjacentHTML('beforeend', chips);
   }
   const syncChips = () => $$('[data-f]').forEach(c => {
