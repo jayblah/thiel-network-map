@@ -19,21 +19,23 @@
 
   // Kinds of government reach; color names map to .c-<color> classes in styles.css.
   const GOV = {
-    contractor: { color: 'navy', pill: 'Gov Contractor', title: 'Government contractor', reach: 'Government Contractors' },
-    official: { color: 'gold', pill: '&#9733; In Government', title: 'Holds or held a government role', reach: 'In Government' },
-    influence: { color: 'slate', pill: 'Gov Influence', title: 'Investor or lobbyist with government reach', reach: 'With Government Influence' },
-    abroad: { color: 'teal', pill: 'Abroad', title: 'Dealings with non-US governments', reach: 'Dealing with Other Governments' },
+    contractor: { color: 'navy', icon: 'contractor', pill: 'Gov Contractor', title: 'Government contractor', reach: 'Government Contractors' },
+    official: { color: 'gold', icon: 'official', pill: 'In Government', title: 'Holds or held a government role', reach: 'In Government' },
+    influence: { color: 'slate', icon: 'influence', pill: 'Gov Influence', title: 'Investor or lobbyist with government reach', reach: 'With Government Influence' },
+    abroad: { color: 'teal', icon: 'abroad', pill: 'Abroad', title: 'Dealings with non-US governments', reach: 'Dealing with Other Governments' },
   };
   const REACH_ORDER = ['official', 'contractor', 'influence', 'abroad'];
 
   // Filters. Entries with `chip` become buttons in the bar; the rest are triggered from the summary counts.
   const FILTERS = {
     all: { chip: 'Everyone', test: () => true },
-    anti: { chip: 'Anti-Democracy / Exit Views', test: n => n.anti },
-    faith: { chip: 'Christian Nationalism', test: n => n.faith || n.cat === 'faith' },
-    fund: { chip: 'Funded by Thiel', test: n => n.fund },
-    net: { chip: 'Network States', test: n => n.cat === 'net' },
-    gov: { chip: 'Government Reach', test: n => n.gov },
+    anti: { chip: 'Anti-Democracy / Exit Views', color: 'red', icon: 'views', test: n => n.anti },
+    faith: { chip: 'Christian Nationalism', color: 'purple', icon: 'faith', test: n => n.faith || n.cat === 'faith' },
+    fund: { chip: 'Funded by Thiel', color: 'green', icon: 'fund', test: n => n.fund },
+    views: { test: n => n.anti || n.views },
+    cos: { test: n => n.cos && n.cat !== 'net' },
+    net: { chip: 'Network States', color: 'net', icon: 'net', test: n => n.cat === 'net' },
+    gov: { chip: 'Government Reach', color: 'navy', icon: 'official', test: n => n.gov },
     ...Object.fromEntries(Object.keys(GOV).map(k => [`gov:${k}`, { test: n => n.gov && n.gov.kinds.includes(k) }])),
   };
 
@@ -66,34 +68,51 @@
   // ---------- facets: one entry per kind of badge / detail block ----------
   // pills(n) -> card badges; panel(n) -> details-panel block; tray(n) -> hover-tray row;
   // legend -> [[[pill text, color], description], ...]
-  const pill = (text, color, title = '') => `<span class="pill c-${color}"${title ? ` title="${title}"` : ''}>${text}</span>`;
-  const block = (color, head, body) => `<div class="dsec c-${color}"><span class="h">${head}</span>${body}</div>`;
+  // Line icons (24x24 grid, drawn with currentColor) shared by badges, panel headings and tray labels.
+  const ICON_PATHS = {
+    views: '<path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/>',
+    faith: '<path d="M12 3v18M6.5 9h11"/>',
+    fund: '<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9.5c0-1-1.3-1.7-3-1.7s-3 .8-3 2 1.3 1.6 3 2 3 .8 3 2-1.3 2-3 2-3-.7-3-1.7"/>',
+    cos: '<path d="M5 21V4h9v17M14 9h5v12M3 21h18M8 8h2M8 12h2M8 16h2"/>',
+    contractor: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 13h18"/>',
+    official: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
+    influence: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM16 8.5a5 5 0 0 1 0 7"/>',
+    net: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="9" cy="18" r="2.5"/><path d="M8 7l8 1M7 8l2 8M17 10l-6 6"/>',
+    abroad: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.5 3.2 3.5 14.8 0 18M12 3c-3.5 3.2-3.5 14.8 0 18"/>',
+  };
+  const icon = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
+  // A badge. With `f` it filters the map when clicked; card badges stay out of the tab order (the legend ones are the keyboard route).
+  const pill = (text, color, { icon: ic, title = '', f = '', tab = true } = {}) => {
+    const inner = (ic ? icon(ic) : '') + text, cls = `pill c-${color}`, t = title ? ` title="${title}"` : '';
+    return f ? `<button type="button" class="${cls}" data-f="${f}"${t}${tab ? '' : ' tabindex="-1"'}>${inner}</button>` : `<span class="${cls}"${t}>${inner}</span>`;
+  };
+  const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${ic ? icon(ic) : ''}${head}</span>${body}</div>`;
   // the tray is display-only (pointer-events: none), so its text carries no links
-  const trayRow = (color, label, text, max) => `<span class="d c-${color}"><em>${label}</em>${plain(cut(text, max))}</span>`;
+  const trayRow = (color, label, text, max, ic) => `<span class="d c-${color}"><em>${ic ? icon(ic) : ''}${label}</em>${plain(cut(text, max))}</span>`;
 
   const FACETS = [
-    { legend: [[['Views', 'red'], 'Anti-democracy / exit views']],
-      pills: n => n.anti || n.views ? pill('Views', 'red') : '',
-      panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'))
-        : n.views ? block('red', 'Views', fmt(n.views)) : '',
-      tray: n => n.views ? trayRow('red', 'Views', n.views, 110) : '' },
-    { legend: [[[`${CROSS} Faith`, 'purple'], 'Christian tie']],
-      pills: n => n.faith ? pill(`${CROSS} Faith`, 'purple') : '',
-      panel: n => n.faith ? block('purple', `${CROSS} Christian Association`, fmt(n.faith)) : '',
-      tray: n => n.faith ? trayRow('purple', `${CROSS} Faith`, n.faith, 110) : '' },
-    { legend: [[['$ Funding', 'green'], 'Thiel funding']],
-      pills: n => n.fund ? pill('$ Funding', 'green') : '',
-      panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund)) : '',
-      tray: n => n.fund ? trayRow('green', 'Thiel $', n.fund, 110) : '' },
-    { legend: [[['Companies', 'pink'], 'Companies listed']],
-      pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink') : '',
-      panel: n => n.cos ? block('pink', 'Companies / Projects', fmt(n.cos)) : '',
-      tray: n => n.cos && n.cat !== 'net' ? trayRow('pink', 'Companies', n.cos, 90) : '' },
-    { legend: Object.values(GOV).map(g => [[g.pill, g.color], g.title]),
-      pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color)).join('') : '',
+    { legend: [[['Views', 'red', { icon: 'views', f: 'views' }], 'Anti-democracy / exit views']],
+      pills: n => n.anti || n.views ? pill('Views', 'red', { icon: 'views', f: 'views', tab: false }) : '',
+      panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'), 'views')
+        : n.views ? block('red', 'Views', fmt(n.views), 'views') : '',
+      tray: n => n.views ? trayRow('red', 'Views', n.views, 110, 'views') : '' },
+    { legend: [[['Faith', 'purple', { icon: 'faith', f: 'faith' }], 'Christian tie']],
+      pills: n => n.faith ? pill('Faith', 'purple', { icon: 'faith', f: 'faith', tab: false }) : '',
+      panel: n => n.faith ? block('purple', 'Christian Association', fmt(n.faith), 'faith') : '',
+      tray: n => n.faith ? trayRow('purple', 'Faith', n.faith, 110, 'faith') : '' },
+    { legend: [[['Funding', 'green', { icon: 'fund', f: 'fund' }], 'Thiel funding']],
+      pills: n => n.fund ? pill('Funding', 'green', { icon: 'fund', f: 'fund', tab: false }) : '',
+      panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund), 'fund') : '',
+      tray: n => n.fund ? trayRow('green', 'Thiel $', n.fund, 110, 'fund') : '' },
+    { legend: [[['Companies', 'pink', { icon: 'cos', f: 'cos' }], 'Companies listed']],
+      pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink', { icon: 'cos', f: 'cos', tab: false }) : '',
+      panel: n => n.cos ? block('pink', 'Companies / Projects', fmt(n.cos), 'cos') : '',
+      tray: n => n.cos && n.cat !== 'net' ? trayRow('pink', 'Companies', n.cos, 90, 'cos') : '' },
+    { legend: Object.entries(GOV).map(([k, g]) => [[g.pill, g.color, { icon: g.icon, f: `gov:${k}` }], g.title]),
+      pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, f: `gov:${k}`, tab: false })).join('') : '',
       panel: n => n.gov ? block('navy', 'Government Reach',
-        `<div>${n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, GOV[k].title)).join(' ')}</div><div class="body">${fmt(n.gov.text)}</div>`) : '',
-      tray: n => n.gov ? trayRow('navy', 'Gov', n.gov.text, 120) : '' },
+        `<div>${n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, title: GOV[k].title })).join(' ')}</div><div class="body">${fmt(n.gov.text)}</div>`, 'official') : '',
+      tray: n => n.gov ? trayRow('navy', 'Gov', n.gov.text, 120, 'official') : '' },
   ];
   const facetHtml = (kind, n) => FACETS.map(f => f[kind](n)).join('');
 
@@ -143,10 +162,13 @@
   }
   function renderChips() {
     const chips = Object.entries(FILTERS).filter(([, f]) => f.chip)
-      .map(([k, f]) => `<button class="chip" data-f="${k}">${f.chip}</button>`).join('');
+      .map(([k, f]) => `<button class="chip${f.color ? ` c-${f.color}` : ''}" data-f="${k}">${f.icon ? icon(f.icon) : ''}${f.chip}</button>`).join('');
     $('#filters').insertAdjacentHTML('beforeend', chips);
   }
-  const syncChips = () => $$('.chip').forEach(c => c.classList.toggle('on', c.dataset.f === filt));
+  const syncChips = () => $$('[data-f]').forEach(c => {
+    const on = c.dataset.f === filt;
+    c.classList.toggle('on', on);
+  });
 
   // ---------- cards and sections ----------
   function card(n, extra = '') {
@@ -161,11 +183,11 @@
       + (n.wiki ? extLink('wp', n.wiki, 'W', `title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)"`) : '')
       + '</div>';
   }
-  const stat = (filter, color, count, label) => `<button class="stat c-${color}" data-f="${filter}"><b>${count}</b>${label}</button>`;
+  const stat = (filter, color, count, label, ic) => `<button class="stat c-${color}" data-f="${filter}">${icon(ic)}<b>${count}</b>${label}</button>`;
 
   function renderStage() {
     const reach = `<section class="band c-navy joined"><h2>Reach Into Government</h2><div class="row">`
-      + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach)).join('')
+      + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach, GOV[k].icon)).join('')
       + `</div><div class="facts">${DATA.facts.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
@@ -348,7 +370,7 @@
 
   document.addEventListener('click', e => {
     const f = e.target.closest('[data-f]');
-    if (f) { setFilter(f.dataset.f); return; }
+    if (f) { setFilter(filt === f.dataset.f && filt !== 'all' ? 'all' : f.dataset.f); return; }
     const go = e.target.closest('[data-go]');
     if (go) { pin(go.dataset.go); els[go.dataset.go].scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     if (e.target.closest('a')) return; // external links
