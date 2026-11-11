@@ -15,7 +15,7 @@
   const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
 
   // Category sections in display order; span = grid columns (of 12) on wide screens.
-  const SECTIONS = [['infl', 5], ['pp', 7], ['neo', 12], ['pol', 12], ['prot', 12], ['faith', 12], ['net', 12], ['oth', 12]];
+  const SECTIONS = [['infl', 5], ['pp', 7], ['neo', 12], ['pol', 12], ['prot', 12], ['faith', 12], ['net', 12], ['oth', 12], ['obs', 12]];
 
   // Kinds of government reach; color names map to .c-<color> classes in styles.css.
   const GOV = {
