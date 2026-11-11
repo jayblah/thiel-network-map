@@ -94,6 +94,7 @@ E.forEach(e => {
   if (e.a === 'T' && !rel[e.b]) rel[e.b] = e.label;
   if (e.b === 'T' && !rel[e.a]) rel[e.a] = e.label;
 });
+$('#ver').textContent = 'v' + APP_V;
 const stage = $('#stage'), ov = $('#ov'), tray = $('#tray'), mainEl = $('main');
 let pinned = null, filt = 'all', term = '', trayTimer = null;
 
