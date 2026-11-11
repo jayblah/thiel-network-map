@@ -179,7 +179,7 @@
   });
 
   // ---------- cards and sections ----------
-  function card(n, extra = '') {
+  function card(n, extra = '', inner = '') {
     const flags = [n.anti && 'anti', n.faith && 'faith', n.cat === 'net' && 'net', extra].filter(Boolean).join(' ');
     const pills = facetHtml('pills', n);
     return `<div class="card cat-${n.cat} ${flags}" data-id="${n.id}">`
@@ -188,21 +188,21 @@
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + (isHub(n.id) ? `<div class="r">${fmt(n.cos)}</div><div class="r">${fmt(n.faith)}</div>` : '')
       + (pills ? `<div class="pills">${pills}</div>` : '')
-      + (n.link ? extLink('wp', n.link.u, '&#8599;', `title="${esc(n.link.l)}" aria-label="${esc(n.link.l)} (opens in a new tab)"`)
-        : n.wiki ? extLink('wp', n.wiki, 'W', `title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)"`) : '')
-      + '</div>';
+      + (n.wiki ? extLink('wp', n.wiki, 'W', `title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)"`) : '')
+      + (n.link ? extLink(`wp${n.wiki ? ' alt' : ''}`, n.link.u, '&#8599;', `title="${esc(n.link.l)}" aria-label="${esc(n.link.l)} (opens in a new tab)"`) : '')
+      + inner + '</div>';
   }
   const stat = (filter, color, count, label, ic) => `<button class="stat c-${color}" data-f="${filter}">${icon(ic)}<b>${count}</b>${label}</button>`;
 
   function renderStage() {
-    const reach = `<section class="band c-navy joined"><h2>Reach Into Government</h2><div class="row">`
+    const reach = `<section class="band c-navy"><h2>Reach Into Government</h2><div class="row">`
       + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach, GOV[k].icon)).join('')
       + `</div><div class="facts">${DATA.facts.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
       return ns.length ? `<section class="sec cat-${k}" style="grid-column:span ${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
     }).join('');
-    stage.insertAdjacentHTML('afterbegin', `<div class="hero-wrap">${card(N[HUB], 'hero')}${reach}</div>` + sections);
+    stage.insertAdjacentHTML('afterbegin', `<div class="hero-wrap">${card(N[HUB], 'hero', reach)}</div>` + sections);
     $$('.card').forEach(c => { els[c.dataset.id] = c; });
   }
 
@@ -235,7 +235,7 @@
   }
 
   // ---------- dimming, filtering, pinning ----------
-  const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id)));
+  const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id) && !isHub(id)));
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
   const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.sub.join(' '), rel[n.id] || ''].join(' ').toLowerCase();
   function applyFilter() {
@@ -322,7 +322,8 @@
     const n = N[id], cons = consOf(id);
     sideEl.innerHTML = `<h2>${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
       + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
-      + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
+      + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : '')
+      + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + facetHtml('panel', n)
       + sourcesHtml(n)
