@@ -21,7 +21,7 @@ const REACH_ORDER = ['official', 'contractor', 'influence', 'abroad'];
 const FILTERS = {
   all: { chip: 'Everyone', test: () => true },
   anti: { chip: 'Anti-democracy / exit views', test: n => n.anti },
-  faith: { chip: 'Christian ties', test: n => n.faith || n.cat === 'faith' },
+  faith: { chip: 'Christian Nationalism', test: n => n.faith || n.cat === 'faith' },
   fund: { chip: 'Funded by Thiel', test: n => n.fund },
   net: { chip: 'Network states', test: n => n.cat === 'net' },
   gov: { chip: 'Government reach', test: n => n.gov },
@@ -137,7 +137,7 @@ function renderLegend() {
 function renderChips() {
   const chips = Object.entries(FILTERS).filter(([, f]) => f.chip)
     .map(([k, f]) => `<button class="chip" data-f="${k}">${f.chip}</button>`).join('');
-  $('#legend').insertAdjacentHTML('beforebegin', chips);
+  $('#filters').insertAdjacentHTML('beforeend', chips);
 }
 function syncChips() { $$('.chip').forEach(c => c.classList.toggle('on', c.dataset.f === filt)); }
 
@@ -301,7 +301,7 @@ const side = panelToggle({
 panelToggle({ store: 'thielLegend', key: 'l', buttons: [$('#legendBtn'), $('#legendTab')],
   apply: open => { $('#legend').hidden = !open; $('#legendTab .chev').innerHTML = open ? '&#9652;' : '&#9662;'; } });
 
-$('#side').innerHTML = '<h2>Details</h2><p class="hint">Hover any card to trace its links through the map. Click one to pin it and read its companies, Thiel funding, views, Christian associations and every connection. Click the background to clear. Use the filters above to spotlight anti-democracy views, Christian ties, Thiel funding or network states.</p>';
+$('#side').innerHTML = '<h2>Details</h2><p class="hint">Hover any card to trace its links through the map. Click one to pin it and read its companies, Thiel funding, views, Christian associations and every connection. Click the background to clear. Use the filters above to spotlight anti-democracy views, Christian nationalism, Thiel funding or network states.</p>';
 
 document.addEventListener('mouseover', e => { const c = e.target.closest('.card'); if (c && !pinned) { focus(c.dataset.id, false); showTray(c.dataset.id); } });
 document.addEventListener('mouseout', e => { const c = e.target.closest('.card'); if (c && !pinned) { reset(); hideTray(); } });
