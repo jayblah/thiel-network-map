@@ -1,0 +1,5 @@
+# The source book is copyrighted: keep it local, never commit it
+*.epub
+*.pdf
+*.mobi
+*.azw3

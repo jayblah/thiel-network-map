@@ -34,6 +34,7 @@
     fund: { chip: 'Funded by Thiel', color: 'green', icon: 'fund', test: n => n.fund },
     views: { test: n => n.anti || n.views },
     cos: { test: n => n.cos && n.cat !== 'net' },
+    crypto: { chip: 'Crypto', color: 'orange', icon: 'crypto', test: n => n.crypto },
     net: { chip: 'Network States', color: 'net', icon: 'net', test: n => n.cat === 'net' },
     gov: { chip: 'Government Reach', color: 'navy', icon: 'official', test: n => n.gov },
     ...Object.fromEntries(Object.keys(GOV).map(k => [`gov:${k}`, { test: n => n.gov && n.gov.kinds.includes(k) }])),
@@ -73,6 +74,7 @@
     views: '<path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/>',
     faith: '<path d="M12 3v18M6.5 9h11"/>',
     fund: '<circle cx="12" cy="12" r="9"/><path d="M12 6.5v11M15 9.5c0-1-1.3-1.7-3-1.7s-3 .8-3 2 1.3 1.6 3 2 3 .8 3 2-1.3 2-3 2-3-.7-3-1.7"/>',
+    crypto: '<circle cx="12" cy="12" r="9"/><path d="M10 7.5v9M10 7.5h3a2 2 0 0 1 0 4h-3M10 11.5h3.5a2.3 2.3 0 0 1 0 4.5H10M11.5 6v1.5M11.5 16.5V18"/>',
     cos: '<path d="M5 21V4h9v17M14 9h5v12M3 21h18M8 8h2M8 12h2M8 16h2"/>',
     contractor: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5h6v2M3 13h18"/>',
     official: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
@@ -108,6 +110,10 @@
       pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink', { icon: 'cos', f: 'cos', tab: false }) : '',
       panel: n => n.cos ? block('pink', 'Companies / Projects', fmt(n.cos), 'cos') : '',
       tray: n => n.cos && n.cat !== 'net' ? trayRow('pink', 'Companies', n.cos, 90, 'cos') : '' },
+    { legend: [[['Crypto', 'orange', { icon: 'crypto', f: 'crypto' }], 'Crypto tie']],
+      pills: n => n.crypto ? pill('Crypto', 'orange', { icon: 'crypto', f: 'crypto', tab: false }) : '',
+      panel: n => n.crypto ? block('orange', 'Crypto', fmt(n.crypto), 'crypto') : '',
+      tray: n => n.crypto ? trayRow('orange', 'Crypto', n.crypto, 110, 'crypto') : '' },
     { legend: Object.entries(GOV).map(([k, g]) => [[g.pill, g.color, { icon: g.icon, f: `gov:${k}` }], g.title]),
       pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, f: `gov:${k}`, tab: false })).join('') : '',
       panel: n => n.gov ? block('navy', 'Government Reach',
@@ -228,7 +234,7 @@
   // ---------- dimming, filtering, pinning ----------
   const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id)));
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
-  const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.sub.join(' '), rel[n.id] || ''].join(' ').toLowerCase();
+  const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.sub.join(' '), rel[n.id] || ''].join(' ').toLowerCase();
   function applyFilter() {
     if (pinned) return;
     const t = term.trim().toLowerCase();
