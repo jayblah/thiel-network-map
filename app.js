@@ -35,6 +35,7 @@ const storage = {
   set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked: ignore */ } },
 };
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const CROSS = '<span class="cross">&#10013;</span>';
 const cut = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
 const arrow = (e, id) => e.kind === 'plain' ? '&harr;' : (e.a === id ? '&rarr;' : '&larr;');
 const other = (e, id) => e.a === id ? e.b : e.a;
@@ -64,10 +65,10 @@ const FACETS = [
     panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'))
       : n.views ? block('red', 'Views', fmt(n.views)) : '',
     tray: n => n.views ? trayRow('red', 'Views', n.views, 110) : '' },
-  { legend: [[['&#10013; Faith', 'purple'], 'Christian tie']],
-    pills: n => n.faith ? pill('&#10013; Faith', 'purple') : '',
-    panel: n => n.faith ? block('purple', '&#10013; Christian Association', fmt(n.faith)) : '',
-    tray: n => n.faith ? trayRow('purple', '&#10013; Faith', n.faith, 110) : '' },
+  { legend: [[[`${CROSS} Faith`, 'purple'], 'Christian tie']],
+    pills: n => n.faith ? pill(`${CROSS} Faith`, 'purple') : '',
+    panel: n => n.faith ? block('purple', `${CROSS} Christian Association`, fmt(n.faith)) : '',
+    tray: n => n.faith ? trayRow('purple', `${CROSS} Faith`, n.faith, 110) : '' },
   { legend: [[['$ Funding', 'green'], 'Thiel funding']],
     pills: n => n.fund ? pill('$ Funding', 'green') : '',
     panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund)) : '',
@@ -129,8 +130,8 @@ function renderLegend() {
     row('Marks', [
       lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
       lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
-      lg('<b class="t-purple">&#10013;</b>', 'Christian tie (card corner)'),
-      lg('<a class="wp static cat-center" href="#">W</a>', 'Wikipedia article for the card'),
+      lg(`<b class="t-purple">${CROSS}</b>`, 'Christian tie (card corner)'),
+      lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
       lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
       lg('<span class="money">$15M</span>', 'Money amount'),
     ]);
@@ -147,12 +148,12 @@ function card(n, extra = '') {
   const flags = [n.anti && 'anti', n.faith && 'faith', n.cat === 'net' && 'net', extra].filter(Boolean).join(' ');
   const pills = facetHtml('pills', n);
   return `<div class="card cat-${n.cat} ${flags}" data-id="${n.id}">`
-    + `<div class="n">${esc(n.name)}</div>`
+    + `<button type="button" class="n">${esc(n.name)}</button>`
     + (n.sub.length ? `<div class="s">${fmt(n.sub.join(' · '))}</div>` : '')
     + (rel[n.id] && n.id !== 'T' ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
     + (n.id === 'T' ? `<div class="r">${fmt(n.cos)}</div><div class="r">${fmt(n.faith)}</div>` : '')
     + (pills ? `<div class="pills">${pills}</div>` : '')
-    + (n.wiki ? `<a class="wp" href="${n.wiki}" target="_blank" rel="noopener" title="Open Wikipedia article">W</a>` : '')
+    + (n.wiki ? `<a class="wp" href="${n.wiki}" target="_blank" rel="noopener" title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)">W</a>` : '')
     + '</div>';
 }
 const countWhere = test => Object.values(N).filter(test).length;
@@ -160,15 +161,15 @@ const stat = (filter, color, count, label) => `<button class="stat c-${color}" d
 
 function renderStage() {
   const T = N.T;
-  const reach = `<section class="band c-navy"><h3>Reach Into Government</h3><div class="row">`
+  const reach = `<section class="band c-navy"><h2>Reach Into Government</h2><div class="row">`
     + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach)).join('')
     + `</div><div class="facts">${DATA.facts.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
-  const flags = `<section class="band dashed c-warn"><h3>&#9888; White Supremacist Associations</h3><div class="row">`
+  const flags = `<section class="band dashed c-warn"><h2>&#9888; White Supremacist Associations</h2><div class="row">`
     + stat('flag', 'warn', countWhere(FILTERS.flag.test), 'People with Documented Associations')
     + `</div><div class="note">Listed only where <i>The Nerd Reich</i> points to specific speeches, writings or statements. These are the book's characterizations, not independent findings, and some people named have disputed them.</div></section>`;
   const sections = SECTIONS.map(([k, span]) => {
     const ns = Object.values(N).filter(n => n.cat === k);
-    return ns.length ? `<section class="sec cat-${k}" style="grid-column:span ${span}"><h3>${CAT[k]}</h3><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
+    return ns.length ? `<section class="sec cat-${k}" style="grid-column:span ${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
   }).join('');
   stage.insertAdjacentHTML('afterbegin',
     `<div class="hero-wrap">${card(T, 'hero')}</div>` + reach + flags + sections);
@@ -216,7 +217,7 @@ function applyFilter() {
   setDim(new Set(Object.values(N).filter(n => FILTERS[filt].test(n) && (!t || haystack(n).includes(t))).map(n => n.id)));
 }
 function reset() { clearLines(); applyFilter(); }
-function unpin() { pinned = null; $$('.card.sel').forEach(x => x.classList.remove('sel')); }
+function unpin() { pinned = null; $$('.card.sel').forEach(x => { x.classList.remove('sel'); x.querySelector('.n').setAttribute('aria-pressed', 'false'); }); }
 function setFilter(k) { filt = k; syncChips(); unpin(); clearLines(); applyFilter(); }
 
 function hideTray() { clearTimeout(trayTimer); tray.classList.remove('show'); tray.setAttribute('aria-hidden', 'true'); }
@@ -268,7 +269,7 @@ function show(id) {
     + sourcesHtml(n)
     + block('mute', `Connections (${cons.length})`, cons.map(e => {
       const o = other(e, id);
-      return `<button class="con cat-${N[o].cat}" data-go="${o}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${fmt(e.label || '')}</span></button>`;
+      return `<button class="con cat-${N[o].cat}" data-go="${o}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
     }).join(''));
   $('#side').scrollTop = 0;
   $$('#side .con').forEach(b => b.onclick = ev => {
@@ -280,7 +281,7 @@ function show(id) {
 function pin(id) {
   hideTray();
   if (!side.isOpen()) side.set(true, true);
-  unpin(); pinned = id; els[id].classList.add('sel');
+  unpin(); pinned = id; els[id].classList.add('sel'); els[id].querySelector('.n').setAttribute('aria-pressed', 'true');
   focus(id, true); show(id);
 }
 
@@ -305,6 +306,10 @@ panelToggle({ store: 'thielLegend', key: 'l', buttons: [$('#legendBtn'), $('#leg
 $('#side').innerHTML = '<h2>Details</h2><p class="hint">Hover any card to trace its links through the map. Click one to pin it and read its companies, Thiel funding, views, Christian associations and every connection. Click the background to clear. Use the filters above to spotlight anti-democracy views, Christian nationalism, Thiel funding or network states.</p>';
 
 document.addEventListener('mouseover', e => { const c = e.target.closest('.card'); if (c && !pinned) { focus(c.dataset.id, false); showTray(c.dataset.id); } });
+// keyboard focus behaves like hover; Esc dismisses the hover tray and any pin
+document.addEventListener('focusin', e => { const c = e.target.closest('.card'); if (c && !pinned) { focus(c.dataset.id, false); showTray(c.dataset.id); } });
+document.addEventListener('focusout', e => { const c = e.target.closest('.card'); if (c && !pinned) { reset(); hideTray(); } });
+keyActions.escape = () => { hideTray(); if (pinned) { unpin(); reset(); } };
 document.addEventListener('mouseout', e => { const c = e.target.closest('.card'); if (c && !pinned) { reset(); hideTray(); } });
 document.addEventListener('click', e => {
   const f = e.target.closest('[data-f]');
