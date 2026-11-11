@@ -164,14 +164,14 @@
   const stat = (filter, color, count, label) => `<button class="stat c-${color}" data-f="${filter}"><b>${count}</b>${label}</button>`;
 
   function renderStage() {
-    const reach = `<section class="band c-navy"><h2>Reach Into Government</h2><div class="row">`
+    const reach = `<section class="band c-navy joined"><h2>Reach Into Government</h2><div class="row">`
       + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach)).join('')
       + `</div><div class="facts">${DATA.facts.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
       return ns.length ? `<section class="sec cat-${k}" style="grid-column:span ${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
     }).join('');
-    stage.insertAdjacentHTML('afterbegin', `<div class="hero-wrap">${card(N[HUB], 'hero')}</div>` + reach + sections);
+    stage.insertAdjacentHTML('afterbegin', `<div class="hero-wrap">${card(N[HUB], 'hero')}${reach}</div>` + sections);
     $$('.card').forEach(c => { els[c.dataset.id] = c; });
   }
 
