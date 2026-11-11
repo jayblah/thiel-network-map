@@ -34,7 +34,7 @@
     fund: { chip: 'Funded by Thiel', color: 'green', icon: 'fund', test: n => n.fund },
     views: { test: n => n.anti || n.views },
     cos: { test: n => n.cos && n.cat !== 'net' },
-    crypto: { chip: 'Crypto', color: 'orange', icon: 'crypto', test: n => n.crypto },
+    crypto: { chip: 'Crypto', color: 'sky', icon: 'crypto', test: n => n.crypto },
     net: { chip: 'Network States', color: 'net', icon: 'net', test: n => n.cat === 'net' },
     gov: { chip: 'Government Reach', color: 'navy', icon: 'official', test: n => n.gov },
     ...Object.fromEntries(Object.keys(GOV).map(k => [`gov:${k}`, { test: n => n.gov && n.gov.kinds.includes(k) }])),
@@ -46,7 +46,6 @@
     set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked: ignore */ } },
   };
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const CROSS = '<span class="cross">&#10013;</span>';
   const cut = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
   const other = (e, id) => e.a === id ? e.b : e.a;
   const consOf = id => E.filter(e => e.a === id || e.b === id);
@@ -112,10 +111,10 @@
       pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink', { icon: 'cos', f: 'cos', tab: false, only: true }) : '',
       panel: n => n.cos ? block('pink', 'Companies / Projects', fmt(n.cos), 'cos') : '',
       tray: n => n.cos && n.cat !== 'net' ? trayRow('pink', 'Companies', n.cos, 90, 'cos') : '' },
-    { legend: [[['Crypto', 'orange', { icon: 'crypto', f: 'crypto' }], 'Crypto tie']],
-      pills: n => n.crypto ? pill('Crypto', 'orange', { icon: 'crypto', f: 'crypto', tab: false, only: true }) : '',
-      panel: n => n.crypto ? block('orange', 'Crypto', fmt(n.crypto), 'crypto') : '',
-      tray: n => n.crypto ? trayRow('orange', 'Crypto', n.crypto, 110, 'crypto') : '' },
+    { legend: [[['Crypto', 'sky', { icon: 'crypto', f: 'crypto' }], 'Crypto tie']],
+      pills: n => n.crypto ? pill('Crypto', 'sky', { icon: 'crypto', f: 'crypto', tab: false, only: true }) : '',
+      panel: n => n.crypto ? block('sky', 'Crypto', fmt(n.crypto), 'crypto') : '',
+      tray: n => n.crypto ? trayRow('sky', 'Crypto', n.crypto, 110, 'crypto') : '' },
     { legend: Object.entries(GOV).map(([k, g]) => [[g.pill, g.color, { icon: g.icon, f: `gov:${k}` }], g.title]),
       pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, f: `gov:${k}`, tab: false, only: true, title: GOV[k].title })).join('') : '',
       panel: n => n.gov ? block('navy', 'Government Reach',
@@ -162,7 +161,6 @@
       row('Marks', [
         lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
-        lg(`<b class="t-purple">${CROSS}</b>`, 'Christian nationalist tie (card corner)'),
         lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
         lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
         lg('<span class="money">$15M</span>', 'Money amount'),
@@ -180,7 +178,7 @@
 
   // ---------- cards and sections ----------
   function card(n, extra = '', inner = '') {
-    const flags = [n.anti && 'anti', n.faith && 'faith', n.cat === 'net' && 'net', extra].filter(Boolean).join(' ');
+    const flags = [n.anti && 'anti', n.cat === 'net' && 'net', extra].filter(Boolean).join(' ');
     const pills = facetHtml('pills', n);
     return `<div class="card cat-${n.cat} ${flags}" data-id="${n.id}">`
       + `<button type="button" class="n">${esc(n.name)}</button>`

@@ -23,7 +23,7 @@
   --green: light-dark(#11702c, #3ccf68);     --green-solid: #128035;
   --blue: light-dark(#265ebc, #6aa2ff);      --blue-solid: #2b6bd6;
   --pink: light-dark(#a3158e, #f07ad8);      --pink-solid: #a3158e;
-  --orange: light-dark(#c2410c, #ff9a57);    --orange-solid: #c2410c;
+  --sky: light-dark(#0369a1, #38bdf8);       --sky-solid: #0369a1;
   --navy: light-dark(#1e3a8a, #7aa2ff);      --navy-solid: #1e3a8a;
   --gold: light-dark(#915300, #ffb340);      --gold-solid: #a15c00;
   --slate: light-dark(#475569, #aab4c8);     --slate-solid: #475569;
@@ -53,7 +53,7 @@
 .c-red{--k:var(--red);--ks:var(--red-solid)}       .c-purple{--k:var(--purple);--ks:var(--purple-solid)}
 .c-green{--k:var(--green);--ks:var(--green-solid)} .c-blue{--k:var(--blue);--ks:var(--blue-solid)}
 .c-pink{--k:var(--pink);--ks:var(--pink-solid)}
-.c-orange{--k:var(--orange);--ks:var(--orange-solid)}
+.c-sky{--k:var(--sky);--ks:var(--sky-solid)}
 .c-navy{--k:var(--navy);--ks:var(--navy-solid)}    .c-gold{--k:var(--gold);--ks:var(--gold-solid)}
 .c-slate{--k:var(--slate);--ks:var(--slate-solid)} .c-teal{--k:var(--teal);--ks:var(--teal-solid)}
 .c-net{--k:var(--t-net);--ks:var(--cat-net);--on-ks:#1a1300}
@@ -159,11 +159,9 @@ button.pill:hover { filter: brightness(1.12); }
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
 .card .n:focus-visible { outline: none; }
 .card:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
-.cross { font-size: 1.3em; line-height: 1; vertical-align: -.08em; }
 .card .s { font-size: .8rem; color: var(--mute); margin-top: 1px; }
 .card .r { font-size: .8rem; margin-top: 5px; padding-top: 5px; border-top: 1px dashed color-mix(in srgb, var(--c) 55%, transparent); }
 .card.anti { border: 3px dashed var(--red); padding: 8px 10px 7px; }
-.card.faith::after { content: "\271D"; position: absolute; right: 8px; top: 4px; color: var(--purple); font-size: 1.45rem; line-height: 1; font-weight: 700; }
 .card.net { border-radius: 4px 22px 4px 22px; }
 .card.sel { outline: 4px solid var(--accent); outline-offset: 2px; }
 .card.hero { background: linear-gradient(135deg, #1d2433, #2f3a58); color: #fff; border-color: #000; border-radius: 16px; }
@@ -174,7 +172,6 @@ button.pill:hover { filter: brightness(1.12); }
 .card.dim.anti { border: 3px solid var(--line); }
 .card.dim .n, .card.hero.dim .n { color: var(--ink); }
 .card.dim .s, .card.hero.dim .s, .card.hero.dim .r { color: var(--mute); }
-.card.dim.faith::after { color: var(--mute); }
 .card.hero.dim { color: var(--ink); }
 .wp { position: absolute; right: 7px; bottom: 6px; width: 20px; height: 20px; border-radius: 50%; background: var(--panel); color: var(--ink); border: 1.5px solid var(--c); font: 700 11px/17px Georgia, serif; text-align: center; text-decoration: none; opacity: .85; }
 .wp:hover { background: var(--t); color: var(--panel); opacity: 1; }
