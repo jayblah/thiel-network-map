@@ -10,22 +10,22 @@ const SECTIONS = [['infl', 5], ['pp', 7], ['neo', 12], ['pol', 12], ['prot', 12]
 
 // Kinds of government reach; color names map to .c-<color> classes in styles.css.
 const GOV = {
-  contractor: { color: 'navy', pill: 'gov contractor', title: 'Government contractor', reach: 'government contractors' },
-  official: { color: 'gold', pill: '&#9733; in government', title: 'Holds or held a government role', reach: 'in government' },
-  influence: { color: 'slate', pill: 'gov influence', title: 'Investor or lobbyist with government reach', reach: 'with government influence' },
-  abroad: { color: 'teal', pill: 'abroad', title: 'Dealings with non-US governments', reach: 'dealing with other governments' },
+  contractor: { color: 'navy', pill: 'Gov Contractor', title: 'Government contractor', reach: 'Government Contractors' },
+  official: { color: 'gold', pill: '&#9733; In Government', title: 'Holds or held a government role', reach: 'In Government' },
+  influence: { color: 'slate', pill: 'Gov Influence', title: 'Investor or lobbyist with government reach', reach: 'With Government Influence' },
+  abroad: { color: 'teal', pill: 'Abroad', title: 'Dealings with non-US governments', reach: 'Dealing with Other Governments' },
 };
 const REACH_ORDER = ['official', 'contractor', 'influence', 'abroad'];
 
 // Filters. `chip` ones become buttons in the bar; the rest are triggered from summary counts.
 const FILTERS = {
   all: { chip: 'Everyone', test: () => true },
-  anti: { chip: 'Anti-democracy / exit views', test: n => n.anti },
+  anti: { chip: 'Anti-Democracy / Exit Views', test: n => n.anti },
   faith: { chip: 'Christian Nationalism', test: n => n.faith || n.cat === 'faith' },
   fund: { chip: 'Funded by Thiel', test: n => n.fund },
-  net: { chip: 'Network states', test: n => n.cat === 'net' },
-  gov: { chip: 'Government reach', test: n => n.gov },
-  flag: { chip: '&#9888; White supremacist associations', test: n => n.assoc },
+  net: { chip: 'Network States', test: n => n.cat === 'net' },
+  gov: { chip: 'Government Reach', test: n => n.gov },
+  flag: { chip: '&#9888; White Supremacist Associations', test: n => n.assoc },
   ...Object.fromEntries(Object.keys(GOV).map(k => [`gov:${k}`, { test: n => n.gov && n.gov.kinds.includes(k) }])),
 };
 
@@ -59,31 +59,31 @@ const block = (color, head, body, cls = '') => `<div class="dsec c-${color} ${cl
 const trayRow = (color, label, text, max) => `<span class="d c-${color}"><em>${label}</em>${fmt(cut(text, max))}</span>`;
 
 const FACETS = [
-  { legend: [[['views', 'red'], 'anti-democracy / exit views']],
-    pills: n => n.anti || n.views ? pill('views', 'red') : '',
-    panel: n => n.anti ? block('red', 'Anti-democracy / exit views', fmt(n.views || 'Flagged in the book as echoing these views'))
+  { legend: [[['Views', 'red'], 'Anti-democracy / exit views']],
+    pills: n => n.anti || n.views ? pill('Views', 'red') : '',
+    panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'))
       : n.views ? block('red', 'Views', fmt(n.views)) : '',
     tray: n => n.views ? trayRow('red', 'Views', n.views, 110) : '' },
-  { legend: [[['&#10013; faith', 'purple'], 'Christian tie']],
-    pills: n => n.faith ? pill('&#10013; faith', 'purple') : '',
-    panel: n => n.faith ? block('purple', '&#10013; Christian association', fmt(n.faith)) : '',
+  { legend: [[['&#10013; Faith', 'purple'], 'Christian tie']],
+    pills: n => n.faith ? pill('&#10013; Faith', 'purple') : '',
+    panel: n => n.faith ? block('purple', '&#10013; Christian Association', fmt(n.faith)) : '',
     tray: n => n.faith ? trayRow('purple', '&#10013; Faith', n.faith, 110) : '' },
-  { legend: [[['$ funding', 'green'], 'Thiel funding']],
-    pills: n => n.fund ? pill('$ funding', 'green') : '',
-    panel: n => n.fund ? block('green', 'Thiel funding', fmt(n.fund)) : '',
+  { legend: [[['$ Funding', 'green'], 'Thiel funding']],
+    pills: n => n.fund ? pill('$ Funding', 'green') : '',
+    panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund)) : '',
     tray: n => n.fund ? trayRow('green', 'Thiel $', n.fund, 110) : '' },
-  { legend: [[['companies', 'blue'], 'companies listed']],
-    pills: n => n.cos && n.cat !== 'net' ? pill('companies', 'blue') : '',
-    panel: n => n.cos ? block('blue', 'Companies / projects', fmt(n.cos)) : '',
+  { legend: [[['Companies', 'blue'], 'Companies listed']],
+    pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'blue') : '',
+    panel: n => n.cos ? block('blue', 'Companies / Projects', fmt(n.cos)) : '',
     tray: n => n.cos && n.cat !== 'net' ? trayRow('blue', 'Companies', n.cos, 90) : '' },
   { legend: Object.values(GOV).map(g => [[g.pill, g.color], g.title]),
     pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color)).join('') : '',
-    panel: n => n.gov ? block('navy', 'Government reach',
+    panel: n => n.gov ? block('navy', 'Government Reach',
       `<div>${n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, GOV[k].title)).join(' ')}</div><div class="body">${fmt(n.gov.text)}</div>`) : '',
     tray: n => n.gov ? trayRow('navy', 'Gov', n.gov.text, 120) : '' },
-  { legend: [[['&#9888; white supremacist association', 'warn'], 'Documented speeches, writings or statements']],
-    pills: n => n.assoc ? pill('&#9888; white supremacist association', 'warn') : '',
-    panel: n => n.assoc ? block('warn', 'Associations noted in the book', `<div class="body">${fmt(n.assoc)}</div>`, 'tint') : '',
+  { legend: [[['&#9888; White Supremacist Association', 'warn'], 'Documented speeches, writings or statements']],
+    pills: n => n.assoc ? pill('&#9888; White Supremacist Association', 'warn') : '',
+    panel: n => n.assoc ? block('warn', 'Associations Noted in the Book', `<div class="body">${fmt(n.assoc)}</div>`, 'tint') : '',
     tray: n => n.assoc ? trayRow('warn', '&#9888; Flagged', 'white supremacist association (see details)', 120) : '' },
 ];
 const facetHtml = (kind, n) => FACETS.map(f => f[kind](n)).join('');
@@ -123,15 +123,15 @@ function renderLegend() {
   const row = (title, items) => `<div class="lrow"><b>${title}</b>${items.join('')}</div>`;
   const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
   $('#legend').innerHTML =
-    row('Box colour', SECTIONS.map(([k]) => lg(`<i class="sw cat-${k}"></i>`, `<span class="cat-${k}" style="color:var(--t);font-weight:600">${CAT[k]}</span>`))) +
+    row('Box Colour', SECTIONS.map(([k]) => lg(`<i class="sw cat-${k}"></i>`, `<span class="cat-${k}" style="color:var(--t);font-weight:600">${CAT[k]}</span>`))) +
     row('Badges', FACETS.flatMap(f => f.legend.map(([p, d]) => lg(pill(...p), d)))) +
     row('Marks', [
-      lg('<i class="sw anti"></i>', 'red dashed border: anti-democracy views'),
-      lg('<i class="sw notch"></i>', 'notched card: network state or startup city'),
+      lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
+      lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
       lg('<b class="t-purple">&#10013;</b>', 'Christian tie (card corner)'),
       lg('<a class="wp static cat-center" href="#">W</a>', 'Wikipedia article for the card'),
       lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
-      lg('<span class="money">$15M</span>', 'money amount'),
+      lg('<span class="money">$15M</span>', 'Money amount'),
     ]);
 }
 function renderChips() {
@@ -159,11 +159,11 @@ const stat = (filter, color, count, label) => `<button class="stat c-${color}" d
 
 function renderStage() {
   const T = N.T;
-  const reach = `<section class="band c-navy"><h3>Reach into government</h3><div class="row">`
+  const reach = `<section class="band c-navy"><h3>Reach Into Government</h3><div class="row">`
     + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach)).join('')
     + `</div><div class="facts">${DATA.facts.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
-  const flags = `<section class="band dashed c-warn"><h3>&#9888; White supremacist associations</h3><div class="row">`
-    + stat('flag', 'warn', countWhere(FILTERS.flag.test), 'people with documented associations')
+  const flags = `<section class="band dashed c-warn"><h3>&#9888; White Supremacist Associations</h3><div class="row">`
+    + stat('flag', 'warn', countWhere(FILTERS.flag.test), 'People with Documented Associations')
     + `</div><div class="note">Listed only where <i>The Nerd Reich</i> points to specific speeches, writings or statements. These are the book's characterizations, not independent findings, and some people named have disputed them.</div></section>`;
   const sections = SECTIONS.map(([k, span]) => {
     const ns = Object.values(N).filter(n => n.cat === k);
@@ -231,7 +231,7 @@ function showTray(id) {
     const offscreen = items.filter(i => i.p).length, cap = id === 'T' ? 12 : 16;
     tray.innerHTML = `<div class="th">Connected to <b>${esc(N[id].name)}</b> &middot; ${cons.length}${offscreen ? ` &middot; ${offscreen} off-screen shown first` : ''}</div><div class="chips">`
       + items.slice(0, cap).map(({ o, e, p }) => `<div class="chip2 cat-${N[o].cat}">`
-        + (p ? `<i>${p === 'up' ? '&uarr; above' : '&darr; below'}</i>` : '')
+        + (p ? `<i>${p === 'up' ? '&uarr; Above' : '&darr; Below'}</i>` : '')
         + `<b>${esc(N[o].name)}</b>`
         + (N[o].sub.length ? `<span class="sb">${fmt(N[o].sub.join(' · '))}</span>` : '')
         + `<span class="rl">${arrow(e, id)} ${fmt(e.label || 'connected')}</span>${facetHtml('tray', N[o])}</div>`).join('')
@@ -253,8 +253,8 @@ function showTray(id) {
 
 // ---------- details panel ----------
 const sourcesHtml = n => n.sources && n.sources.length
-  ? block('accent', 'Sources cited in the book (to fact-check)',
-    n.sources.map(s => `<a class="srcl" href="${s.u}" target="_blank" rel="noopener">${plain(s.l)}<i class="${s.s === 'ok' ? '' : 'bl'}">${s.s === 'ok' ? 'opens' : 'may be paywalled'}</i></a>`).join('')
+  ? block('accent', 'Sources Cited in the Book (to Fact-Check)',
+    n.sources.map(s => `<a class="srcl" href="${s.u}" target="_blank" rel="noopener">${plain(s.l)}<i class="${s.s === 'ok' ? '' : 'bl'}">${s.s === 'ok' ? 'Opens' : 'May Be Paywalled'}</i></a>`).join('')
     + `<div class="hint fine">Addresses are exactly as cited in the book's endnotes. Every one was checked to exist; some publishers block automated access, so a few may ask you to log in.</div>`)
   : '';
 function show(id) {

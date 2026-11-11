@@ -3,7 +3,7 @@
 // gov {kinds[contractor|official|influence|abroad], text}, assoc (white supremacist association,
 // only where the book cites specific speeches/writings/statements), sources [{l,u,s:ok|blocked}], wiki, shape (Mermaid export only).
 const DATA={
- cats:{"infl":"Intellectual influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and government","prot":"Protégés and portfolio","oth":"Other connections","net":"Network states / startup cities","faith":"Christian groups and figures","center":"Peter Thiel"},
+ cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","net":"Network States / Startup Cities","faith":"Christian Groups and Figures","center":"Peter Thiel"},
  facts:[
   "*$2.5B* in federal contracts to Palantir since 2009",
   "*16* longtime Thiel associates in Trump administration posts (Bloomberg)",
