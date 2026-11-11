@@ -170,7 +170,7 @@ function renderStage() {
     return ns.length ? `<section class="sec cat-${k}" style="grid-column:span ${span}"><h3>${CAT[k]}</h3><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
   }).join('');
   stage.insertAdjacentHTML('afterbegin',
-    `<div class="hero-wrap">${card(T, 'hero')}<div class="hero-note">${$('#howto').innerHTML}</div></div>` + reach + flags + sections);
+    `<div class="hero-wrap">${card(T, 'hero')}</div>` + reach + flags + sections);
 }
 
 // ---------- connection lines ----------
@@ -320,4 +320,13 @@ $('#theme').onclick = () => {
   const dark = r.dataset.theme === 'dark' || (!r.dataset.theme && matchMedia('(prefers-color-scheme:dark)').matches);
   r.dataset.theme = dark ? 'light' : 'dark';
 };
+// how-to-read dialog: native <dialog> gives Esc to close and focus handling; also close on backdrop click
+const help = $('#help');
+$('#helpBody').innerHTML = $('#howto').innerHTML;
+const openHelp = () => { if (!help.open) help.showModal(); };
+$('#helpBtn').onclick = openHelp;
+keyActions['?'] = openHelp;
+$('#helpClose').onclick = () => help.close();
+help.addEventListener('click', e => { if (e.target === help) help.close(); });
+
 addEventListener('resize', () => { if (pinned) draw(pinned, pinned !== 'T'); });

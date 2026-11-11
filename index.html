@@ -5,9 +5,10 @@
 <link rel="stylesheet" href="styles.css">
 </head><body>
 <header>
- <h1>Peter Thiel's network <span class="ver" title="Page version">v1.10</span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
+ <h1>Peter Thiel's network <span class="ver" title="Page version">v1.11</span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
  <div class="tools">
   <input type="search" id="q" placeholder="Search a name or company">
+  <button id="helpBtn" title="How to read this map (?)" aria-label="How to read this map" aria-haspopup="dialog">?</button>
   <button id="legendBtn" title="Show or hide the legend (L)">Legend</button>
   <button id="sideBtn" title="Show or hide the details panel (D)">Details panel</button>
   <button id="theme">Light / dark</button>
@@ -28,8 +29,14 @@
 </main>
 
 <template id="howto">
- <b>How to read this.</b> Each card is a person, company or project the book connects to Thiel. Its colour is its category, a <b class="t-red">red dashed border</b> means anti-democracy or exit views, <b class="t-purple">&#10013;</b> marks a Christian tie, and the pills tell you what more is in the detail panel. Cards with a notched shape are network states or startup cities. A round <b>W</b> on a card, and the dotted-underlined names in the text, open Wikipedia articles (only where a matching one exists). The details panel also lists <b>sources cited in the book</b> for key claims, so they can be fact-checked. Everything here is the book's account. The line under each name is how that card relates to Thiel.
+ <h2 id="helpTitle">How to read this</h2>
+ Each card is a person, company or project the book connects to Thiel. Its colour is its category, a <b class="t-red">red dashed border</b> means anti-democracy or exit views, <b class="t-purple">&#10013;</b> marks a Christian tie, and the pills tell you what more is in the detail panel. Cards with a notched shape are network states or startup cities. A round <b>W</b> on a card, and the dotted-underlined names in the text, open Wikipedia articles (only where a matching one exists). The details panel also lists <b>sources cited in the book</b> for key claims, so they can be fact-checked. Everything here is the book's account. The line under each name is how that card relates to Thiel.
 </template>
+
+<dialog id="help" aria-labelledby="helpTitle">
+ <button id="helpClose" aria-label="Close" title="Close (Esc)">&times;</button>
+ <div id="helpBody"></div>
+</dialog>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
