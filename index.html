@@ -2,12 +2,8 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thiel Network Map</title>
-<meta name="app-version" content="1.15">
-<script>
-/* Single place for the version: the three files below are loaded with ?v=<version> so a new release is never mixed with cached old files. */
-var APP_V = document.querySelector('meta[name=app-version]').content;
-document.write('<link rel="stylesheet" href="styles.css?v=' + APP_V + '">');
-</script>
+<!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
+<link rel="stylesheet" href="styles.css?v=1.16">
 </head><body>
 <header>
  <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
@@ -30,7 +26,10 @@ document.write('<link rel="stylesheet" href="styles.css?v=' + APP_V + '">');
  <div id="view"><div id="stage"><svg id="ov"></svg></div></div>
  <div id="tray" aria-hidden="true"></div>
  <button id="sideTab" title="Show or Hide the Details Panel (D)" aria-label="Toggle details panel">&#9656;</button>
- <aside id="side" aria-label="Details" tabindex="0"></aside>
+ <aside id="side" aria-label="Details" tabindex="0">
+ <h2>Details</h2>
+ <p class="hint">Hover any card to trace its links through the map. Click one to pin it and read its companies, Thiel funding, views, Christian associations and every connection. Click the background to clear. Use the filters above to spotlight anti-democracy views, Christian nationalism, Thiel funding or network states.</p>
+</aside>
 </main>
 
 <template id="howto">
@@ -43,10 +42,6 @@ document.write('<link rel="stylesheet" href="styles.css?v=' + APP_V + '">');
  <div id="helpBody"></div>
 </dialog>
 
-<script>
-(function () {
-  var open = '<' + 'script src="', close = '"></' + 'script>';
-  document.write(open + 'data.js?v=' + APP_V + close + open + 'app.js?v=' + APP_V + close);
-})();
-</script>
+<script src="data.js?v=1.16"></script>
+<script src="app.js?v=1.16"></script>
 </body></html>
