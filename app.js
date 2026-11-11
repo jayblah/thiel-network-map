@@ -188,7 +188,8 @@
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + (isHub(n.id) ? `<div class="r">${fmt(n.cos)}</div><div class="r">${fmt(n.faith)}</div>` : '')
       + (pills ? `<div class="pills">${pills}</div>` : '')
-      + (n.wiki ? extLink('wp', n.wiki, 'W', `title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)"`) : '')
+      + (n.link ? extLink('wp', n.link.u, '&#8599;', `title="${esc(n.link.l)}" aria-label="${esc(n.link.l)} (opens in a new tab)"`)
+        : n.wiki ? extLink('wp', n.wiki, 'W', `title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)"`) : '')
       + '</div>';
   }
   const stat = (filter, color, count, label, ic) => `<button class="stat c-${color}" data-f="${filter}">${icon(ic)}<b>${count}</b>${label}</button>`;
@@ -321,7 +322,7 @@
     const n = N[id], cons = consOf(id);
     sideEl.innerHTML = `<h2>${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
       + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
-      + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
+      + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + facetHtml('panel', n)
       + sourcesHtml(n)
