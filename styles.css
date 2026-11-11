@@ -127,14 +127,20 @@ main.collapsed #sideTab { right: 0; }
 /* badges */
 .pills { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 4px; }
 .card .pills { padding-right: 24px; }
-.pill { font-size: .75rem; line-height: 1; padding: 3px 7px; border-radius: 99px; color: #fff; font-weight: 700; background: var(--ks); }
+.pill { display: inline-flex; align-items: center; gap: 3px; font-size: .75rem; line-height: 1; padding: 3px 7px; border: 0; border-radius: 99px; color: #fff; font-weight: 700; background: var(--ks); }
+button.pill:hover { filter: brightness(1.12); }
+.card .pill { position: relative; z-index: 1; } /* sit above the card's click overlay so a badge can filter */
+.pill.on, .stat.on { outline: 3px solid var(--accent); outline-offset: 1px; }
+.ic { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dsec .h .ic, .chip2 .d em .ic, .stat .ic { vertical-align: -.17em; margin-right: 4px; }
+.stat .ic { width: 1.2em; height: 1.2em; color: var(--k); align-self: center; margin-right: 0; }
 
 /* category sections and cards */
 .sec { border-radius: 16px; padding: 12px 14px 16px; background: color-mix(in srgb, var(--c) 9%, var(--panel)); border: 2px solid color-mix(in srgb, var(--c) 45%, transparent); }
 .sec h2 { margin: 0 0 10px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: var(--t); display: flex; align-items: center; gap: 8px; }
 .sec h2::before { content: ""; width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 10px; }
-.card { position: relative; z-index: 2; background: color-mix(in srgb, var(--c) 20%, var(--panel)); border: 2px solid var(--c); border-radius: 12px; padding: 9px 11px 8px; cursor: pointer; transition: opacity .15s, transform .12s, box-shadow .15s; color: var(--ink); }
+.card { position: relative; z-index: 2; background: color-mix(in srgb, var(--c) 20%, var(--panel)); border: 2px solid var(--c); border-radius: 12px; padding: 9px 11px 8px; cursor: pointer; transition: opacity .15s, transform .12s, box-shadow .15s, filter .15s; color: var(--ink); }
 .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.18); }
 .card .n { display: block; width: 100%; padding: 0; margin: 0; border: 0; border-radius: 0; background: none; text-align: left; font: inherit; font-weight: 700; font-size: 1rem; line-height: 1.2; color: var(--t); cursor: pointer; }
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
@@ -151,11 +157,10 @@ main.collapsed #sideTab { right: 0; }
 .card.hero .n { color: #fff; }
 .card.hero .s, .card.hero .r { color: #cfd6ea; }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
-.card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; }
+.card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; filter: grayscale(1); } /* everything outside the spotlight loses its colour */
 .card.dim.anti { border: 3px solid var(--line); }
 .card.dim .n, .card.hero.dim .n { color: var(--ink); }
 .card.dim .s, .card.hero.dim .s, .card.hero.dim .r { color: var(--mute); }
-.card.dim .pill { background: var(--slate-solid); box-shadow: none; }
 .card.dim.faith::after { color: var(--mute); }
 .card.hero.dim { color: var(--ink); }
 .wp { position: absolute; right: 7px; bottom: 6px; width: 20px; height: 20px; border-radius: 50%; background: var(--panel); color: var(--ink); border: 1.5px solid var(--c); font: 700 11px/17px Georgia, serif; text-align: center; text-decoration: none; opacity: .85; }
