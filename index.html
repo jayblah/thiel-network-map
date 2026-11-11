@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thiel Network Map</title>
 <!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
-<link rel="stylesheet" href="styles.css?v=1.18">
+<link rel="stylesheet" href="styles.css?v=1.19">
 </head><body>
 <header>
  <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
@@ -15,7 +15,9 @@
   <button id="helpBtn" title="How to Read This Map (?)" aria-label="How to read this map" aria-haspopup="dialog">?</button>
   <button id="legendBtn" title="Show or Hide the Legend (L)">Legend</button>
   <button id="sideBtn" title="Show or Hide the Details Panel (D)">Details Panel</button>
-  <button id="theme">Light / Dark</button>
+  <button id="theme" class="switch" role="switch" aria-checked="false" aria-label="Dark mode" title="Switch Between Light and Dark">
+   <span class="mode sun" aria-hidden="true">&#9728;&#xFE0E;</span><span class="mode moon" aria-hidden="true">&#9790;&#xFE0E;</span><span class="knob" aria-hidden="true"></span>
+  </button>
  </div>
 </header>
 <nav class="bar" id="bar" aria-label="Filters and Legend">
@@ -45,6 +47,6 @@
  <div id="helpBody"></div>
 </dialog>
 
-<script src="data.js?v=1.18"></script>
-<script src="app.js?v=1.18"></script>
+<script src="data.js?v=1.19"></script>
+<script src="app.js?v=1.19"></script>
 </body></html>
