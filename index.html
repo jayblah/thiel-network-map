@@ -3,9 +3,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thiel Network Map</title>
 <style>
-:root{--bg:#eef0f5;--panel:#ffffff;--ink:#1c2230;--mute:#667085;--line:#d9dde6;--accent:#4f46e5;--red:#e11d1d;--purple:#7c4dff;--green:#16943a;--blue:#2b6bd6;--money:#00a63c;--navy:#1e3a8a;--gold:#a15c00;--slate:#475569;--teal:#0b7a75;color-scheme:light}
+:root{--bg:#eef0f5;--panel:#ffffff;--ink:#1c2230;--mute:#667085;--line:#d9dde6;--accent:#4f46e5;--red:#e11d1d;--purple:#7c4dff;--green:#16943a;--blue:#2b6bd6;--money:#006b24;--navy:#1e3a8a;--gold:#a15c00;--slate:#475569;--teal:#0b7a75;color-scheme:light}
 :root[data-theme=dark]{--bg:#0f121a;--panel:#181d2b;--ink:#e8ebf3;--mute:#9aa4bb;--line:#2b3350;--accent:#8b86ff;--red:#ff5a5a;--purple:#a58bff;--green:#3ccf68;--blue:#6aa2ff;--money:#39ff7a;--navy:#7aa2ff;--gold:#ffb340;--slate:#aab4c8;--teal:#34d8cf;color-scheme:dark}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0f121a;--panel:#181d2b;--ink:#e8ebf3;--mute:#9aa4bb;--line:#2b3350;--accent:#8b86ff;--red:#ff5a5a;--purple:#a58bff;--green:#3ccf68;--blue:#6aa2ff;--money:#39ff7a;--navy:#7aa2ff;--gold:#ffb340;--slate:#aab4c8;--teal:#34d8cf;color-scheme:dark}}
+/* category text colours: each checked for at least 4.5:1 (WCAG 2.1 AA) on the page, panel, and every card/section tint in its theme */
+:root{--t-infl:#305aa3;--t-pp:#1f6b2e;--t-neo:#8f4d07;--t-pol:#a71c56;--t-prot:#0a6963;--t-oth:#595e6b;--t-net:#775c06;--t-faith:#633ecc;--t-center:var(--ink)}
+:root[data-theme=dark]{--t-infl:#7297d8;--t-pp:#52ae64;--t-neo:#e38623;--t-pol:#e3689b;--t-prot:#35ada5;--t-oth:#949ba8;--t-net:#c79a0a;--t-faith:#a281ff;--t-center:var(--ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--t-infl:#7297d8;--t-pp:#52ae64;--t-neo:#e38623;--t-pol:#e3689b;--t-prot:#35ada5;--t-oth:#949ba8;--t-net:#c79a0a;--t-faith:#a281ff;--t-center:var(--ink)}}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 system-ui,Segoe UI,sans-serif;display:flex;flex-direction:column;overflow:hidden}
@@ -52,12 +56,12 @@ main.collapsed #tray{right:12px}
 #tray .chip2 .d.v{border-color:var(--red)}#tray .chip2 .d.f{border-color:var(--purple)}#tray .chip2 .d.m{border-color:var(--green)}#tray .chip2 .d.c{border-color:var(--blue)}
 #tray .chip2 .d em{font-style:normal;font-weight:700;margin-right:4px}
 #tray .chip2 .d.v em{color:var(--red)}#tray .chip2 .d.f em{color:var(--purple)}#tray .chip2 .d.m em{color:var(--green)}#tray .chip2 .d.c em{color:var(--blue)}
-#tray .chip2 b{display:block;font-size:.88rem}
+#tray .chip2 b{display:block;font-size:.88rem;color:var(--t,var(--ink))}
 #tray .chip2 span{color:var(--mute)}
 #tray .chip2 i{font-style:normal;float:right;margin-left:6px;font-size:.7rem;font-weight:700;color:var(--accent)}
 @media(max-width:900px){#tray{right:12px}#tray.bot{bottom:calc(38vh + 10px)}main.collapsed #tray.bot{bottom:10px}}
 aside h2{margin:0 0 4px;font-size:1.25rem}
-.cat{display:inline-block;font-size:.74rem;padding:2px 10px;border-radius:999px;margin-bottom:8px;color:#fff;font-weight:600}
+.cat{display:inline-block;font-size:.74rem;padding:2px 10px;border-radius:999px;margin-bottom:8px;color:var(--t);background:color-mix(in srgb,var(--c) 20%,var(--panel));border:2px solid var(--c);font-weight:700}
 .dsec{margin:14px 0;padding-left:10px;border-left:4px solid}
 .dsec .h{display:block;font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;font-weight:700;margin-bottom:2px}
 .dsec.v{border-color:var(--red)}.dsec.v .h{color:var(--red)}
@@ -65,16 +69,18 @@ aside h2{margin:0 0 4px;font-size:1.25rem}
 .dsec.m{border-color:var(--green)}.dsec.m .h{color:var(--green)}
 .dsec.c{border-color:var(--blue)}.dsec.c .h{color:var(--blue)}
 .con{display:block;width:100%;text-align:left;border-radius:10px;margin:4px 0;padding:7px 10px}
+.con b{color:var(--t,var(--ink))}
 .con>span{color:var(--mute);display:block;font-size:.82rem}
 .hint{color:var(--mute)}
 /* sections */
 .sec{border-radius:16px;padding:12px 14px 16px;background:color-mix(in srgb,var(--c) 9%,var(--panel));border:2px solid color-mix(in srgb,var(--c) 45%,transparent)}
-.sec h3{margin:0 0 10px;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;color:var(--c);display:flex;align-items:center;gap:8px}
+.sec h3{margin:0 0 10px;font-size:.9rem;letter-spacing:.05em;text-transform:uppercase;color:var(--t);display:flex;align-items:center;gap:8px}
 .sec h3::before{content:"";width:12px;height:12px;border-radius:4px;background:var(--c)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:10px}
 .card{position:relative;z-index:2;background:color-mix(in srgb,var(--c) 20%,var(--panel));border:2px solid var(--c);border-radius:12px;padding:9px 11px 8px;cursor:pointer;transition:opacity .15s,transform .12s,box-shadow .15s;color:var(--ink)}
 .card:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.18)}
-.card .n{font-weight:700;font-size:1rem;line-height:1.2}
+.card .n{font-weight:700;font-size:1rem;line-height:1.2;color:var(--t,var(--ink))}
+.card.hero .n{color:#fff}
 .card .s{font-size:.8rem;color:var(--mute);margin-top:1px}
 .card .r{font-size:.8rem;margin-top:5px;padding-top:5px;border-top:1px dashed color-mix(in srgb,var(--c) 55%,transparent)}
 .card.anti{border:3px dashed var(--red);padding:8px 10px 7px}
@@ -103,7 +109,8 @@ aside h2{margin:0 0 4px;font-size:1.25rem}
 .rb b{font-size:1.35rem;line-height:1}
 .rb.k1{border-color:#1e3a8a}.rb.k1 b{color:var(--navy)}.rb.k2{border-color:#a15c00}.rb.k2 b{color:var(--gold)}.rb.k3{border-color:#475569}.rb.k3 b{color:var(--slate)}.rb.k4{border-color:#0b7a75}.rb.k4 b{color:var(--teal)}
 .reach .facts{margin-top:9px;font-size:.88rem}
-.reach .facts span{display:inline-block;margin:2px 14px 2px 0}
+.reach .facts span{display:inline-block;margin:2px 0}
+.reach .facts span:not(:last-child)::after{content:"2";margin:0 .7em;color:var(--mute);font-weight:700}
 .ver{display:inline-block;margin-left:8px;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent);color:#fff;vertical-align:middle}
 .pill.b1{background:#8b1a1a}.pill.b2{background:#a3176b}.pill.b3{background:#5f6b00}
 .pill.b1,.pill.b2,.pill.b3{box-shadow:0 0 0 1.5px rgba(255,255,255,.6)}
@@ -136,7 +143,7 @@ aside h2{margin:0 0 4px;font-size:1.25rem}
 .lbl{font-size:11px;font-weight:600;paint-order:stroke;stroke:var(--panel);stroke-width:4px;stroke-linejoin:round}
 </style></head><body>
 <header>
- <h1>Peter Thiel's network <span class="ver" title="Page version">v1.5</span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
+ <h1>Peter Thiel's network <span class="ver" title="Page version">v1.6</span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
  <div class="tools">
   <input type="search" id="q" placeholder="Search a name or company">
   <button id="sideBtn" title="Show or hide the details panel (D)">Details panel</button><button id="theme">Light / dark</button>
@@ -176,7 +183,7 @@ const svgm=s=>esc(s).replace(MONEY,m=>`<tspan class="money">${m}</tspan>`);
 const GK={contractor:['g1','gov contractor','Government contractor'],official:['g2','&#9733; in government','Holds or held a government role'],influence:['g3','gov influence','Investor or lobbyist with government reach'],abroad:['g4','abroad','Dealings with non-US governments']};
 // legend
 $('#legend').innerHTML=
- '<div class="lrow"><b>Box colour</b>'+ORDER.map(([k])=>`<span class="lg"><i class="sw" style="background:${COLS[k]}"></i>${CAT[k]}</span>`).join('')+'</div>'+
+ '<div class="lrow"><b>Box colour</b>'+ORDER.map(([k])=>`<span class="lg"><i class="sw" style="background:${COLS[k]}"></i><span style="color:var(--t-${k});font-weight:600">${CAT[k]}</span></span>`).join('')+'</div>'+
  '<div class="lrow"><b>Badges</b>'+
  '<span class="lg"><span class="pill v">views</span>anti-democracy / exit views</span>'+
  '<span class="lg"><span class="pill f">&#10013; faith</span>Christian tie</span>'+
@@ -198,7 +205,7 @@ const rel={};E.forEach(e=>{if(e.a==='T'&&!rel[e.b])rel[e.b]=e.label;if(e.b==='T'
 const stage=$('#stage');
 function pills(n){let p='';if(n.anti||n.views)p+='<span class="pill v">views</span>';if(n.faith)p+='<span class="pill f">&#10013; faith</span>';if(n.fund)p+='<span class="pill m">$ funding</span>';if(n.cos&&n.cat!=='net')p+='<span class="pill c">companies</span>';if(n.gov)n.gov.kinds.forEach(k=>p+=`<span class="pill ${GK[k][0]}">${GK[k][1]}</span>`);if(n.assoc)p+=`<span class="pill b1">&#9888; white supremacist association</span>`;return p?`<div class="pills">${p}</div>`:''}
 function extraTxt(n){return n.id==='T'?`<div class="r">${fmt(n.cos)}</div><div class="r">${fmt(n.faith)}</div>`:''}
-function card(n,extra=''){return `<div class="card ${n.anti?'anti':''} ${n.faith?'faith':''} ${n.cat==='net'?'net':''} ${extra}" data-id="${n.id}" style="--c:${COLS[n.cat]}"><div class="n">${esc(n.name)}</div>${n.sub.length?`<div class="s">${fmt(n.sub.join(' · '))}</div>`:''}${rel[n.id]&&n.id!=='T'?`<div class="r">${fmt(rel[n.id])}</div>`:''}${extraTxt(n)}${pills(n)}${n.wiki?`<a class="wp" href="${n.wiki}" target="_blank" rel="noopener" title="Open Wikipedia article">W</a>`:''}</div>`}
+function card(n,extra=''){return `<div class="card ${n.anti?'anti':''} ${n.faith?'faith':''} ${n.cat==='net'?'net':''} ${extra}" data-id="${n.id}" style="--c:${COLS[n.cat]};--t:var(--t-${n.cat})"><div class="n">${esc(n.name)}</div>${n.sub.length?`<div class="s">${fmt(n.sub.join(' · '))}</div>`:''}${rel[n.id]&&n.id!=='T'?`<div class="r">${fmt(rel[n.id])}</div>`:''}${extraTxt(n)}${pills(n)}${n.wiki?`<a class="wp" href="${n.wiki}" target="_blank" rel="noopener" title="Open Wikipedia article">W</a>`:''}</div>`}
 const T=N.T;
 let html=`<div class="hero-wrap">${card(T,'hero')}<div class="hero-note"><b>How to read this.</b> Each card is a person, company or project the book connects to Thiel. Its colour is its category, a <b style="color:var(--red)">red dashed border</b> means anti-democracy or exit views, <b style="color:var(--purple)">&#10013;</b> marks a Christian tie, and the pills tell you what more is in the detail panel. Cards with a notched shape are network states or startup cities. A round <b>W</b> on a card, and the dotted-underlined names in the text, open Wikipedia articles (only where a matching one exists). The details panel also lists <b>sources cited in the book</b> for key claims, so they can be fact-checked. Everything here is the book's account. The line under each name is how that card relates to Thiel.</div></div>`;
 const cnt=k=>Object.values(N).filter(n=>n.gov&&n.gov.kinds.includes(k)).length;
@@ -206,7 +213,7 @@ html+=`<section class="reach"><h3>Reach into government</h3><div class="row">${[
 html+=`<section class="flags"><h3>&#9888; White supremacist associations</h3><div class="row"><button class="fb f1" data-gf="flag"><b>${Object.values(N).filter(n=>n.assoc).length}</b>people with documented associations</button></div><div class="note">Listed only where <i>The Nerd Reich</i> points to specific speeches, writings or statements. These are the book's characterizations, not independent findings, and some people named have disputed them.</div></section>`;
 const SPAN={infl:5,pp:7,neo:12,pol:12,prot:12,faith:12,net:12,oth:12};
 ORDER.forEach(([k])=>{const ns=Object.values(N).filter(n=>n.cat===k);if(!ns.length)return;
- html+=`<section class="sec sec-c" style="--c:${COLS[k]};grid-column:span ${SPAN[k]}"><h3>${CAT[k]}</h3><div class="grid">${ns.map(n=>card(n)).join('')}</div></section>`});
+ html+=`<section class="sec sec-c" style="--c:${COLS[k]};--t:var(--t-${k});grid-column:span ${SPAN[k]}"><h3>${CAT[k]}</h3><div class="grid">${ns.map(n=>card(n)).join('')}</div></section>`});
 stage.insertAdjacentHTML('afterbegin',html);
 const els={};$$('.card').forEach(c=>els[c.dataset.id]=c);
 const ov=$('#ov');
@@ -227,7 +234,7 @@ function draw(id,withLabels){
   const mk=e.kind==='plain'?'':`marker-end="url(#ah${e.a})"`;
   defs[e.a]=col;
   s+=`<path d="M${ca[0]},${ca[1]} Q${cx},${cy} ${cb[0]},${cb[1]}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linecap="round" stroke-dasharray="${dash}" opacity=".85" ${mk}/>`;
-  if(withLabels&&e.label){const tx=.25*ca[0]+.5*cx+.25*cb[0],ty=.25*ca[1]+.5*cy+.25*cb[1];const t=e.label.length>46?e.label.slice(0,44)+'…':e.label;s+=`<text class="lbl" x="${tx}" y="${ty}" text-anchor="middle" fill="${col}">${svgm(t)}</text>`}});
+  if(withLabels&&e.label){const tx=.25*ca[0]+.5*cx+.25*cb[0],ty=.25*ca[1]+.5*cy+.25*cb[1];const t=e.label.length>46?e.label.slice(0,44)+'…':e.label;s+=`<text class="lbl" x="${tx}" y="${ty}" text-anchor="middle" style="fill:var(--t-${N[e.a].cat})">${svgm(t)}</text>`}});
  const d=Object.entries(defs).map(([k,c])=>`<marker id="ah${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join('');
  ov.innerHTML=`<defs>${d}</defs>${s}`}
 const clearLines=()=>{ov.innerHTML=''};
@@ -246,7 +253,7 @@ function showTray(id){clearTimeout(trayT);trayT=setTimeout(()=>{
  const cap=id==='T'?12:16,shown=items.slice(0,cap);
  const cut=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
  const det=n=>(n.views?`<span class="d v"><em>Views</em>${fmt(cut(n.views,110))}</span>`:'')+(n.faith?`<span class="d f"><em>&#10013; Faith</em>${fmt(cut(n.faith,110))}</span>`:'')+(n.fund?`<span class="d m"><em>Thiel $</em>${fmt(cut(n.fund,110))}</span>`:'')+(n.cos&&n.cat!=='net'?`<span class="d c"><em>Companies</em>${fmt(cut(n.cos,90))}</span>`:'')+(n.gov?`<span class="d g"><em>Gov</em>${fmt(cut(n.gov.text,120))}</span>`:'')+(n.assoc?`<span class="d b"><em>&#9888; Flagged</em>white supremacist association (see details)</span>`:'');
- tray.innerHTML=`<div class="th">Connected to <b>${esc(N[id].name)}</b> &middot; ${cons.length}${items.filter(i=>i.p).length?` &middot; ${items.filter(i=>i.p).length} off-screen shown first`:''}</div><div class="chips">`+shown.map(i=>`<div class="chip2" style="--c:${COLS[N[i.o].cat]}">${i.p?`<i>${i.p==='up'?'&uarr; above':'&darr; below'}</i>`:''}<b>${esc(N[i.o].name)}</b>${N[i.o].sub.length?`<span class="sb">${fmt(N[i.o].sub.join(' · '))}</span>`:''}<span class="rl">${i.e.kind==='plain'?'&harr;':(i.e.a===id?'&rarr;':'&larr;')} ${fmt(i.e.label||'connected')}</span>${det(N[i.o])}</div>`).join('')+(items.length>cap?`<div class="chip2"><span>+${items.length-cap} more (click the card to see all in the side panel)</span></div>`:'')+'</div>';
+ tray.innerHTML=`<div class="th">Connected to <b>${esc(N[id].name)}</b> &middot; ${cons.length}${items.filter(i=>i.p).length?` &middot; ${items.filter(i=>i.p).length} off-screen shown first`:''}</div><div class="chips">`+shown.map(i=>`<div class="chip2" style="--c:${COLS[N[i.o].cat]};--t:var(--t-${N[i.o].cat})">${i.p?`<i>${i.p==='up'?'&uarr; above':'&darr; below'}</i>`:''}<b>${esc(N[i.o].name)}</b>${N[i.o].sub.length?`<span class="sb">${fmt(N[i.o].sub.join(' · '))}</span>`:''}<span class="rl">${i.e.kind==='plain'?'&harr;':(i.e.a===id?'&rarr;':'&larr;')} ${fmt(i.e.label||'connected')}</span>${det(N[i.o])}</div>`).join('')+(items.length>cap?`<div class="chip2"><span>+${items.length-cap} more (click the card to see all in the side panel)</span></div>`:'')+'</div>';
  tray.style.maxHeight='';tray.classList.remove('compact');const th=tray.offsetHeight+24;const roomTop=cr.top-vr.top,roomBot=vr.bottom-cr.bottom;const top=roomTop>=th?(roomBot>=th?roomTop<=roomBot:true):(roomBot>=th?false:roomTop>roomBot);tray.classList.toggle('top',top);tray.classList.toggle('bot',!top);const room=(top?roomTop:roomBot)-20;if(th-24>room){tray.classList.add('compact');if(tray.offsetHeight>room)tray.style.maxHeight=Math.max(110,room)+'px'}else tray.classList.remove('compact');
  tray.classList.add('show');tray.setAttribute('aria-hidden','false')},140)}
 document.addEventListener('mouseover',e=>{const c=e.target.closest('.card');if(c&&!pinned){focus(c.dataset.id,false);showTray(c.dataset.id)}});
@@ -256,7 +263,7 @@ function pin(id){hideTray();if(!sideOpen())setSide(true,true);unpin();pinned=id;
 document.addEventListener('click',e=>{if(e.target.closest('a.wp,a.wl,a.wk,a.srcl'))return;const c=e.target.closest('.card');if(c){pin(c.dataset.id);return}
  if(e.target.closest('aside,header,.bar'))return;if(pinned){unpin();reset()}});
 function show(id){const n=N[id];
- let h=`<h2>${esc(n.name)}</h2><span class="cat" style="background:${COLS[n.cat]}">${CAT[n.cat]||''}</span>`;
+ let h=`<h2>${esc(n.name)}</h2><span class="cat" style="--c:${COLS[n.cat]};--t:var(--t-${n.cat})">${CAT[n.cat]||''}</span>`;
  if(n.sub.length)h+=`<div class="hint">${fmt(n.sub.join(' · '))}</div>`;
  if(n.wiki)h+=`<a class="wl" href="${n.wiki}" target="_blank" rel="noopener">Wikipedia article &#8599;</a>`;
  if(rel[id]&&id!=='T')h+=`<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>`;
@@ -268,7 +275,7 @@ function show(id){const n=N[id];
  if(n.gov)h+=`<div class="dsec g"><span class="h">Government reach</span><div>${n.gov.kinds.map(k=>`<span class="pill ${GK[k][0]}" title="${GK[k][2]}">${GK[k][1]}</span>`).join(' ')}</div><div style="margin-top:4px">${fmt(n.gov.text)}</div></div>`;
  if(n.sources&&n.sources.length)h+=`<div class="dsec" style="border-color:var(--accent)"><span class="h" style="color:var(--accent)">Sources cited in the book (to fact-check)</span>${n.sources.map(s=>`<a class="srcl" href="${s.u}" target="_blank" rel="noopener">${mny(s.l)}<i class="${s.s==='ok'?'':'bl'}">${s.s==='ok'?'opens':'may be paywalled'}</i></a>`).join('')}<div class="hint" style="font-size:.76rem;margin-top:4px">Addresses are exactly as cited in the book's endnotes. Every one was checked to exist; some publishers block automated access, so a few may ask you to log in.</div></div>`;
  const cons=E.filter(e=>e.a===id||e.b===id);
- h+=`<div class="dsec" style="border-color:var(--line)"><span class="h" style="color:var(--mute)">Connections (${cons.length})</span>`+cons.map(e=>{const o=e.a===id?e.b:e.a;const ar=e.kind==='plain'?'&harr;':(e.a===id?'&rarr;':'&larr;');return `<button class="con" data-go="${o}" style="border-left:5px solid ${COLS[N[o].cat]}">${ar} <b>${esc(N[o].name)}</b><span>${fmt(e.label||'')}</span></button>`}).join('')+'</div>';
+ h+=`<div class="dsec" style="border-color:var(--line)"><span class="h" style="color:var(--mute)">Connections (${cons.length})</span>`+cons.map(e=>{const o=e.a===id?e.b:e.a;const ar=e.kind==='plain'?'&harr;':(e.a===id?'&rarr;':'&larr;');return `<button class="con" data-go="${o}" style="border-left:5px solid ${COLS[N[o].cat]};--t:var(--t-${N[o].cat})">${ar} <b>${esc(N[o].name)}</b><span>${fmt(e.label||'')}</span></button>`}).join('')+'</div>';
  $('#side').innerHTML=h;$('#side').scrollTop=0;
  $$('#side .con').forEach(b=>b.onclick=ev=>{ev.stopPropagation();const g=b.dataset.go;pin(g);els[g].scrollIntoView({block:'center',behavior:'smooth'})})}
 const test={flag:n=>n.assoc,gov:n=>n.gov,'gov:contractor':n=>n.gov&&n.gov.kinds.includes('contractor'),'gov:official':n=>n.gov&&n.gov.kinds.includes('official'),'gov:influence':n=>n.gov&&n.gov.kinds.includes('influence'),'gov:abroad':n=>n.gov&&n.gov.kinds.includes('abroad'),all:()=>true,anti:n=>n.anti,faith:n=>n.faith||n.cat==='faith',fund:n=>n.fund,net:n=>n.cat==='net'};
