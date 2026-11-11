@@ -56,7 +56,7 @@ graph LR
         Tan["<b>Garry Tan</b><br/><b>Cos:</b> Y Combinator<br/><b>Thiel $:</b> $72K check offered to join Palantir (he declined)<br/><b>Views:</b> calls YC a network-state prototype<br/><b>Faith:</b> Christian influencer turn; hosts ACTS 17 events (Holy Guacamole, Code and Cosmos)"]
         Buterin["<b>Vitalik Buterin</b><br/><b>Cos:</b> Ethereum<br/><b>Thiel $:</b> $100K Thiel Fellowship (2014)<br/><b>Views:</b> praises Network State; hosts Zuzalu"]
         Stephens["<b>Trae Stephens</b><br/>(Anduril)<br/><b>Cos:</b> Founders Fund, Anduril<br/><b>Thiel $:</b> Founders Fund led $1B of a $2.5B Anduril round (2025)<br/><b>Faith:</b> cofounded ACTS 17 (Christianity in tech); frames weapons work as faith"]
-        Luckey["<b>Palmer Luckey</b><br/>(Anduril)<br/><b>Cos:</b> Anduril<br/><b>Thiel $:</b> Founders Fund led $1B of a $2.5B Anduril round (2025)<br/><b>Views:</b> urged a freedom city in Cuba"]
+        Luckey["<b>Palmer Luckey</b><br/>(Anduril)<br/><b>Cos:</b> Anduril<br/><b>Thiel $:</b> Founders Fund led $1B of a $2.5B Anduril round (2025)<br/><b>Views:</b> urged a Freedom City in Cuba"]
         Karp["<b>Alex Karp</b><br/>(Palantir)<br/><b>Cos:</b> Palantir"]
         Armstrong["<b>Brian Armstrong</b><br/>(NewLimit)<br/><b>Cos:</b> Coinbase, NewLimit<br/><b>Thiel $:</b> NewLimit backer ($200M+ round; Thiel share not stated)"]
         DSouza["<b>Aron D'Souza</b><br/>(Objection / Gawker suit)<br/><b>Cos:</b> Objection<br/><b>Thiel $:</b> secretly funded Gawker lawsuit (amount not stated)"]
@@ -124,13 +124,13 @@ graph LR
     Benanti -.->|"critic"| T
     Dugin -.->|"parallel Antichrist rhetoric"| T
 
-    subgraph Nets["Network states, startup cities and freedom cities"]
+    subgraph Nets["Network states, startup cities and Freedom Cities"]
         Net{{"<b>The Network State</b><br/>(Srinivasan book, conference, dashboard)"}}
         Seasteading{{"<b>Seasteading Institute</b>"}}
         Pronomos{{"<b>Pronomos Capital</b><br/>(Friedman's network-state fund)"}}
         Prospera{{"<b>Próspera</b> (Honduras ZEDE)<br/>$120M raised; incl. Vitalia pop-up city"}}
         Praxis{{"<b>Praxis</b><br/>(Mediterranean, then Greenland)"}}
-        Greenland{{"<b>Greenland 'freedom city'</b>"}}
+        Greenland{{"<b>Greenland 'Freedom City'</b>"}}
         CalForever{{"<b>California Forever</b><br/>(Solano County)"}}
         NetSchool{{"<b>Network School</b><br/>(Forest City, Malaysia)"}}
         Zuzalu{{"<b>Zuzalu / Edge City</b><br/>(pop-up cities)"}}
@@ -173,7 +173,7 @@ graph LR
     Fischer ==>|"funds"| Highland
     Buskirk -.->|"edited Fischer-funded American Reformer"| Fischer
     Lutter ==>|"Presidio and Venezuela proposals"| Freedom
-    Luckey -.->|"Cuba freedom city"| Freedom
+    Luckey -.->|"Cuba Freedom City"| Freedom
     Freedom -.->|"briefs Trump officials"| Trump
     Prospera -.->|"Próspera chief of staff Trey Goff in coalition"| Freedom
     Trump -.->|"Kushner plan"| Sunrise
@@ -185,7 +185,8 @@ graph LR
         Deneen["<b>Patrick Deneen</b><br/><b>Faith:</b> postliberal Catholic; rejects liberal democracy"]
         Vermeule["<b>Adrian Vermeule</b><br/><b>Faith:</b> postliberal Catholic; hierarchical, anti-democratic"]
         Isker["<b>Andrew Isker</b><br/><b>Faith:</b> right-wing pastor; Christian zones outside secular democracy"]
-        NAR{{"<b>Christian nationalism</b><br/>(New Apostolic Reformation, Seven Mountains Mandate)"}}
+        NAR{{"<b>Christian Nationalism</b><br/>(New Apostolic Reformation, Seven Mountains Mandate)"}}
+        SMM{{"<b>Seven Mountains Mandate</b><br/>(idea within the New Apostolic Reformation)"}}
     end
 
     T -.->|"speaks at ACTS 17 events"| ACTS17
@@ -198,6 +199,7 @@ graph LR
     Boyle -->|"AEI speech: Gray tribe plus Red tribe"| Net
     NAR -.->|"ideas overlap with Yarvin and Srinivasan"| Net
     NAR -.->|"parallel to Highland Rim"| Highland
+    SMM -->|"idea within the movement"| NAR
     Palaver -.->|"Catholic source Thiel borrows from"| T
     Benanti -.->|"Catholic critic"| T
 
@@ -227,7 +229,7 @@ graph LR
     class Altman,Tan,Buterin,Stephens,Luckey,Karp,Armstrong,DSouza,Cowen prot
     class Epstein,Douthat,Chafkin,Benanti,Dugin oth
     class Net,Seasteading,Pronomos,Prospera,Praxis,Greenland,CalForever,NetSchool,Zuzalu,Highland,Freedom,Sunrise net
-    class ACTS17,MStephens,Deneen,Vermeule,Isker,NAR faith
+    class ACTS17,MStephens,Deneen,Vermeule,Isker,NAR,SMM faith
     class Andreessen,Boyle,Brown,Buskirk,Buterin,Davidson,Deneen,Dugin,Fischer,Friedman,Isker,Land,Lonsdale,Luckey,Lutter,ReesMogg,Sacks,Schmitt,Sramek,Srinivasan,Strauss,Tan,Vance,Vermeule,Yarvin anti
 ```
 
@@ -277,4 +279,5 @@ graph LR
 - [California Forever](https://en.wikipedia.org/wiki/California_Forever)
 - [Patrick Deneen](https://en.wikipedia.org/wiki/Patrick_Deneen)
 - [Adrian Vermeule](https://en.wikipedia.org/wiki/Adrian_Vermeule)
-- [Christian nationalism](https://en.wikipedia.org/wiki/New_Apostolic_Reformation)
+- [Christian Nationalism](https://en.wikipedia.org/wiki/New_Apostolic_Reformation)
+- [Seven Mountains Mandate](https://en.wikipedia.org/wiki/Seven_Mountain_Mandate)
