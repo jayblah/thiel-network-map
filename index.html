@@ -2,10 +2,15 @@
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thiel Network Map</title>
-<link rel="stylesheet" href="styles.css">
+<meta name="app-version" content="1.14">
+<script>
+/* Single place for the version: the three files below are loaded with ?v=<version> so a new release is never mixed with cached old files. */
+var APP_V = document.querySelector('meta[name=app-version]').content;
+document.write('<link rel="stylesheet" href="styles.css?v=' + APP_V + '">');
+</script>
 </head><body>
 <header>
- <h1>Peter Thiel's Network <span class="ver" title="Page version">v1.13</span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
+ <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>from <i>The Nerd Reich</i> by Gil Duran. Hover a card to trace its links, click for details</small></h1>
  <div class="tools">
   <input type="search" id="q" placeholder="Search a name or company">
   <button id="helpBtn" title="How to Read This Map (?)" aria-label="How to read this map" aria-haspopup="dialog">?</button>
@@ -38,6 +43,10 @@
  <div id="helpBody"></div>
 </dialog>
 
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script>
+(function () {
+  var open = '<' + 'script src="', close = '"></' + 'script>';
+  document.write(open + 'data.js?v=' + APP_V + close + open + 'app.js?v=' + APP_V + close);
+})();
+</script>
 </body></html>
