@@ -30,12 +30,12 @@
 
   /* category box colours (same in both themes) */
   --cat-infl: #3b6fc9; --cat-pp: #2e9d44; --cat-neo: #e0780b; --cat-pol: #d6246e;
-  --cat-prot: #0f9d94; --cat-oth: #7b8394; --cat-net: #c79a0a; --cat-faith: #7c4dff; --cat-center: #1d2433;
+  --cat-prot: #0f9d94; --cat-oth: #7b8394; --cat-obs: #8a6d5a; --cat-net: #c79a0a; --cat-faith: #7c4dff; --cat-center: #1d2433;
 
   /* category text colours: each >= 4.5:1 (WCAG 2.1 AA) on the page, panel and that category's card/section tints */
   --t-infl: light-dark(#305aa3, #7297d8);  --t-pp: light-dark(#1f6b2e, #52ae64);
   --t-neo: light-dark(#8f4d07, #e38623);   --t-pol: light-dark(#a71c56, #e3689b);
-  --t-prot: light-dark(#0a6963, #35ada5);  --t-oth: light-dark(#595e6b, #949ba8);
+  --t-prot: light-dark(#0a6963, #35ada5);  --t-oth: light-dark(#595e6b, #949ba8);  --t-obs: light-dark(#6e5242, #b99a87);
   --t-net: light-dark(#775c06, #c79a0a);   --t-faith: light-dark(#633ecc, #a281ff);
   --t-center: var(--ink);
 }
@@ -46,6 +46,7 @@
 .cat-infl{--c:var(--cat-infl);--t:var(--t-infl)} .cat-pp{--c:var(--cat-pp);--t:var(--t-pp)}
 .cat-neo{--c:var(--cat-neo);--t:var(--t-neo)}   .cat-pol{--c:var(--cat-pol);--t:var(--t-pol)}
 .cat-prot{--c:var(--cat-prot);--t:var(--t-prot)} .cat-oth{--c:var(--cat-oth);--t:var(--t-oth)}
+.cat-obs{--c:var(--cat-obs);--t:var(--t-obs)}
 .cat-net{--c:var(--cat-net);--t:var(--t-net)}   .cat-faith{--c:var(--cat-faith);--t:var(--t-faith)}
 .cat-center{--c:var(--cat-center);--t:var(--t-center)}
 .c-red{--k:var(--red);--ks:var(--red-solid)}       .c-purple{--k:var(--purple);--ks:var(--purple-solid)}
