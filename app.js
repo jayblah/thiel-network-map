@@ -100,10 +100,10 @@
       panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'), 'views')
         : n.views ? block('red', 'Views', fmt(n.views), 'views') : '',
       tray: n => n.views ? trayRow('red', 'Views', n.views, 110, 'views') : '' },
-    { legend: [[['Faith', 'purple', { icon: 'faith', f: 'faith' }], 'Christian tie']],
-      pills: n => n.faith ? pill('Faith', 'purple', { icon: 'faith', f: 'faith', tab: false, only: true }) : '',
-      panel: n => n.faith ? block('purple', 'Christian Association', fmt(n.faith), 'faith') : '',
-      tray: n => n.faith ? trayRow('purple', 'Faith', n.faith, 110, 'faith') : '' },
+    { legend: [[['Christian Nationalism', 'purple', { icon: 'faith', f: 'faith' }], 'Christian nationalist tie']],
+      pills: n => n.faith ? pill('Christian Nationalism', 'purple', { icon: 'faith', f: 'faith', tab: false, only: true }) : '',
+      panel: n => n.faith ? block('purple', 'Christian Nationalist Association', fmt(n.faith), 'faith') : '',
+      tray: n => n.faith ? trayRow('purple', 'Christian Nationalism', n.faith, 110, 'faith') : '' },
     { legend: [[['Funding', 'green', { icon: 'fund', f: 'fund' }], 'Thiel funding']],
       pills: n => n.fund ? pill('Funding', 'green', { icon: 'fund', f: 'fund', tab: false, only: true }) : '',
       panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund), 'fund') : '',
@@ -162,7 +162,7 @@
       row('Marks', [
         lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
-        lg(`<b class="t-purple">${CROSS}</b>`, 'Christian tie (card corner)'),
+        lg(`<b class="t-purple">${CROSS}</b>`, 'Christian nationalist tie (card corner)'),
         lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
         lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
         lg('<span class="money">$15M</span>', 'Money amount'),

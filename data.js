@@ -2,7 +2,7 @@
 // Node fields: cat (key of cats), link {u,l} (replaces the Wikipedia link on the card), sub, cos (companies), fund, crypto, views, faith, anti (red dashed border),
 // gov {kinds[contractor|official|influence|abroad], text}, sources [{l,u,s:ok|blocked}], wiki, shape (Mermaid export only).
 const DATA={
- cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","obs":"Interviewers, Critics and Biographers","net":"Network States / Startup Cities","faith":"Christian Groups and Figures","center":"Peter Thiel"},
+ cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","obs":"Interviewers, Critics and Biographers","net":"Network States / Startup Cities","faith":"Christian Nationalist Groups and Figures","center":"Peter Thiel"},
  facts:[
   "*$2.5B* in federal contracts to Palantir since 2009",
   "*16* longtime Thiel associates in Trump administration posts (Bloomberg)",
