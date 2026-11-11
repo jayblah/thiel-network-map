@@ -104,7 +104,6 @@ main.collapsed #sideTab { right: 0; }
   #tray { right: 12px; }
   #tray.bot { bottom: calc(38vh + 10px); }
   main.collapsed #tray.bot { bottom: 10px; }
-  .hero-wrap { grid-template-columns: 1fr; }
 }
 
 /* badges */
@@ -136,9 +135,14 @@ main.collapsed #sideTab { right: 0; }
 .wp.static { position: static; display: inline-block; pointer-events: none; }
 
 /* intro and summary bands */
-.hero-wrap { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(280px, 1fr) 2fr; gap: 14px; align-items: stretch; }
-.hero-note { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 12px 16px; color: var(--mute); font-size: .86rem; }
-.hero-note b { color: var(--ink); }
+.hero-wrap { grid-column: 1 / -1; max-width: 480px; }
+
+/* how-to-read dialog */
+#helpBtn { width: 32px; height: 32px; padding: 0; font-weight: 700; }
+#help { background: var(--panel); color: var(--ink); border: 2px solid var(--accent); border-radius: 16px; padding: 20px 24px 22px; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; line-height: 1.5; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+#help::backdrop { background: rgba(10, 14, 24, .55); }
+#help h2 { margin: 0 0 8px; font-size: 1.15rem; }
+#helpClose { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; padding: 0; font-size: 1.3rem; line-height: 1; }
 .band { grid-column: 1 / -1; border-radius: 16px; border: 2px solid var(--k); background: color-mix(in srgb, var(--k) 8%, var(--panel)); padding: 12px 16px; }
 .band.dashed { border-style: dashed; }
 .band h3 { margin: 0 0 8px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: var(--k); }
