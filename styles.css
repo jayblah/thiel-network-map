@@ -138,6 +138,9 @@ main.collapsed #sideTab { right: 0; }
 .pill { display: inline-flex; align-items: center; gap: 3px; font-size: .75rem; line-height: 1; padding: 3px 7px; border: 0; border-radius: 99px; color: #fff; font-weight: 700; background: var(--ks); }
 button.pill:hover { filter: brightness(1.12); }
 .card .pill { position: relative; z-index: 1; } /* sit above the card's click overlay so a badge can filter */
+.pill.only { padding: 4px; }
+.pill.only .ic { width: 1.25em; height: 1.25em; }
+.card .pills { gap: 5px; }
 .pill.on, .stat.on { outline: 3px solid var(--accent); outline-offset: 1px; }
 .ic { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .dsec .h .ic, .chip2 .d em .ic, .stat .ic { vertical-align: -.17em; margin-right: 4px; }

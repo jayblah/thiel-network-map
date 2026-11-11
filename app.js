@@ -84,8 +84,10 @@
   };
   const icon = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
   // A badge. With `f` it filters the map when clicked; card badges stay out of the tab order (the legend ones are the keyboard route).
-  const pill = (text, color, { icon: ic, title = '', f = '', tab = true } = {}) => {
-    const inner = (ic ? icon(ic) : '') + text, cls = `pill c-${color}`, t = title ? ` title="${title}"` : '';
+  const pill = (text, color, { icon: ic, title = '', f = '', tab = true, only = false } = {}) => {
+    // `only`: icon alone (card badges); the words move to the tooltip and screen-reader label
+    const inner = (ic ? icon(ic) : '') + (only ? '' : text), cls = `pill c-${color}${only ? ' only' : ''}`;
+    const t = only ? ` title="${esc(title || text)}" aria-label="${esc(text)}"` : title ? ` title="${title}"` : '';
     return f ? `<button type="button" class="${cls}" data-f="${f}"${t}${tab ? '' : ' tabindex="-1"'}>${inner}</button>` : `<span class="${cls}"${t}>${inner}</span>`;
   };
   const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${ic ? icon(ic) : ''}${head}</span>${body}</div>`;
@@ -94,28 +96,28 @@
 
   const FACETS = [
     { legend: [[['Views', 'red', { icon: 'views', f: 'views' }], 'Anti-democracy / exit views']],
-      pills: n => n.anti || n.views ? pill('Views', 'red', { icon: 'views', f: 'views', tab: false }) : '',
+      pills: n => n.anti || n.views ? pill('Views', 'red', { icon: 'views', f: 'views', tab: false, only: true }) : '',
       panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'), 'views')
         : n.views ? block('red', 'Views', fmt(n.views), 'views') : '',
       tray: n => n.views ? trayRow('red', 'Views', n.views, 110, 'views') : '' },
     { legend: [[['Faith', 'purple', { icon: 'faith', f: 'faith' }], 'Christian tie']],
-      pills: n => n.faith ? pill('Faith', 'purple', { icon: 'faith', f: 'faith', tab: false }) : '',
+      pills: n => n.faith ? pill('Faith', 'purple', { icon: 'faith', f: 'faith', tab: false, only: true }) : '',
       panel: n => n.faith ? block('purple', 'Christian Association', fmt(n.faith), 'faith') : '',
       tray: n => n.faith ? trayRow('purple', 'Faith', n.faith, 110, 'faith') : '' },
     { legend: [[['Funding', 'green', { icon: 'fund', f: 'fund' }], 'Thiel funding']],
-      pills: n => n.fund ? pill('Funding', 'green', { icon: 'fund', f: 'fund', tab: false }) : '',
+      pills: n => n.fund ? pill('Funding', 'green', { icon: 'fund', f: 'fund', tab: false, only: true }) : '',
       panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund), 'fund') : '',
       tray: n => n.fund ? trayRow('green', 'Thiel $', n.fund, 110, 'fund') : '' },
     { legend: [[['Companies', 'pink', { icon: 'cos', f: 'cos' }], 'Companies listed']],
-      pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink', { icon: 'cos', f: 'cos', tab: false }) : '',
+      pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink', { icon: 'cos', f: 'cos', tab: false, only: true }) : '',
       panel: n => n.cos ? block('pink', 'Companies / Projects', fmt(n.cos), 'cos') : '',
       tray: n => n.cos && n.cat !== 'net' ? trayRow('pink', 'Companies', n.cos, 90, 'cos') : '' },
     { legend: [[['Crypto', 'orange', { icon: 'crypto', f: 'crypto' }], 'Crypto tie']],
-      pills: n => n.crypto ? pill('Crypto', 'orange', { icon: 'crypto', f: 'crypto', tab: false }) : '',
+      pills: n => n.crypto ? pill('Crypto', 'orange', { icon: 'crypto', f: 'crypto', tab: false, only: true }) : '',
       panel: n => n.crypto ? block('orange', 'Crypto', fmt(n.crypto), 'crypto') : '',
       tray: n => n.crypto ? trayRow('orange', 'Crypto', n.crypto, 110, 'crypto') : '' },
     { legend: Object.entries(GOV).map(([k, g]) => [[g.pill, g.color, { icon: g.icon, f: `gov:${k}` }], g.title]),
-      pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, f: `gov:${k}`, tab: false })).join('') : '',
+      pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, f: `gov:${k}`, tab: false, only: true, title: GOV[k].title })).join('') : '',
       panel: n => n.gov ? block('navy', 'Government Reach',
         `<div>${n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, title: GOV[k].title })).join(' ')}</div><div class="body">${fmt(n.gov.text)}</div>`, 'official') : '',
       tray: n => n.gov ? trayRow('navy', 'Gov', n.gov.text, 120, 'official') : '' },
