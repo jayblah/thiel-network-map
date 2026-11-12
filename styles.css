@@ -184,7 +184,7 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .card .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
 .card .t { flex: 1; min-width: 0; }
 .pic { flex: none; width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--c); background: var(--panel); }
-.pic.mono { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--t); background: color-mix(in srgb, var(--c) 28%, var(--panel)); }
+.pic.mono { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--c) 22%, var(--panel)); }
 .card.dim .pic { filter: grayscale(1); border-color: var(--line); }
 .card.hero .pic { width: 84px; height: 84px; border-color: #fff; }
 .card.hero .hd { align-items: center; }
