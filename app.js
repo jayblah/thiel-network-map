@@ -128,7 +128,7 @@
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), cardDlg = $('#card'), cardBody = $('#cardBody'), searchBox = $('#q'), searchClear = $('#qClear');
+  const stage = $('#stage'), ov = $('#ov'), ovUnder = $('#ovUnder'), cardDlg = $('#card'), cardBody = $('#cardBody'), searchBox = $('#q'), searchClear = $('#qClear');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null, currentPaths = null; // 'how is A connected to B' state
@@ -248,15 +248,17 @@
   }
   const draw = id => drawEdges(consOf(id).filter(e => els[other(e, id)]));
   function drawEdges(list) {
-    ov.setAttribute('width', stage.scrollWidth);
-    ov.setAttribute('height', stage.scrollHeight);
+    [ov, ovUnder].forEach(svg => { svg.setAttribute('width', stage.scrollWidth); svg.setAttribute('height', stage.scrollHeight); });
     // read every position first (one stage rect, one rect per card), then build the markup
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
     const paths = list.map((e, i) => edgeSvg(e, i, boxOf));
     const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${edgeCat(e)}`).filter(Boolean))];
     const markers = heads.map(id => markerSvg(id, ...id.split('-'))).join('');
-    ov.innerHTML = `<defs>${markers}</defs>${paths.join('')}`;
+    // Lines run over the cards so they are easy to see, except those touching the hub: they would cross its text, so they run under the cards.
+    const touchesHub = list.map(e => isHub(e.a) || isHub(e.b));
+    ov.innerHTML = `<defs>${markers}</defs>${paths.filter((_, i) => !touchesHub[i]).join('')}`;
+    ovUnder.innerHTML = paths.filter((_, i) => touchesHub[i]).join('');
   }
 
   // ---------- dimming, filtering, pinning ----------
@@ -280,7 +282,7 @@
     setDim(new Set(hits));
     showCount(hits.length);
   }
-  const reset = () => { ov.innerHTML = ''; applyFilter(); };
+  const reset = () => { ov.innerHTML = ovUnder.innerHTML = ''; applyFilter(); };
   function unpin() {
     pinned = pathTo = currentPath = currentPaths = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
@@ -386,7 +388,7 @@
 
   // ---------- card dialog ----------
   const sourcesHtml = n => n.sources && n.sources.length
-    ? block('accent', 'Sources Cited in the Book (to Fact-Check)',
+    ? block('accent', 'Sources',
       n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<span class="ext" aria-hidden="true">&#8599;</span>`
         + (s.s === 'ok' ? '' : `<span class="lock" title="May be paywalled or block automated access">${icon('lock')}</span>`)
         + `<span class="sr">${s.s === 'ok' ? '' : ' (may be paywalled)'} (opens in a new tab)</span>`)).join('')
@@ -404,9 +406,9 @@
       + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + facetHtml.panel(n)
-      + sourcesHtml(n)
       + pathBox(n)
       + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''))
+      + sourcesHtml(n)
       + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, 'Report a correction for this card &#8599;');
     cardBody.scrollTop = 0;
   }

@@ -136,7 +136,9 @@ main { flex: 1; display: flex; min-height: 0; position: relative; }
 html:not(.js) :is(.bar, .tools, footer) { display: none; } /* these need the script */
 .ver:empty { display: none; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
-svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; overflow: visible; } /* connection lines run over the cards (above their z-index of 2) so they are easy to see */
+svg#ov, svg#ovUnder { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+svg#ov { z-index: 3; } /* most connection lines run over the cards (above their z-index of 2) so they are easy to see */
+svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the cards */
 .sec { grid-column: span var(--span, 12); } /* --span is set per section from data.js */
 @media (max-width: 900px) {
   main { flex-direction: column; }
@@ -194,7 +196,8 @@ svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; 
 .card.hero .n { color: #fff; font-size: 1.75rem; text-align: center; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
-.card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; filter: grayscale(1); } /* everything outside the spotlight loses its colour */
+.card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; } /* everything outside the spotlight loses its colour... */
+.card.dim :is(.pills, .wp, .wk) { filter: grayscale(1); } /* ...except money, which stays green (a filter on the whole card would grey it too) */
 .card.dim.anti { border: 3px solid var(--line); }
 .card.dim .n { color: var(--ink); }
 .card.dim .s { color: var(--mute); }
@@ -277,7 +280,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
 @media print {
   :root, :root[data-theme=dark] { color-scheme: light; }
   html, body { height: auto; overflow: visible; display: block; background: #fff; color: #000; }
-  .tools, .filters, #legendTab, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
+  .tools, .filters, #legendTab, footer, svg#ov, svg#ovUnder, .ver, .wp, .linkbtn, #count { display: none !important; }
   header, .bar { background: none; border: 0; padding: 0 0 6px; }
   #legend { background: none; border: 1px solid #999; }
   main { display: block; }
