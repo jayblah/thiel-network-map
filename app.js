@@ -399,7 +399,7 @@
       n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<span class="ext" aria-hidden="true">&#8599;</span>`
         + (s.s === 'ok' ? '' : `<span class="lock" title="May be paywalled or block automated access">${icon('lock')}</span>`)
         + `<span class="sr">${s.s === 'ok' ? '' : ' (may be paywalled)'} (opens in a new tab)</span>`)).join('')
-      + `<div class="hint fine">Addresses are exactly as cited in the book's endnotes. Every one was checked to exist; some publishers block automated access, so a few (marked with a lock) may ask you to log in.</div>`)
+      + `<div class="hint fine">Some links may require an account.</div>`)
     : '';
   const connectionButton = (e, id) => {
     const o = other(e, id);
@@ -418,6 +418,7 @@
       + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : '')
       + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
+      + '<hr class="dsep">'
       + facetHtml.panel(n)
       + pathBox(n)
       + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''))
