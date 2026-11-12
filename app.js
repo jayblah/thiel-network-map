@@ -13,7 +13,6 @@
   const TRAY_FIT_SLACK = 20;               // extra room kept clear when deciding whether the tray fits
   const TRAY_MIN_HEIGHT = 110;
   const OFFSCREEN_MARGIN = 8;              // a card this close to the viewport edge counts as off-screen
-  const LABEL_MAX = 46;                    // longest line label drawn on the map
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
   const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
@@ -55,10 +54,9 @@
   const ENTRE = new RegExp('(?<![A-Za-z0-9])(' + Object.keys(ENT).sort((a, b) => b.length - a.length)
     .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?![A-Za-z0-9])', 'g');
   const link = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="Wikipedia: ${m}"`));
-  const money = (s, tag = 'span') => s.replace(MONEY, m => `<${tag} class="money">${m}</${tag}>`);
+  const money = s => s.replace(MONEY, m => `<span class="money">${m}</span>`);
   const fmt = s => money(link(esc(s)));         // body text: links + money
   const plain = s => money(esc(s));             // no links (source titles, facts, text inside buttons)
-  const svgText = s => money(esc(s), 'tspan');  // inside SVG <text>
   const bold = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
 
   // ---------- icons, badges and detail blocks ----------
@@ -145,7 +143,7 @@
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), ovl = $('#ovl'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
+  const stage = $('#stage'), ov = $('#ov'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', trayTimer = null, resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null; // 'how is A connected to B' state
@@ -249,7 +247,7 @@
     }
     return to;
   }
-  function edgeSvg(e, i, withLabels, boxOf) {
+  function edgeSvg(e, i, boxOf) {
     const cat = N[e.a].cat, ra = boxOf(e.a), rb = boxOf(e.b);
     const A = [ra.x + ra.w / 2, ra.y + ra.h / 2], B = [rb.x + rb.w / 2, rb.y + rb.h / 2];
     const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
@@ -262,30 +260,22 @@
     const P0 = point(t0), P2 = point(t1);
     const P1 = lerp(P0, lerp(C, B, t0), (t1 - t0) / (1 - t0)); // control point of the trimmed segment
     const marker = HEAD[e.kind] ? ` marker-end="url(#${HEAD[e.kind]}-${cat})"` : '';
-    const svg = `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
-    let label = '';
-    if (withLabels && e.label) { // label sits on the curve at t = 0.5
-      label = `<text class="lbl cat-${cat}" x="${.25 * P0[0] + .5 * P1[0] + .25 * P2[0]}" y="${.25 * P0[1] + .5 * P1[1] + .25 * P2[1]}" text-anchor="middle">${svgText(cut(e.label, LABEL_MAX))}</text>`;
-    }
-    return { cat, svg, label };
+    return `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
   }
-  const draw = (id, withLabels) => drawEdges(consOf(id).filter(e => els[other(e, id)]), withLabels);
-  function drawEdges(list, withLabels) {
+  const draw = id => drawEdges(consOf(id).filter(e => els[other(e, id)]));
+  function drawEdges(list) {
     ov.setAttribute('width', stage.scrollWidth);
     ov.setAttribute('height', stage.scrollHeight);
-    ovl.setAttribute('width', stage.scrollWidth);
-    ovl.setAttribute('height', stage.scrollHeight);
     // read every position first (one stage rect, one rect per card), then build the markup
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
-    const edges = list.map((e, i) => edgeSvg(e, i, withLabels, boxOf));
+    const paths = list.map((e, i) => edgeSvg(e, i, boxOf));
     const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${N[e.a].cat}`).filter(Boolean))];
     const markers = heads.map(id => {
       const [head, cat] = id.split('-');
       return `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
     }).join('');
-    ov.innerHTML = `<defs>${markers}</defs>${edges.map(x => x.svg).join('')}`;
-    ovl.innerHTML = edges.map(x => x.label).join(''); // captions live in a layer above the cards so a neighbouring card can never hide them
+    ov.innerHTML = `<defs>${markers}</defs>${paths.join('')}`;
   }
 
   // ---------- dimming, filtering, pinning ----------
@@ -305,7 +295,7 @@
     setDim(new Set(hits));
     showCount(hits.length);
   }
-  const reset = () => { ov.innerHTML = ovl.innerHTML = ''; applyFilter(); };
+  const reset = () => { ov.innerHTML = ''; applyFilter(); };
   function unpin() {
     pinned = pathTo = currentPath = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
@@ -328,12 +318,12 @@
   // Spotlight what is selected: the chosen path between two cards, or one card's connections.
   function paintSelection() {
     if (!pinned) return;
-    if (currentPath) { setDim(new Set(currentPath.nodes)); drawEdges(currentPath.edges, true); return; }
+    if (currentPath) { setDim(new Set(currentPath.nodes)); drawEdges(currentPath.edges); return; }
     setDim(neighbours(pinned));
-    draw(pinned, !isHub(pinned));
+    draw(pinned);
   }
   // hover or keyboard focus on a card: spotlight it and open the tray (unless something is pinned)
-  function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id, false); showTray(id); }
+  function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id); showTray(id); }
   function endPreview() { reset(); hideTray(); }
 
   // ---------- how is A connected to B ----------
