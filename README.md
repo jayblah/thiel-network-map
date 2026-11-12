@@ -35,6 +35,10 @@ Live site: https://jayblah.github.io/thiel-network-map/
 - `.github/workflows/pages.yml` publishes the site, but only after every check passes. In the repository settings, Pages must use the source **GitHub Actions**.
 - `.github/dependabot.yml` proposes weekly, grouped updates to the pinned GitHub Actions and the development tooling (only releases at least 14 days old). The actions in the workflows are pinned to exact commits.
 
+## Weekly research digest
+
+`.github/workflows/weekly-ingest.yml` runs every Monday (and on demand from the Actions tab) and opens an issue titled "Weekly research digest". `ingest/ingest.js` fills it from official sources: federal contracts to Palantir (USAspending.gov), Peter Thiel's political contributions (FEC), Wikipedia pages on the map that changed since last week, source links that no longer resolve, and cards with no cited source. It never edits the map: someone reads the issue and makes any change by hand, with a source, in a pull request. Run it yourself with `npm run ingest`. Optional: add a `FEC_API_KEY` repository secret (free from api.data.gov); without one the shared demo key is used.
+
 ## Working on it
 
 `main` is protected: change it through a pull request, which must pass the checks (data, browser test, accessibility, Lighthouse) before it can be merged. Merging publishes the site. After editing `data.js`, run `node build-static.js` and `node check.js`.

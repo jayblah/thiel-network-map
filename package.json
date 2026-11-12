@@ -7,7 +7,8 @@
     "build": "node build-static.js",
     "links": "node check-links.js",
     "a11y": "node tests/a11y.js",
-    "lighthouse": "node tests/lighthouse.js"
+    "lighthouse": "node tests/lighthouse.js",
+    "ingest": "node ingest/ingest.js"
   },
   "devDependencies": {
     "axe-core": "4.14.0",
