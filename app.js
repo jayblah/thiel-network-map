@@ -71,6 +71,7 @@
     official: '<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',
     influence: '<path d="M3 11v2a1 1 0 0 0 1 1h2l5 4V6L6 10H4a1 1 0 0 0-1 1zM16 8.5a5 5 0 0 1 0 7"/>',
     net: '<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="9" cy="18" r="2.5"/><path d="M8 7l8 1M7 8l2 8M17 10l-6 6"/>',
+    lock: '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
     abroad: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.5 3.2 3.5 14.8 0 18M12 3c-3.5 3.2-3.5 14.8 0 18"/>',
   };
   const icon = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
@@ -451,8 +452,10 @@
   // ---------- details panel ----------
   const sourcesHtml = n => n.sources && n.sources.length
     ? block('accent', 'Sources Cited in the Book (to Fact-Check)',
-      n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<i class="${s.s === 'ok' ? '' : 'bl'}">${s.s === 'ok' ? 'Opens' : 'May Be Paywalled'}</i>`)).join('')
-      + `<div class="hint fine">Addresses are exactly as cited in the book's endnotes. Every one was checked to exist; some publishers block automated access, so a few may ask you to log in.</div>`)
+      n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<span class="ext" aria-hidden="true">&#8599;</span>`
+        + (s.s === 'ok' ? '' : `<span class="lock" title="May be paywalled or block automated access">${icon('lock')}</span>`)
+        + `<span class="sr">${s.s === 'ok' ? '' : ' (may be paywalled)'} (opens in a new tab)</span>`)).join('')
+      + `<div class="hint fine">Addresses are exactly as cited in the book's endnotes. Every one was checked to exist; some publishers block automated access, so a few (marked with a lock) may ask you to log in.</div>`)
     : '';
   const connectionButton = (e, id) => {
     const o = other(e, id);
