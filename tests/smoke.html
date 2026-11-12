@@ -56,7 +56,6 @@ frame.addEventListener('load', async () => {
     check('pinning a card shows its details', $('#side h2').textContent === 'JD Vance');
     check('pinning writes the card into the address', win.location.hash.includes('card=Vance'));
     check('connection lines are drawn from card borders', $$('#ov path.edge').length === E.filter(e => e.a === 'Vance' || e.b === 'Vance').length);
-    check('connections list page references from the book', $$('#side .con .pg').length > 0);
     check('details panel offers a correction link', !!$('#side a.wl[href*="issues/new"]'));
 
     // how is A connected to B

@@ -239,7 +239,6 @@ aside h2 { margin: 0 0 4px; font-size: 1.25rem; }
 .con { display: block; width: 100%; text-align: left; border-radius: 10px; margin: 4px 0; padding: 7px 10px; border-left: 5px solid var(--c); }
 .con b { color: var(--t); }
 .con > span { color: var(--mute); display: block; font-size: .82rem; }
-.pg { float: right; margin-left: 8px; padding: 0 7px; border: 1px solid var(--line); border-radius: 99px; color: var(--mute); font-size: .72rem; font-weight: 600; letter-spacing: 0; text-transform: none; white-space: nowrap; }
 #pathSel { width: 100%; margin: 4px 0 6px; padding: 6px 10px; border: 1px solid var(--ctl); border-radius: 10px; background: var(--bg); color: var(--ink); font: inherit; }
 .via { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
 .via .btn { padding: 3px 10px; font-size: .8rem; }

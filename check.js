@@ -17,7 +17,6 @@ const WIKI = /^https:\/\/en\.wikipedia\.org\/wiki\//;
 
 const problems = [];
 const bad = msg => problems.push(msg);
-const isPages = v => Array.isArray(v) && v.length > 0 && v.every(p => Number.isInteger(p) && p > 0);
 
 if (!GOV_KEYS.size) bad('could not read the government kinds from app.js');
 
@@ -41,7 +40,6 @@ for (const [id, n] of Object.entries(N)) {
     if (!s.l || !/^https?:\/\//.test(s.u || '')) bad(`${at}: a source needs a label l and an address u`);
     if (!['ok', 'blocked'].includes(s.s)) bad(`${at}: source state must be ok or blocked`);
   }
-  for (const [field, pages] of Object.entries(n.pg || {})) if (!isPages(pages)) bad(`${at}: pg.${field} must be a list of page numbers`);
   for (const f of ['cos', 'fund', 'views', 'faith', 'crypto']) if (n[f] === '') bad(`${at}: empty ${f} (leave empty fields out)`);
 }
 
@@ -54,7 +52,6 @@ E.forEach((e, i) => {
   if (e.a === e.b) bad(`${at}: connects a card to itself`);
   if (!KINDS.has(e.kind)) bad(`${at}: unknown kind "${e.kind}"`);
   if (!e.label) bad(`${at}: no label`);
-  if (e.pg !== undefined && !isPages(e.pg)) bad(`${at}: pg must be a list of page numbers`);
   const key = [e.a, e.b].sort().join('|');
   if (seen.has(key)) bad(`${at}: duplicate of an earlier connection`);
   seen.add(key);
@@ -69,4 +66,4 @@ if (problems.length) {
   console.error(`${problems.length} problem${problems.length === 1 ? '' : 's'} in data.js:\n- ` + problems.join('\n- '));
   process.exit(1);
 }
-console.log(`data.js ok: ${Object.keys(N).length} cards, ${E.length} connections, ${E.filter(e => e.pg).length} with book pages`);
+console.log(`data.js ok: ${Object.keys(N).length} cards, ${E.length} connections`);

@@ -86,9 +86,7 @@
     const tip = title ? ` title="${esc(title)}"` : '';
     return f ? `<button type="button" class="${cls}"${data}${tip}>${iconed(ic, esc(label))}</button>` : `<span class="${cls}"${tip}>${iconed(ic, esc(label))}</span>`;
   }
-  // where in the book a claim appears (print page numbers, computed from the book's own page markers)
-  const pageTag = pg => pg && pg.length ? `<span class="pg" title="Page in The Nerd Reich (print edition)">${pg.length > 1 ? 'pp.' : 'p.'} ${pg.join(', ')}</span>` : '';
-  const block = (color, head, body, ic, pg) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}${pageTag(pg)}</span>${body}</div>`;
+  const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}</span>${body}</div>`;
   // the tray is display-only (pointer-events: none), so its text carries no links
   const trayRow = (color, label, text, max, ic) => `<span class="d c-${color}"><em>${iconed(ic, label)}</em>${plain(cut(text, max))}</span>`;
 
@@ -141,7 +139,7 @@
     pills: n => FACETS.flatMap(f => f.badges ? f.badges(n) : []).map(s => pill(s.label, s.color, { icon: s.icon, f: s.f, title: s.title, compact: true })).join(''),
     panel: n => FACETS.filter(f => f.head && f.has(n)).map(f => {
       const lead = f.lead ? `<div>${f.badges(n).map(s => pill(s.label, s.color, { icon: s.icon, title: s.title })).join(' ')}</div>` : '';
-      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon, (n.pg || {})[f.key]);
+      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon);
     }).join(''),
     tray: n => FACETS.filter(f => f.tray && f.has(n) && f.text(n)).map(f => trayRow(f.color, f.tray.label, f.text(n), f.tray.max || 110, f.icon)).join(''),
   };
@@ -362,7 +360,7 @@
     const choices = avoid && viaHub
       ? `<div class="via">${choice('avoid', `Without Thiel · ${steps(avoid.edges.length)}`, pathAvoid)}${choice('any', `Shortest · ${steps(any.edges.length)}, via Thiel`, !pathAvoid)}</div>`
       : (viaHub ? '<p class="hint">Every route between them runs through Thiel.</p>' : '');
-    const hop = (e, from) => `<div class="hop">${arrow(e, from)} ${plain(e.label || 'connected')}${pageTag(e.pg)}</div>`;
+    const hop = (e, from) => `<div class="hop">${arrow(e, from)} ${plain(e.label || 'connected')}</div>`;
     const list = currentPath.nodes.map((id, i) =>
       `<button class="btn con cat-${N[id].cat}" data-go="${esc(id)}"><b>${esc(N[id].name)}</b></button>` + (i < currentPath.edges.length ? hop(currentPath.edges[i], id) : '')).join('');
     box.innerHTML = `${choices}<p class="hint">${steps(currentPath.edges.length)}</p>${list}`;
@@ -453,7 +451,7 @@
     : '';
   const connectionButton = (e, id) => {
     const o = other(e, id);
-    return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}${pageTag(e.pg)}</span></button>`;
+    return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);

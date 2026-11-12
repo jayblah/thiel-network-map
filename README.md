@@ -8,12 +8,11 @@ An interactive map of the people, companies and projects connected to Peter Thie
 - With a card pinned, **How is it connected to…** finds the chain between two cards, with or without going through Thiel.
 - The address bar mirrors the view, so any view can be shared, for example `#card=Yarvin&to=Vance`, `#filter=crypto` or `#q=greenland`.
 - Shortcuts: `/` search, `L` legend, `D` details panel, `?` help, `Esc` clear.
-- Page numbers (`p. 149`) are the book's print pages.
 
 ## Files
 
 - `index.html`: the interactive page. Open it in a browser; no build or internet needed. It loads the three files below from the same folder, so keep them together.
-- `data.js`: all map content (people, connections, sources, Wikipedia names, summary facts, book page numbers). Edit content here.
+- `data.js`: all map content (people, connections, sources, Wikipedia names, summary facts). Edit content here.
 - `app.js`: behaviour. Each kind of badge, detail block and filter chip is one entry in `FACETS`; kinds of government reach are in `GOV`.
 - `styles.css`: look and feel. Light/dark colours are defined once each with `light-dark()`; category text colours are checked for WCAG 2.1 AA contrast.
 - `bump-version.js`: `node bump-version.js 1.17` updates the version shown in the header and in the `?v=` cache-busting suffix on the three files above (do this on every release so browsers never mix new and cached old files).
