@@ -7,12 +7,6 @@
 
   // ---------- configuration ----------
   const HUB = 'T'; // id of the central node (Peter Thiel)
-  const TRAY_DELAY_MS = 140;               // hover pause before the connection tray opens
-  const TRAY_CAP = { hub: 12, other: 16 }; // max people listed in the tray
-  const TRAY_GAP = 24;                     // breathing room needed around the tray
-  const TRAY_FIT_SLACK = 20;               // extra room kept clear when deciding whether the tray fits
-  const TRAY_MIN_HEIGHT = 110;
-  const OFFSCREEN_MARGIN = 8;              // a card this close to the viewport edge counts as off-screen
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
   const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
@@ -33,7 +27,6 @@
     set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked: ignore */ } },
   };
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const cut = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
   const other = (e, id) => e.a === id ? e.b : e.a;
   const isHub = id => id === HUB;
   const arrow = (e, id) => e.kind === 'plain' ? '&harr;' : (e.a === id ? '&rarr;' : '&larr;');
@@ -60,7 +53,7 @@
   const bold = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
 
   // ---------- icons, badges and detail blocks ----------
-  // Line icons (24x24 grid, drawn with currentColor) shared by badges, panel headings, tray labels and chips.
+  // Line icons (24x24 grid, drawn with currentColor) shared by badges, panel headings and chips.
   const ICON_PATHS = {
     views: '<path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/>',
     faith: '<path d="M12 3v18M6.5 9h11"/>',
@@ -86,15 +79,12 @@
     return f ? `<button type="button" class="${cls}"${data}${tip}>${iconed(ic, esc(label))}</button>` : `<span class="${cls}"${tip}>${iconed(ic, esc(label))}</span>`;
   }
   const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}</span>${body}</div>`;
-  // the tray is display-only (pointer-events: none), so its text carries no links
-  const trayRow = (color, label, text, max, ic) => `<span class="d c-${color}"><em>${iconed(ic, label)}</em>${plain(cut(text, max))}</span>`;
 
   // Facets: one entry per kind of badge / detail block / filter chip. Fields:
   //   key + color + icon       identity (key is also the filter id and, by default, the node field it reads)
   //   label, desc              badge text and its legend description (no label: no badge, e.g. network states)
   //   has(n), text(n)          whether a node gets the badge/block, and the text shown (default: n[key])
   //   head                     details-panel heading (string or fn); no head: no panel block
-  //   tray {label, max}        hover-tray row; no tray: none
   //   chip                     text of the filter chip; chipId/chipTest add a second filter (anti-democracy)
   //   filter(n)                what the filter matches (default: has)
   const facet = def => {
@@ -108,21 +98,21 @@
   const FACETS = [
     facet({ key: 'views', color: 'red', icon: 'views', label: 'Views', desc: 'Anti-democracy / exit views',
       has: n => n.anti || n.views, fallback: 'Flagged in the book as echoing these views',
-      head: n => n.anti ? 'Anti-Democracy / Exit Views' : 'Views', tray: { label: 'Views' },
+      head: n => n.anti ? 'Anti-Democracy / Exit Views' : 'Views',
       chip: 'Anti-Democracy / Exit Views', chipId: 'anti', chipTest: n => n.anti }),
     facet({ key: 'faith', color: 'purple', icon: 'faith', label: 'Christian Nationalism', desc: 'Christian nationalist tie',
-      head: 'Christian Nationalist Association', tray: { label: 'Christian Nationalism' },
+      head: 'Christian Nationalist Association',
       chip: 'Christian Nationalism', filter: n => n.faith || n.cat === 'faith' }),
     facet({ key: 'fund', color: 'green', icon: 'fund', label: 'Funding', desc: 'Thiel funding',
-      head: 'Thiel Funding', tray: { label: 'Thiel $' }, chip: 'Funded by Thiel' }),
+      head: 'Thiel Funding', chip: 'Funded by Thiel' }),
     facet({ key: 'cos', color: 'pink', icon: 'cos', label: 'Companies', desc: 'Companies listed',
-      head: 'Companies / Projects', tray: { label: 'Companies', max: 90 } }),
+      head: 'Companies / Projects' }),
     facet({ key: 'crypto', color: 'sky', icon: 'crypto', label: 'Crypto', desc: 'Crypto tie',
-      head: 'Crypto', tray: { label: 'Crypto' }, chip: 'Crypto' }),
+      head: 'Crypto', chip: 'Crypto' }),
     facet({ key: 'net', color: 'net', icon: 'net', has: n => n.cat === 'net', chip: 'Network States' }),
     facet({ key: 'gov', color: 'navy', icon: 'official', label: 'Government Reach', has: n => n.gov, text: n => n.gov.text,
       specs: GOV.map(govSpec), badges: n => n.gov ? n.gov.kinds.map(k => govSpec(GOV_BY_KEY[k])) : [],
-      head: 'Government Reach', lead: true, tray: { label: 'Gov', max: 120 }, chip: 'Government Reach' }),
+      head: 'Government Reach', lead: true, chip: 'Government Reach' }),
   ];
 
   // Filters: "everyone", one per facet, the anti-democracy chip, and one per kind of government reach.
@@ -140,13 +130,12 @@
       const lead = f.lead ? `<div>${f.badges(n).map(s => pill(s.label, s.color, { icon: s.icon, title: s.title })).join(' ')}</div>` : '';
       return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon);
     }).join(''),
-    tray: n => FACETS.filter(f => f.tray && f.has(n) && f.text(n)).map(f => trayRow(f.color, f.tray.label, f.text(n), f.tray.max || 110, f.icon)).join(''),
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
+  const stage = $('#stage'), ov = $('#ov'), mainEl = $('main'), sideEl = $('#side');
   const els = {}; // node id -> card element
-  let pinned = null, filt = 'all', term = '', trayTimer = null, resizeFrame = 0;
+  let pinned = null, filt = 'all', term = '', resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null; // 'how is A connected to B' state
   const redrawPinned = () => paintSelection();
 
@@ -309,7 +298,6 @@
   function setFilter(k) { filt = k; syncFilterButtons(); clearSelection(); }
   const toggleFilter = k => setFilter(filt === k && k !== 'all' ? 'all' : k); // clicking the active filter again clears it
   function pin(id) {
-    hideTray();
     if (!side.isOpen()) side.set(true, true);
     unpin();
     pinned = id;
@@ -327,9 +315,9 @@
     setDim(neighbours(pinned));
     draw(pinned);
   }
-  // hover or keyboard focus on a card: spotlight it and open the tray (unless something is pinned)
-  function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id); showTray(id); }
-  function endPreview() { reset(); hideTray(); }
+  // hover or keyboard focus on a card: spotlight it and draw its connections (unless something is pinned)
+  function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id); }
+  function endPreview() { reset(); }
 
   // ---------- how is A connected to B ----------
   // Breadth-first search over the connections, ignoring their direction; optionally refusing to route through the hub.
@@ -407,48 +395,6 @@
     if (card && els[card]) { pin(card); if (to && els[to] && to !== card) setPath(to); }
   }
 
-  // ---------- hover tray ----------
-  function hideTray() { clearTimeout(trayTimer); tray.classList.remove('show'); tray.setAttribute('aria-hidden', 'true'); }
-  function trayItems(id, viewRect) {
-    const position = r => r.bottom < viewRect.top + OFFSCREEN_MARGIN ? 'up' : (r.top > viewRect.bottom - OFFSCREEN_MARGIN ? 'down' : '');
-    return consOf(id).map(e => { const o = other(e, id); return { o, e, p: els[o] ? position(els[o].getBoundingClientRect()) : '' }; })
-      .sort((x, y) => (!!y.p) - (!!x.p)); // off-screen people first
-  }
-  function trayHtml(id, items) {
-    const cap = isHub(id) ? TRAY_CAP.hub : TRAY_CAP.other, offscreen = items.filter(i => i.p).length;
-    const person = ({ o, e, p }) => `<div class="chip2 cat-${N[o].cat}">`
-      + (p ? `<i>${p === 'up' ? '&uarr; Above' : '&darr; Below'}</i>` : '')
-      + `<b>${esc(N[o].name)}</b>`
-      + (N[o].sub.length ? `<span class="sb">${plain(N[o].sub.join(' · '))}</span>` : '')
-      + `<span class="rl">${arrow(e, id)} ${plain(e.label || 'connected')}</span>${facetHtml.tray(N[o])}</div>`;
-    return `<div class="th">Connected to <b>${esc(N[id].name)}</b> &middot; ${items.length}${offscreen ? ` &middot; ${offscreen} off-screen shown first` : ''}</div>`
-      + `<div class="chips">${items.slice(0, cap).map(person).join('')}`
-      + (items.length > cap ? `<div class="chip2"><span>+${items.length - cap} more (click the card to see all in the side panel)</span></div>` : '')
-      + '</div>';
-  }
-  // Put the tray above or below the card, whichever has room; fall back to a compact tray if neither fits.
-  function placeTray(cardRect, viewRect) {
-    tray.style.maxHeight = ''; tray.classList.remove('compact');
-    const need = tray.offsetHeight + TRAY_GAP, roomTop = cardRect.top - viewRect.top, roomBot = viewRect.bottom - cardRect.bottom;
-    const above = roomTop >= need ? (roomBot >= need ? roomTop <= roomBot : true) : (roomBot >= need ? false : roomTop > roomBot);
-    tray.classList.toggle('top', above); tray.classList.toggle('bot', !above);
-    const room = (above ? roomTop : roomBot) - TRAY_FIT_SLACK;
-    if (need - TRAY_GAP > room) {
-      tray.classList.add('compact');
-      if (tray.offsetHeight > room) tray.style.maxHeight = Math.max(TRAY_MIN_HEIGHT, room) + 'px';
-    }
-  }
-  function showTray(id) {
-    clearTimeout(trayTimer);
-    trayTimer = setTimeout(() => {
-      if (!consOf(id).length) return;
-      const viewRect = $('#view').getBoundingClientRect();
-      tray.innerHTML = trayHtml(id, trayItems(id, viewRect));
-      placeTray(els[id].getBoundingClientRect(), viewRect);
-      tray.classList.add('show'); tray.setAttribute('aria-hidden', 'false');
-    }, TRAY_DELAY_MS);
-  }
-
   // ---------- details panel ----------
   const sourcesHtml = n => n.sources && n.sources.length
     ? block('accent', 'Sources Cited in the Book (to Fact-Check)',
@@ -507,7 +453,7 @@
   help.addEventListener('click', e => { if (e.target === help) help.close(); });
 
   // keyboard shortcuts (ignored while typing)
-  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); }, escape: () => { hideTray(); if (pinned) clearSelection(); } });
+  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); }, escape: () => { if (pinned) clearSelection(); } });
   addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
     const act = keyActions[e.key.toLowerCase()];
