@@ -1,8 +1,8 @@
 // Thiel network map behaviour. Content lives in data.js, styling in styles.css.
-// To add a badge/detail type, add one entry to FACETS; to add a filter, add one entry to FILTERS.
+// To add a badge/detail type or a filter chip, add one entry to FACETS. Kinds of government reach live in GOV.
 (() => {
   'use strict';
-  const N = DATA.nodes, E = DATA.edges, CAT = DATA.cats;
+  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS } = DATA;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
   // ---------- configuration ----------
@@ -10,35 +10,22 @@
   const TRAY_DELAY_MS = 140;               // hover pause before the connection tray opens
   const TRAY_CAP = { hub: 12, other: 16 }; // max people listed in the tray
   const TRAY_GAP = 24;                     // breathing room needed around the tray
+  const TRAY_FIT_SLACK = 20;               // extra room kept clear when deciding whether the tray fits
   const TRAY_MIN_HEIGHT = 110;
+  const OFFSCREEN_MARGIN = 8;              // a card this close to the viewport edge counts as off-screen
   const LABEL_MAX = 46;                    // longest line label drawn on the map
+  const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
 
-  // Category sections in display order; span = grid columns (of 12) on wide screens.
-  const SECTIONS = [['infl', 5], ['pp', 7], ['neo', 12], ['pol', 12], ['prot', 12], ['faith', 12], ['net', 12], ['oth', 12], ['obs', 12]];
-
-  // Kinds of government reach; color names map to .c-<color> classes in styles.css.
-  const GOV = {
-    contractor: { color: 'navy', icon: 'contractor', pill: 'Gov Contractor', title: 'Government contractor', reach: 'Government Contractors' },
-    official: { color: 'gold', icon: 'official', pill: 'In Government', title: 'Holds or held a government role', reach: 'In Government' },
-    influence: { color: 'slate', icon: 'influence', pill: 'Gov Influence', title: 'Investor or lobbyist with government reach', reach: 'With Government Influence' },
-    abroad: { color: 'teal', icon: 'abroad', pill: 'Abroad', title: 'Dealings with non-US governments', reach: 'Dealing with Other Governments' },
-  };
-  const REACH_ORDER = ['official', 'contractor', 'influence', 'abroad'];
-
-  // Filters. Entries with `chip` become buttons in the bar; the rest are triggered from the summary counts.
-  const FILTERS = {
-    all: { chip: 'Everyone', test: () => true },
-    anti: { chip: 'Anti-Democracy / Exit Views', color: 'red', icon: 'views', test: n => n.anti },
-    faith: { chip: 'Christian Nationalism', color: 'purple', icon: 'faith', test: n => n.faith || n.cat === 'faith' },
-    fund: { chip: 'Funded by Thiel', color: 'green', icon: 'fund', test: n => n.fund },
-    views: { test: n => n.anti || n.views },
-    cos: { test: n => n.cos && n.cat !== 'net' },
-    crypto: { chip: 'Crypto', color: 'sky', icon: 'crypto', test: n => n.crypto },
-    net: { chip: 'Network States', color: 'net', icon: 'net', test: n => n.cat === 'net' },
-    gov: { chip: 'Government Reach', color: 'navy', icon: 'official', test: n => n.gov },
-    ...Object.fromEntries(Object.keys(GOV).map(k => [`gov:${k}`, { test: n => n.gov && n.gov.kinds.includes(k) }])),
-  };
+  // Kinds of government reach, in display order; colour names map to .c-<colour> classes in styles.css.
+  const GOV = [
+    { key: 'official', color: 'gold', icon: 'official', pill: 'In Government', title: 'Holds or held a government role', reach: 'In Government' },
+    { key: 'contractor', color: 'navy', icon: 'contractor', pill: 'Gov Contractor', title: 'Government contractor', reach: 'Government Contractors' },
+    { key: 'influence', color: 'slate', icon: 'influence', pill: 'Gov Influence', title: 'Investor or lobbyist with government reach', reach: 'With Government Influence' },
+    { key: 'abroad', color: 'teal', icon: 'abroad', pill: 'Abroad', title: 'Dealings with non-US governments', reach: 'Dealing with Other Governments' },
+  ];
+  const GOV_BY_KEY = Object.fromEntries(GOV.map(g => [g.key, g]));
+  const govSpec = g => ({ label: g.pill, color: g.color, icon: g.icon, f: `gov:${g.key}`, title: g.title });
 
   // ---------- small helpers ----------
   const storage = {
@@ -48,10 +35,18 @@
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const cut = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
   const other = (e, id) => e.a === id ? e.b : e.a;
-  const consOf = id => E.filter(e => e.a === id || e.b === id);
+  const isHub = id => id === HUB;
   const arrow = (e, id) => e.kind === 'plain' ? '&harr;' : (e.a === id ? '&rarr;' : '&larr;');
   const countWhere = test => Object.values(N).filter(test).length;
-  const extLink = (cls, href, label, attrs = '') => `<a class="${cls}" href="${href}" target="_blank" rel="noopener" ${attrs}>${label}</a>`;
+  const extLink = (cls, href, label, attrs = '') => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener" ${attrs}>${label}</a>`;
+
+  // adjacency, built once: node id -> its edges
+  const EDGES_OF = {};
+  E.forEach(e => { (EDGES_OF[e.a] ||= []).push(e); (EDGES_OF[e.b] ||= []).push(e); });
+  const consOf = id => EDGES_OF[id] || [];
+  // how each node relates to the hub: the label of its first edge to or from it
+  const rel = {};
+  consOf(HUB).forEach(e => { const o = other(e, HUB); if (!(o in rel)) rel[o] = e.label; });
 
   // text formatting: escape, then optionally add Wikipedia links, then wrap money amounts
   const MONEY = /\$\d[\d,]*(?:\.\d+)?(?:\s?(?:billion|million|thousand)|[KMB])?\+?/g;
@@ -65,10 +60,8 @@
   const svgText = s => money(esc(s), 'tspan');  // inside SVG <text>
   const bold = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
 
-  // ---------- facets: one entry per kind of badge / detail block ----------
-  // pills(n) -> card badges; panel(n) -> details-panel block; tray(n) -> hover-tray row;
-  // legend -> [[[pill text, color], description], ...]
-  // Line icons (24x24 grid, drawn with currentColor) shared by badges, panel headings and tray labels.
+  // ---------- icons, badges and detail blocks ----------
+  // Line icons (24x24 grid, drawn with currentColor) shared by badges, panel headings, tray labels and chips.
   const ICON_PATHS = {
     views: '<path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/>',
     faith: '<path d="M12 3v18M6.5 9h11"/>',
@@ -82,57 +75,78 @@
     abroad: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.5 3.2 3.5 14.8 0 18M12 3c-3.5 3.2-3.5 14.8 0 18"/>',
   };
   const icon = name => `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
-  // A badge. With `f` it filters the map when clicked; card badges stay out of the tab order (the legend ones are the keyboard route).
-  const pill = (text, color, { icon: ic, title = '', f = '', tab = true, only = false } = {}) => {
-    // `only`: icon alone (card badges); the words move to the tooltip and screen-reader label
-    const inner = (ic ? icon(ic) : '') + (only ? '' : text), cls = `pill c-${color}${only ? ' only' : ''}`;
-    const t = only ? ` title="${esc(title || text)}" aria-label="${esc(text)}"` : title ? ` title="${title}"` : '';
-    return f ? `<button type="button" class="${cls}" data-f="${f}"${t}${tab ? '' : ' tabindex="-1"'}>${inner}</button>` : `<span class="${cls}"${t}>${inner}</span>`;
-  };
-  const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${ic ? icon(ic) : ''}${head}</span>${body}</div>`;
-  // the tray is display-only (pointer-events: none), so its text carries no links
-  const trayRow = (color, label, text, max, ic) => `<span class="d c-${color}"><em>${ic ? icon(ic) : ''}${label}</em>${plain(cut(text, max))}</span>`;
+  const iconed = (name, html) => (name ? icon(name) : '') + html;
 
+  // A badge. With `f` a click filters the map. `compact` is the card form: icon only, with the words in the tooltip and
+  // screen-reader label; it is clickable but not focusable (the legend badges are the keyboard route to the same filters).
+  function pill(label, color, { icon: ic, f = '', title = '', compact = false } = {}) {
+    const cls = `pill c-${color}${compact ? ' only' : ''}`, data = f ? ` data-f="${f}"` : '';
+    if (compact) return `<span class="${cls}" role="img" aria-label="${esc(label)}" title="${esc(title || label)}"${data}>${iconed(ic, '')}</span>`;
+    const tip = title ? ` title="${esc(title)}"` : '';
+    return f ? `<button type="button" class="${cls}"${data}${tip}>${iconed(ic, esc(label))}</button>` : `<span class="${cls}"${tip}>${iconed(ic, esc(label))}</span>`;
+  }
+  const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}</span>${body}</div>`;
+  // the tray is display-only (pointer-events: none), so its text carries no links
+  const trayRow = (color, label, text, max, ic) => `<span class="d c-${color}"><em>${iconed(ic, label)}</em>${plain(cut(text, max))}</span>`;
+
+  // Facets: one entry per kind of badge / detail block / filter chip. Fields:
+  //   key + color + icon       identity (key is also the filter id and, by default, the node field it reads)
+  //   label, desc              badge text and its legend description (no label: no badge, e.g. network states)
+  //   has(n), text(n)          whether a node gets the badge/block, and the text shown (default: n[key])
+  //   head                     details-panel heading (string or fn); no head: no panel block
+  //   tray {label, max}        hover-tray row; no tray: none
+  //   chip                     text of the filter chip; chipId/chipTest add a second filter (anti-democracy)
+  //   filter(n)                what the filter matches (default: has)
+  const facet = def => {
+    const f = { has: n => n[def.key], text: n => n[def.key], ...def };
+    if (f.label) {
+      f.specs ||= [{ label: f.label, color: f.color, icon: f.icon, f: f.key, title: f.desc }];
+      f.badges ||= n => f.has(n) ? f.specs : [];
+    }
+    return f;
+  };
   const FACETS = [
-    { legend: [[['Views', 'red', { icon: 'views', f: 'views' }], 'Anti-democracy / exit views']],
-      pills: n => n.anti || n.views ? pill('Views', 'red', { icon: 'views', f: 'views', tab: false, only: true }) : '',
-      panel: n => n.anti ? block('red', 'Anti-Democracy / Exit Views', fmt(n.views || 'Flagged in the book as echoing these views'), 'views')
-        : n.views ? block('red', 'Views', fmt(n.views), 'views') : '',
-      tray: n => n.views ? trayRow('red', 'Views', n.views, 110, 'views') : '' },
-    { legend: [[['Christian Nationalism', 'purple', { icon: 'faith', f: 'faith' }], 'Christian nationalist tie']],
-      pills: n => n.faith ? pill('Christian Nationalism', 'purple', { icon: 'faith', f: 'faith', tab: false, only: true }) : '',
-      panel: n => n.faith ? block('purple', 'Christian Nationalist Association', fmt(n.faith), 'faith') : '',
-      tray: n => n.faith ? trayRow('purple', 'Christian Nationalism', n.faith, 110, 'faith') : '' },
-    { legend: [[['Funding', 'green', { icon: 'fund', f: 'fund' }], 'Thiel funding']],
-      pills: n => n.fund ? pill('Funding', 'green', { icon: 'fund', f: 'fund', tab: false, only: true }) : '',
-      panel: n => n.fund ? block('green', 'Thiel Funding', fmt(n.fund), 'fund') : '',
-      tray: n => n.fund ? trayRow('green', 'Thiel $', n.fund, 110, 'fund') : '' },
-    { legend: [[['Companies', 'pink', { icon: 'cos', f: 'cos' }], 'Companies listed']],
-      pills: n => n.cos && n.cat !== 'net' ? pill('Companies', 'pink', { icon: 'cos', f: 'cos', tab: false, only: true }) : '',
-      panel: n => n.cos ? block('pink', 'Companies / Projects', fmt(n.cos), 'cos') : '',
-      tray: n => n.cos && n.cat !== 'net' ? trayRow('pink', 'Companies', n.cos, 90, 'cos') : '' },
-    { legend: [[['Crypto', 'sky', { icon: 'crypto', f: 'crypto' }], 'Crypto tie']],
-      pills: n => n.crypto ? pill('Crypto', 'sky', { icon: 'crypto', f: 'crypto', tab: false, only: true }) : '',
-      panel: n => n.crypto ? block('sky', 'Crypto', fmt(n.crypto), 'crypto') : '',
-      tray: n => n.crypto ? trayRow('sky', 'Crypto', n.crypto, 110, 'crypto') : '' },
-    { legend: Object.entries(GOV).map(([k, g]) => [[g.pill, g.color, { icon: g.icon, f: `gov:${k}` }], g.title]),
-      pills: n => n.gov ? n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, f: `gov:${k}`, tab: false, only: true, title: GOV[k].title })).join('') : '',
-      panel: n => n.gov ? block('navy', 'Government Reach',
-        `<div>${n.gov.kinds.map(k => pill(GOV[k].pill, GOV[k].color, { icon: GOV[k].icon, title: GOV[k].title })).join(' ')}</div><div class="body">${fmt(n.gov.text)}</div>`, 'official') : '',
-      tray: n => n.gov ? trayRow('navy', 'Gov', n.gov.text, 120, 'official') : '' },
+    facet({ key: 'views', color: 'red', icon: 'views', label: 'Views', desc: 'Anti-democracy / exit views',
+      has: n => n.anti || n.views, fallback: 'Flagged in the book as echoing these views',
+      head: n => n.anti ? 'Anti-Democracy / Exit Views' : 'Views', tray: { label: 'Views' },
+      chip: 'Anti-Democracy / Exit Views', chipId: 'anti', chipTest: n => n.anti }),
+    facet({ key: 'faith', color: 'purple', icon: 'faith', label: 'Christian Nationalism', desc: 'Christian nationalist tie',
+      head: 'Christian Nationalist Association', tray: { label: 'Christian Nationalism' },
+      chip: 'Christian Nationalism', filter: n => n.faith || n.cat === 'faith' }),
+    facet({ key: 'fund', color: 'green', icon: 'fund', label: 'Funding', desc: 'Thiel funding',
+      head: 'Thiel Funding', tray: { label: 'Thiel $' }, chip: 'Funded by Thiel' }),
+    facet({ key: 'cos', color: 'pink', icon: 'cos', label: 'Companies', desc: 'Companies listed',
+      head: 'Companies / Projects', tray: { label: 'Companies', max: 90 } }),
+    facet({ key: 'crypto', color: 'sky', icon: 'crypto', label: 'Crypto', desc: 'Crypto tie',
+      head: 'Crypto', tray: { label: 'Crypto' }, chip: 'Crypto' }),
+    facet({ key: 'net', color: 'net', icon: 'net', has: n => n.cat === 'net', chip: 'Network States' }),
+    facet({ key: 'gov', color: 'navy', icon: 'official', label: 'Government Reach', has: n => n.gov, text: n => n.gov.text,
+      specs: GOV.map(govSpec), badges: n => n.gov ? n.gov.kinds.map(k => govSpec(GOV_BY_KEY[k])) : [],
+      head: 'Government Reach', lead: true, tray: { label: 'Gov', max: 120 }, chip: 'Government Reach' }),
   ];
-  const facetHtml = (kind, n) => FACETS.map(f => f[kind](n)).join('');
+
+  // Filters: "everyone", one per facet, the anti-democracy chip, and one per kind of government reach.
+  const FILTERS = { all: { chip: 'Everyone', test: () => true } };
+  FACETS.forEach(f => {
+    const look = { color: f.color, icon: f.icon };
+    FILTERS[f.key] = { test: f.filter || f.has, chip: f.chipId ? undefined : f.chip, ...look }; // with chipId, the chip filters on chipTest instead
+    if (f.chipId) FILTERS[f.chipId] = { test: f.chipTest, chip: f.chip, ...look };
+  });
+  GOV.forEach(g => { FILTERS[`gov:${g.key}`] = { test: n => n.gov && n.gov.kinds.includes(g.key) }; });
+
+  const facetHtml = {
+    pills: n => FACETS.flatMap(f => f.badges ? f.badges(n) : []).map(s => pill(s.label, s.color, { icon: s.icon, f: s.f, title: s.title, compact: true })).join(''),
+    panel: n => FACETS.filter(f => f.head && f.has(n)).map(f => {
+      const lead = f.lead ? `<div>${f.badges(n).map(s => pill(s.label, s.color, { icon: s.icon, title: s.title })).join(' ')}</div>` : '';
+      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon);
+    }).join(''),
+    tray: n => FACETS.filter(f => f.tray && f.has(n) && f.text(n)).map(f => trayRow(f.color, f.tray.label, f.text(n), f.tray.max || 110, f.icon)).join(''),
+  };
 
   // ---------- state ----------
-  // How each node relates to the hub: the label of its first edge to or from it.
-  const rel = {};
-  E.forEach(e => {
-    [[e.a, e.b], [e.b, e.a]].forEach(([from, to]) => { if (from === HUB && !rel[to]) rel[to] = e.label; });
-  });
   const stage = $('#stage'), ov = $('#ov'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
   const els = {}; // node id -> card element
-  let pinned = null, filt = 'all', term = '', trayTimer = null;
-  const isHub = id => id === HUB;
+  let pinned = null, filt = 'all', term = '', trayTimer = null, resizeFrame = 0;
   const redrawPinned = () => { if (pinned) draw(pinned, !isHub(pinned)); };
 
   // ---------- panel toggles (legend and details panel share one mechanism) ----------
@@ -157,64 +171,62 @@
     const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
     $('#legend').innerHTML =
       row('Box Colour', SECTIONS.map(([k]) => lg(`<i class="sw cat-${k}"></i>`, `<span class="cat-${k} lg-cat">${CAT[k]}</span>`))) +
-      row('Badges', FACETS.flatMap(f => f.legend.map(([p, d]) => lg(pill(...p), d)))) +
+      row('Badges', FACETS.flatMap(f => f.specs || []).map(s => lg(pill(s.label, s.color, { icon: s.icon, f: s.f }), esc(s.title)))) +
       row('Marks', [
         lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
         lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
+        lg('<span class="wp static cat-center">&#8599;</span>', 'Link chosen for the card (article or interview)'),
         lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
         lg('<span class="money">$15M</span>', 'Money amount'),
       ]);
   }
   function renderChips() {
     const chips = Object.entries(FILTERS).filter(([, f]) => f.chip)
-      .map(([k, f]) => `<button class="chip${f.color ? ` c-${f.color}` : ''}" data-f="${k}">${f.icon ? icon(f.icon) : ''}${f.chip}</button>`).join('');
+      .map(([k, f]) => `<button class="btn chip${f.color ? ` tinted c-${f.color}` : ''}" data-f="${k}">${iconed(f.icon, f.chip)}</button>`).join('');
     $('#filters').insertAdjacentHTML('beforeend', chips);
   }
-  const syncChips = () => $$('[data-f]').forEach(c => {
-    const on = c.dataset.f === filt;
-    c.classList.toggle('on', on);
-  });
+  // everything that sets a filter (chips, badges, counts) shows which one is active
+  const syncFilterButtons = () => $$('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filt));
 
   // ---------- cards and sections ----------
-  function card(n, extra = '', inner = '') {
-    const flags = [n.anti && 'anti', n.cat === 'net' && 'net', extra].filter(Boolean).join(' ');
-    const pills = facetHtml('pills', n);
-    return `<div class="card cat-${n.cat} ${flags}" data-id="${n.id}">`
+  // the small round link in a card's corner (Wikipedia "W", or the card's own link)
+  const cornerLink = (url, mark, title, cls = '') => extLink(`wp${cls}`, url, mark, `title="${esc(title)}" aria-label="${esc(title)} (opens in a new tab)"`);
+  function card(n, { cls = '', lines = '', tail = '' } = {}) {
+    const flags = [n.anti && 'anti', n.cat === 'net' && 'net', cls].filter(Boolean).join(' ');
+    const pills = facetHtml.pills(n);
+    return `<div class="card cat-${n.cat} ${flags}" data-id="${esc(n.id)}">`
       + `<button type="button" class="n">${esc(n.name)}</button>`
       + (n.sub.length ? `<div class="s">${fmt(n.sub.join(' · '))}</div>` : '')
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
-      + (isHub(n.id) ? `<div class="r">${fmt(n.cos)}</div><div class="r">${fmt(n.faith)}</div>` : '')
+      + lines
       + (pills ? `<div class="pills">${pills}</div>` : '')
-      + (n.wiki ? extLink('wp', n.wiki, 'W', `title="Open Wikipedia article" aria-label="Wikipedia article: ${esc(n.name)} (opens in a new tab)"`) : '')
-      + (n.link ? extLink(`wp${n.wiki ? ' alt' : ''}`, n.link.u, '&#8599;', `title="${esc(n.link.l)}" aria-label="${esc(n.link.l)} (opens in a new tab)"`) : '')
-      + inner + '</div>';
+      + (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`) : '')
+      + (n.link ? cornerLink(n.link.u, '&#8599;', n.link.l, n.wiki ? ' alt' : '') : '')
+      + tail + '</div>';
   }
-  const stat = (filter, color, count, label, ic) => `<button class="stat c-${color}" data-f="${filter}">${icon(ic)}<b>${count}</b>${label}</button>`;
+  const stat = (g, count) => `<button class="stat c-${g.color}" data-f="gov:${g.key}">${icon(g.icon)}<b>${count}</b>${g.reach}</button>`;
 
   function renderStage() {
-    const reach = `<section class="band c-navy"><h2>Reach Into Government</h2><div class="row">`
-      + REACH_ORDER.map(k => stat(`gov:${k}`, GOV[k].color, countWhere(FILTERS[`gov:${k}`].test), GOV[k].reach, GOV[k].icon)).join('')
-      + `</div><div class="facts">${DATA.facts.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
+    const reach = `<section class="reach"><h2>Reach Into Government</h2><div class="row">`
+      + GOV.map(g => stat(g, countWhere(FILTERS[`gov:${g.key}`].test))).join('')
+      + `</div><div class="facts">${FACTS.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
+    const hub = N[HUB];
+    const hubLines = [hub.cos, hub.faith].filter(Boolean).map(t => `<div class="r">${fmt(t)}</div>`).join('');
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
-      return ns.length ? `<section class="sec cat-${k}" style="grid-column:span ${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
+      return ns.length ? `<section class="sec cat-${k}" style="--span:${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
     }).join('');
-    stage.insertAdjacentHTML('afterbegin', `<div class="hero-wrap">${card(N[HUB], 'hero', reach)}</div>` + sections);
+    stage.insertAdjacentHTML('afterbegin', card(hub, { cls: 'hero', lines: hubLines, tail: reach }) + sections);
     $$('.card').forEach(c => { els[c.dataset.id] = c; });
   }
 
   // ---------- connection lines ----------
-  function relBox(el) {
-    const a = el.getBoundingClientRect(), b = stage.getBoundingClientRect();
-    return { x: a.left - b.left, y: a.top - b.top, w: a.width, h: a.height };
-  }
-  const centre = b => [b.x + b.w / 2, b.y + b.h / 2];
-  function edgeSvg(e, i, withLabels) {
+  function edgeSvg(e, i, withLabels, centreOf) {
     const cat = N[e.a].cat;
-    const [ax, ay] = centre(relBox(els[e.a])), [bx, by] = centre(relBox(els[e.b]));
+    const [ax, ay] = centreOf(e.a), [bx, by] = centreOf(e.b);
     const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
-    const bend = Math.min(120, len * .25) * (i % 2 ? 1 : -1); // alternate curve direction so parallel lines don't overlap
+    const bend = Math.min(BEND.max, len * BEND.ratio) * (i % 2 ? 1 : -1); // alternate curve direction so parallel lines don't overlap
     const cx = (ax + bx) / 2 - dy / len * bend, cy = (ay + by) / 2 + dx / len * bend;
     const marker = e.kind === 'plain' ? '' : ` marker-end="url(#ah-${cat})"`;
     let svg = `<path class="edge ${e.kind} cat-${cat}" d="M${ax},${ay} Q${cx},${cy} ${bx},${by}"${marker}/>`;
@@ -226,13 +238,17 @@
   function draw(id, withLabels) {
     ov.setAttribute('width', stage.scrollWidth);
     ov.setAttribute('height', stage.scrollHeight);
-    const edges = consOf(id).filter(e => els[other(e, id)]).map((e, i) => edgeSvg(e, i, withLabels));
+    // read every position first (one stage rect, one rect per card), then build the markup
+    const origin = stage.getBoundingClientRect(), centres = {};
+    const centreOf = nid => centres[nid] ||= (r => [r.left - origin.left + r.width / 2, r.top - origin.top + r.height / 2])(els[nid].getBoundingClientRect());
+    const edges = consOf(id).filter(e => els[other(e, id)]).map((e, i) => edgeSvg(e, i, withLabels, centreOf));
     const markers = [...new Set(edges.map(x => x.cat))].map(c =>
       `<marker id="ah-${c}" class="cat-${c}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>`).join('');
     ov.innerHTML = `<defs>${markers}</defs>${edges.map(x => x.svg).join('')}`;
   }
 
   // ---------- dimming, filtering, pinning ----------
+  // The hub never dims: the government counts inside its card are controls and must stay readable.
   const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id) && !isHub(id)));
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
   const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.sub.join(' '), rel[n.id] || ''].join(' ').toLowerCase();
@@ -245,10 +261,11 @@
   const reset = () => { ov.innerHTML = ''; applyFilter(); };
   function unpin() {
     pinned = null;
-    $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').setAttribute('aria-pressed', 'false'); });
+    $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
   }
   function clearSelection() { unpin(); reset(); }
-  function setFilter(k) { filt = k; syncChips(); clearSelection(); }
+  function setFilter(k) { filt = k; syncFilterButtons(); clearSelection(); }
+  const toggleFilter = k => setFilter(filt === k && k !== 'all' ? 'all' : k); // clicking the active filter again clears it
   function pin(id) {
     hideTray();
     if (!side.isOpen()) side.set(true, true);
@@ -267,7 +284,7 @@
   // ---------- hover tray ----------
   function hideTray() { clearTimeout(trayTimer); tray.classList.remove('show'); tray.setAttribute('aria-hidden', 'true'); }
   function trayItems(id, viewRect) {
-    const position = r => r.bottom < viewRect.top + 8 ? 'up' : (r.top > viewRect.bottom - 8 ? 'down' : '');
+    const position = r => r.bottom < viewRect.top + OFFSCREEN_MARGIN ? 'up' : (r.top > viewRect.bottom - OFFSCREEN_MARGIN ? 'down' : '');
     return consOf(id).map(e => { const o = other(e, id); return { o, e, p: els[o] ? position(els[o].getBoundingClientRect()) : '' }; })
       .sort((x, y) => (!!y.p) - (!!x.p)); // off-screen people first
   }
@@ -277,7 +294,7 @@
       + (p ? `<i>${p === 'up' ? '&uarr; Above' : '&darr; Below'}</i>` : '')
       + `<b>${esc(N[o].name)}</b>`
       + (N[o].sub.length ? `<span class="sb">${plain(N[o].sub.join(' · '))}</span>` : '')
-      + `<span class="rl">${arrow(e, id)} ${plain(e.label || 'connected')}</span>${facetHtml('tray', N[o])}</div>`;
+      + `<span class="rl">${arrow(e, id)} ${plain(e.label || 'connected')}</span>${facetHtml.tray(N[o])}</div>`;
     return `<div class="th">Connected to <b>${esc(N[id].name)}</b> &middot; ${items.length}${offscreen ? ` &middot; ${offscreen} off-screen shown first` : ''}</div>`
       + `<div class="chips">${items.slice(0, cap).map(person).join('')}`
       + (items.length > cap ? `<div class="chip2"><span>+${items.length - cap} more (click the card to see all in the side panel)</span></div>` : '')
@@ -289,7 +306,7 @@
     const need = tray.offsetHeight + TRAY_GAP, roomTop = cardRect.top - viewRect.top, roomBot = viewRect.bottom - cardRect.bottom;
     const above = roomTop >= need ? (roomBot >= need ? roomTop <= roomBot : true) : (roomBot >= need ? false : roomTop > roomBot);
     tray.classList.toggle('top', above); tray.classList.toggle('bot', !above);
-    const room = (above ? roomTop : roomBot) - 20;
+    const room = (above ? roomTop : roomBot) - TRAY_FIT_SLACK;
     if (need - TRAY_GAP > room) {
       tray.classList.add('compact');
       if (tray.offsetHeight > room) tray.style.maxHeight = Math.max(TRAY_MIN_HEIGHT, room) + 'px';
@@ -314,7 +331,7 @@
     : '';
   const connectionButton = (e, id) => {
     const o = other(e, id);
-    return `<button class="con cat-${N[o].cat}" data-go="${o}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
+    return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
@@ -323,7 +340,7 @@
       + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : '')
       + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
-      + facetHtml('panel', n)
+      + facetHtml.panel(n)
       + sourcesHtml(n)
       + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''));
     sideEl.scrollTop = 0;
@@ -336,7 +353,7 @@
   renderLegend();
   renderChips();
   renderStage();
-  syncChips();
+  syncFilterButtons();
 
   const side = panelToggle({
     store: STORE.side, key: 'd', buttons: [$('#sideBtn'), $('#sideTab')],
@@ -367,22 +384,23 @@
     if (act) act();
   });
 
-  // pointer and keyboard focus both preview a card
-  const cardOf = e => e.target.closest('.card');
-  [['mouseover', 'focusin', previewCard], ['mouseout', 'focusout', endPreview]].forEach(([pointerEvt, focusEvt, handler]) => {
+  // Pointer and keyboard focus both preview a card. These events also fire when moving between a card's own children,
+  // so act only when the pointer or focus actually enters or leaves a card.
+  const cardOf = node => node && node.closest ? node.closest('.card') : null;
+  [['mouseover', 'focusin', previewCard, 'enter'], ['mouseout', 'focusout', endPreview, 'leave']].forEach(([pointerEvt, focusEvt, handler]) => {
     [pointerEvt, focusEvt].forEach(type => document.addEventListener(type, e => {
-      const c = cardOf(e);
-      if (c && !pinned) handler(c.dataset.id);
+      const c = cardOf(e.target);
+      if (c && !pinned && c !== cardOf(e.relatedTarget)) handler(c.dataset.id);
     }));
   });
 
   document.addEventListener('click', e => {
     const f = e.target.closest('[data-f]');
-    if (f) { setFilter(filt === f.dataset.f && filt !== 'all' ? 'all' : f.dataset.f); return; }
+    if (f) { toggleFilter(f.dataset.f); return; }
     const go = e.target.closest('[data-go]');
     if (go) { pin(go.dataset.go); els[go.dataset.go].scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
     if (e.target.closest('a')) return; // external links
-    const c = cardOf(e);
+    const c = cardOf(e.target);
     if (c) { pin(c.dataset.id); return; }
     if (!e.target.closest('aside,header,.bar') && pinned) clearSelection();
   });
@@ -408,5 +426,5 @@
     storage.set(STORE.theme, root.dataset.theme);
     syncThemeSwitch();
   });
-  addEventListener('resize', redrawPinned);
+  addEventListener('resize', () => { cancelAnimationFrame(resizeFrame); resizeFrame = requestAnimationFrame(redrawPinned); });
 })();

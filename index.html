@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Thiel Network Map</title>
 <!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
-<link rel="stylesheet" href="styles.css?v=1.33">
+<link rel="stylesheet" href="styles.css?v=1.34">
 </head><body>
 <header>
  <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>from <a href="https://www.thenerdreich.com/" target="_blank" rel="noopener"><i>The Nerd Reich</i></a> by <a href="https://www.gilduran.com/" target="_blank" rel="noopener">Gil Duran</a>. Hover a card to trace its links, click for details</small></h1>
@@ -12,9 +12,9 @@
    <input type="search" id="q" placeholder="Search a name or company" aria-label="Search a name or company">
    <button type="button" id="qClear" aria-label="Clear search" title="Clear search" hidden>&times;</button>
   </div>
-  <button id="helpBtn" title="How to Read This Map (?)" aria-label="How to read this map" aria-haspopup="dialog">?</button>
-  <button id="legendBtn" title="Show or Hide the Legend (L)">Legend</button>
-  <button id="sideBtn" title="Show or Hide the Details Panel (D)">Details Panel</button>
+  <button id="helpBtn" class="btn" title="How to Read This Map (?)" aria-label="How to read this map" aria-haspopup="dialog">?</button>
+  <button id="legendBtn" class="btn" title="Show or Hide the Legend (L)">Legend</button>
+  <button id="sideBtn" class="btn" title="Show or Hide the Details Panel (D)">Details Panel</button>
   <button id="theme" class="switch" role="switch" aria-checked="false" aria-label="Dark mode" title="Switch Between Light and Dark">
    <span class="mode sun" aria-hidden="true">&#9728;&#xFE0E;</span><span class="mode moon" aria-hidden="true">&#9790;&#xFE0E;</span><span class="knob" aria-hidden="true"></span>
   </button>
@@ -22,7 +22,7 @@
 </header>
 <nav class="bar" id="bar" aria-label="Filters and Legend">
  <div class="filters" id="filters">
-  <button id="legendTab" title="Show or Hide the Legend (L)" aria-label="Toggle legend"><span class="chev">&#9662;</span></button>
+  <button id="legendTab" class="btn" title="Show or Hide the Legend (L)" aria-label="Toggle legend"><span class="chev">&#9662;</span></button>
   <span>Show:</span>
  </div>
  <div id="legend"></div>
@@ -30,7 +30,7 @@
 <main>
  <div id="view"><div id="stage"><svg id="ov"></svg></div></div>
  <div id="tray" aria-hidden="true"></div>
- <button id="sideTab" title="Show or Hide the Details Panel (D)" aria-label="Toggle details panel">&#9656;</button>
+ <button id="sideTab" class="btn" title="Show or Hide the Details Panel (D)" aria-label="Toggle details panel">&#9656;</button>
  <aside id="side" aria-label="Details" tabindex="0">
  <h2>Details</h2>
  <p class="hint">Hover any card to trace its links through the map. Click one to pin it and read its companies, Thiel funding, views, Christian nationalist associations and every connection. Click the background to clear. Use the filters above to spotlight anti-democracy views, Christian Nationalism, Thiel funding or network states.</p>
@@ -39,14 +39,14 @@
 
 <template id="howto">
  <h2 id="helpTitle">How to Read This</h2>
- Each card is a person, company or project the book connects to Thiel. Its colour is its category, a <b class="t-red">red dashed border</b> means anti-democracy or exit views, the round icons on a card tell you what more is in the detail panel (the legend explains each one). Cards with a notched shape are network states or startup cities. A round <b>W</b> on a card, and the dotted-underlined names in the text, open Wikipedia articles (only where a matching one exists). The details panel also lists <b>sources cited in the book</b> for key claims, so they can be fact-checked. Everything here is the book's account. The line under each name is how that card relates to Thiel.
+ Each card is a person, company or project the book connects to Thiel. The <b>Legend</b> (L) explains the box colours, borders, round icons and links, and clicking any icon, filter or count spotlights the matching cards (click it again to clear). The details panel lists <b>sources cited in the book</b> for key claims, so they can be fact-checked. Everything here is the book's account. The line under each name is how that card relates to Thiel.
 </template>
 
 <dialog id="help" aria-labelledby="helpTitle">
- <button id="helpClose" aria-label="Close" title="Close (Esc)">&times;</button>
+ <button id="helpClose" class="btn" aria-label="Close" title="Close (Esc)">&times;</button>
  <div id="helpBody"></div>
 </dialog>
 
-<script src="data.js?v=1.33"></script>
-<script src="app.js?v=1.33"></script>
+<script src="data.js?v=1.34"></script>
+<script src="app.js?v=1.34"></script>
 </body></html>
