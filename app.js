@@ -453,7 +453,7 @@
   $('#helpBtn').addEventListener('click', openHelp);
 
   // keyboard shortcuts (ignored while typing)
-  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); } });
+  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); }, escape: () => { if (pinned) clearSelection(); } }); // Esc also closes the open card dialog (clearSelection does it)
   addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
     const act = keyActions[e.key.toLowerCase()];
