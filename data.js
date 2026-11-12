@@ -132,7 +132,7 @@ const DATA={
   {"a":"Chafkin","b":"T","label":"wrote The Contrarian","kind":"weak"},
   {"a":"Benanti","b":"T","label":"critic; \"American Heresy\" essay","kind":"weak"},
   {"a":"Dugin","b":"T","label":"parallel Antichrist rhetoric","kind":"weak"},
-  {"a":"T","b":"Seasteading","label":"$500K","kind":"strong"},
+  {"a":"T","b":"Seasteading","label":"invested $500K","kind":"strong"},
   {"a":"Friedman","b":"Seasteading","label":"founded","kind":"normal"},
   {"a":"Friedman","b":"Pronomos","label":"founded","kind":"normal"},
   {"a":"T","b":"Pronomos","label":"backer, with Andreessen and Srinivasan","kind":"normal"},
