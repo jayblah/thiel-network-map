@@ -25,4 +25,4 @@ An interactive map of the people, companies and projects connected to Peter Thie
 - `node check-links.js` confirms every Wikipedia link still resolves.
 - `.github/workflows/checks.yml` runs all three on GitHub (the link check weekly).
 
-**Source and caveats.** Every relationship, funding figure and characterization comes from that one book and reflects its author's account and framing, not independent verification. Labels such as "anti-democracy views" are the book's description of a person, not necessarily their own. Wikipedia links were checked to point at the right person or organization, but not every card has one. The book itself is not in this repository.
+The source book is not in this repository (it is copyrighted); `.gitignore` keeps any local copy out.
