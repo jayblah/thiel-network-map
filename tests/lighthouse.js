@@ -60,6 +60,13 @@ async function launchChrome(chromeLauncher, attempts = 3) {
         if (ref.weight > 0 && a.score !== null && a.score < 0.9) console.log(`       - ${a.title}${a.displayValue ? ` (${a.displayValue})` : ''}`);
       }
     }
+    if (failed) {
+      // say where the time went, so a slow run can be diagnosed from the log
+      for (const [id, key] of [['mainthread-work-breakdown', 'groupLabel'], ['long-tasks', 'url'], ['third-party-summary', 'entity']]) {
+        const items = (lhr.audits[id].details && lhr.audits[id].details.items) || [];
+        if (items.length) console.log(`     ${id}: ` + items.slice(0, 6).map(i => `${String(i[key] || i.label || '').slice(-40)} ${Math.round(i.duration || i.blockingTime || 0)}ms`).join('; '));
+      }
+    }
     const kb = Math.round(lhr.audits['total-byte-weight'].numericValue / 1024);
     const sizeOk = kb <= MAX_TRANSFER_KB;
     if (!sizeOk) failed = true;
