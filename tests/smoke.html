@@ -19,6 +19,7 @@ frame.addEventListener('load', async () => {
     await wait(300);
     const $ = s => doc.querySelector(s), $$ = s => [...doc.querySelectorAll(s)];
     const DATA = win.eval('DATA'), N = DATA.nodes, E = DATA.edges; // DATA is a top-level const, so it is not a window property
+    const getComputedStyleZ = el => win.getComputedStyle(el).zIndex;
     const dimmed = () => $$('.card.dim').length;
     const shown = () => $$('.card').length - dimmed();
 
@@ -56,6 +57,7 @@ frame.addEventListener('load', async () => {
     check('pinning a card shows its details', $('#side h2').textContent === 'JD Vance');
     check('pinning writes the card into the address', win.location.hash.includes('card=Vance'));
     check('connection lines are drawn from card borders', $$('#ov path.edge').length === E.filter(e => e.a === 'Vance' || e.b === 'Vance').length);
+    check('line captions are drawn in a layer above the cards', $$('#ovl text.lbl').length > 0 && +getComputedStyleZ($('#ovl')) > +getComputedStyleZ($('.card')), `${$$('#ovl text.lbl').length} captions`);
     check('details panel offers a correction link', !!$('#side a.wl[href*="issues/new"]'));
 
     // how is A connected to B

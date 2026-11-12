@@ -145,7 +145,7 @@
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
+  const stage = $('#stage'), ov = $('#ov'), ovl = $('#ovl'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', trayTimer = null, resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null; // 'how is A connected to B' state
@@ -257,21 +257,24 @@
     const C = [(A[0] + B[0]) / 2 - dy / len * bend, (A[1] + B[1]) / 2 + dx / len * bend];
     const point = t => lerp(lerp(A, C, t), lerp(C, B, t), t);
     // keep only the part of the curve between the two borders (the whole curve if the cards overlap)
-    let t0 = crossing(point, ra, 0, .5), t1 = 1 - crossing(t => point(1 - t), rb, 0, .5);
+    let t0 = crossing(point, ra, 0, 1), t1 = 1 - crossing(t => point(1 - t), rb, 0, 1); // searched over the whole curve: the Thiel card is big enough to hold its midpoint
     if (t0 >= t1) { t0 = 0; t1 = 1; }
     const P0 = point(t0), P2 = point(t1);
     const P1 = lerp(P0, lerp(C, B, t0), (t1 - t0) / (1 - t0)); // control point of the trimmed segment
     const marker = HEAD[e.kind] ? ` marker-end="url(#${HEAD[e.kind]}-${cat})"` : '';
-    let svg = `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
+    const svg = `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
+    let label = '';
     if (withLabels && e.label) { // label sits on the curve at t = 0.5
-      svg += `<text class="lbl cat-${cat}" x="${.25 * P0[0] + .5 * P1[0] + .25 * P2[0]}" y="${.25 * P0[1] + .5 * P1[1] + .25 * P2[1]}" text-anchor="middle">${svgText(cut(e.label, LABEL_MAX))}</text>`;
+      label = `<text class="lbl cat-${cat}" x="${.25 * P0[0] + .5 * P1[0] + .25 * P2[0]}" y="${.25 * P0[1] + .5 * P1[1] + .25 * P2[1]}" text-anchor="middle">${svgText(cut(e.label, LABEL_MAX))}</text>`;
     }
-    return { cat, svg };
+    return { cat, svg, label };
   }
   const draw = (id, withLabels) => drawEdges(consOf(id).filter(e => els[other(e, id)]), withLabels);
   function drawEdges(list, withLabels) {
     ov.setAttribute('width', stage.scrollWidth);
     ov.setAttribute('height', stage.scrollHeight);
+    ovl.setAttribute('width', stage.scrollWidth);
+    ovl.setAttribute('height', stage.scrollHeight);
     // read every position first (one stage rect, one rect per card), then build the markup
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
@@ -282,6 +285,7 @@
       return `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
     }).join('');
     ov.innerHTML = `<defs>${markers}</defs>${edges.map(x => x.svg).join('')}`;
+    ovl.innerHTML = edges.map(x => x.label).join(''); // captions live in a layer above the cards so a neighbouring card can never hide them
   }
 
   // ---------- dimming, filtering, pinning ----------
@@ -301,7 +305,7 @@
     setDim(new Set(hits));
     showCount(hits.length);
   }
-  const reset = () => { ov.innerHTML = ''; applyFilter(); };
+  const reset = () => { ov.innerHTML = ovl.innerHTML = ''; applyFilter(); };
   function unpin() {
     pinned = pathTo = currentPath = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
