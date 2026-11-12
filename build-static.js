@@ -10,11 +10,10 @@ const END = '<!-- static-content:end -->';
 const HUB = 'T';
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const strip = s => String(s).replace(/\*([^*]+)\*/g, '$1'); // the summary facts mark emphasis with *asterisks*
 
 // The page's text as semantic HTML: a heading per section, a list of cards, each with its facts and connections.
 function render(data) {
-  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS } = data;
+  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS } = data;
   const other = (e, id) => e.a === id ? e.b : e.a;
   const consOf = id => E.filter(e => e.a === id || e.b === id);
   const rel = id => { const e = consOf(id).find(x => other(x, id) === HUB); return e ? e.label : ''; };
@@ -36,7 +35,6 @@ function render(data) {
     '<div class="nojs">',
     `<h2>${esc(N[HUB].name)}'s network</h2>`,
     '<p>This map is interactive and needs JavaScript. Without it, this page lists everything on the map as text.</p>',
-    `<ul>${FACTS.map(f => `<li>${esc(strip(f))}</li>`).join('')}</ul>`,
     `<h3>${esc(N[HUB].name)}</h3>`,
     `<ul>${person(N[HUB])}</ul>`,
   ];

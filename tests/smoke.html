@@ -28,7 +28,7 @@ frame.addEventListener('load', async () => {
     check('every card has a name button', $$('.card .n').every(b => b.textContent.trim()));
     check('footer correction link points at the repo issues', /github\.com\/.+\/issues\/new/.test($('#report').href));
     check('page has a description and favicon', !!doc.querySelector('meta[name=description]') && !!doc.querySelector('link[rel=icon]'));
-    check('legend explains badges, marks and lines', $$('#legend .lrow').length === 4 && $$('#legend .lrow:last-child .lg').length >= 4);
+    check('legend explains marks and lines', $$('#legend .lrow').length === 2 && $$('#legend .lrow:last-child .lg').length >= 4);
 
     // filters, badges and the result count
     const chip = id => $(`.chip[data-f=${id}]`);
