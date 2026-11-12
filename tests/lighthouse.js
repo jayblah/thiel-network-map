@@ -65,6 +65,13 @@ async function launchChrome(chromeLauncher, attempts = 3) {
       if (!ok) for (const ref of lhr.categories[id].auditRefs) {
         const a = lhr.audits[ref.id];
         if (ref.weight > 0 && a.score !== null && a.score < 0.9) console.log(`       - ${a.title}${a.displayValue ? ` (${a.displayValue})` : ''}`);
+        // name the elements involved, so a failure can be fixed from the log alone
+        if (ref.weight > 0 && a.score !== null && a.score < 0.9 && a.details && a.details.items) {
+          for (const it of a.details.items.slice(0, 6)) {
+            const rel = (it.subItems && it.subItems.items || []).map(x => x.relatedNode && x.relatedNode.selector).filter(Boolean);
+            console.log(`           ${it.node ? `${it.node.selector} "${(it.node.nodeLabel || '').slice(0, 40)}"` : JSON.stringify(it).slice(0, 120)}${rel.length ? ` near ${rel.join(', ')}` : ''}`);
+          }
+        }
       }
     }
     if (failed) {
