@@ -222,16 +222,34 @@
   }
 
   // ---------- connection lines ----------
-  function edgeSvg(e, i, withLabels, centreOf) {
-    const cat = N[e.a].cat;
-    const [ax, ay] = centreOf(e.a), [bx, by] = centreOf(e.b);
-    const dx = bx - ax, dy = by - ay, len = Math.hypot(dx, dy) || 1;
+  // Each line is a quadratic curve between two cards' centres, trimmed so it starts and ends on the cards' borders.
+  const lerp = (p, q, t) => [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t];
+  const inside = (r, [x, y]) => x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h;
+  // Binary-search the parameter where the curve crosses a card's border. `from` is the t known to be inside the card
+  // and `to` a t outside it; returns the t nearest the border on the outside.
+  function crossing(point, rect, from, to) {
+    for (let i = 0; i < 18; i++) {
+      const mid = (from + to) / 2;
+      if (inside(rect, point(mid))) from = mid; else to = mid;
+    }
+    return to;
+  }
+  function edgeSvg(e, i, withLabels, boxOf) {
+    const cat = N[e.a].cat, ra = boxOf(e.a), rb = boxOf(e.b);
+    const A = [ra.x + ra.w / 2, ra.y + ra.h / 2], B = [rb.x + rb.w / 2, rb.y + rb.h / 2];
+    const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
     const bend = Math.min(BEND.max, len * BEND.ratio) * (i % 2 ? 1 : -1); // alternate curve direction so parallel lines don't overlap
-    const cx = (ax + bx) / 2 - dy / len * bend, cy = (ay + by) / 2 + dx / len * bend;
+    const C = [(A[0] + B[0]) / 2 - dy / len * bend, (A[1] + B[1]) / 2 + dx / len * bend];
+    const point = t => lerp(lerp(A, C, t), lerp(C, B, t), t);
+    // keep only the part of the curve between the two borders (the whole curve if the cards overlap)
+    let t0 = crossing(point, ra, 0, .5), t1 = 1 - crossing(t => point(1 - t), rb, 0, .5);
+    if (t0 >= t1) { t0 = 0; t1 = 1; }
+    const P0 = point(t0), P2 = point(t1);
+    const P1 = lerp(P0, lerp(C, B, t0), (t1 - t0) / (1 - t0)); // control point of the trimmed segment
     const marker = e.kind === 'plain' ? '' : ` marker-end="url(#ah-${cat})"`;
-    let svg = `<path class="edge ${e.kind} cat-${cat}" d="M${ax},${ay} Q${cx},${cy} ${bx},${by}"${marker}/>`;
+    let svg = `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
     if (withLabels && e.label) { // label sits on the curve at t = 0.5
-      svg += `<text class="lbl cat-${cat}" x="${.25 * ax + .5 * cx + .25 * bx}" y="${.25 * ay + .5 * cy + .25 * by}" text-anchor="middle">${svgText(cut(e.label, LABEL_MAX))}</text>`;
+      svg += `<text class="lbl cat-${cat}" x="${.25 * P0[0] + .5 * P1[0] + .25 * P2[0]}" y="${.25 * P0[1] + .5 * P1[1] + .25 * P2[1]}" text-anchor="middle">${svgText(cut(e.label, LABEL_MAX))}</text>`;
     }
     return { cat, svg };
   }
@@ -239,9 +257,9 @@
     ov.setAttribute('width', stage.scrollWidth);
     ov.setAttribute('height', stage.scrollHeight);
     // read every position first (one stage rect, one rect per card), then build the markup
-    const origin = stage.getBoundingClientRect(), centres = {};
-    const centreOf = nid => centres[nid] ||= (r => [r.left - origin.left + r.width / 2, r.top - origin.top + r.height / 2])(els[nid].getBoundingClientRect());
-    const edges = consOf(id).filter(e => els[other(e, id)]).map((e, i) => edgeSvg(e, i, withLabels, centreOf));
+    const origin = stage.getBoundingClientRect(), boxes = {};
+    const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
+    const edges = consOf(id).filter(e => els[other(e, id)]).map((e, i) => edgeSvg(e, i, withLabels, boxOf));
     const markers = [...new Set(edges.map(x => x.cat))].map(c =>
       `<marker id="ah-${c}" class="cat-${c}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>`).join('');
     ov.innerHTML = `<defs>${markers}</defs>${edges.map(x => x.svg).join('')}`;
