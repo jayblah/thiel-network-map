@@ -218,6 +218,7 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
   .card .wp { width: 32px; height: 32px; font-size: 14px; line-height: 29px; right: 6px; bottom: 5px; }
   .card .wp.alt { right: 44px; }
   .card .pills { gap: 8px; padding-right: 76px; }
+  .reach { padding-bottom: 46px; } /* clear of the 32px corner link */
   .btn { min-height: 40px; }
   .linkbtn { min-height: 36px; padding: 0 8px; }
 }
@@ -239,7 +240,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .dpic figcaption { margin-top: 5px; font-size: .68rem; line-height: 1.25; color: var(--mute); text-align: center; }
 .dpic a { color: inherit; }
 /* Reach Into Government: lives inside the Thiel card */
-.reach { margin-top: 12px; padding: 10px 0 2px; color: var(--hero-ink); cursor: default; }
+.reach { margin-top: 12px; padding: 10px 0 34px; color: var(--hero-ink); cursor: default; }
 .reach h2 { margin: 0 0 8px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
 .reach .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 12px; align-items: center; }
 .reach .stat { position: relative; z-index: 1; } /* above the card's click overlay */
