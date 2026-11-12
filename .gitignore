@@ -3,3 +3,4 @@
 *.pdf
 *.mobi
 *.azw3
+node_modules/

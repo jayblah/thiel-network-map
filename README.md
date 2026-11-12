@@ -23,6 +23,8 @@ An interactive map of the people, companies and projects connected to Peter Thie
 - `node check.js` validates `data.js` (every connection points at a real card, no duplicates, nothing orphaned, fields have the right shape).
 - `tests/smoke.html` loads the real page in a frame and exercises filters, search, pinning, paths and the address bar. Open it in a browser; the title becomes PASS or FAIL.
 - `node check-links.js` confirms every Wikipedia link still resolves.
-- `.github/workflows/checks.yml` runs all three on GitHub (the link check weekly).
+- `npm install && node tests/a11y.js` runs the axe accessibility scanner on the real page (light and dark, with a card pinned, a filter on and the help open). `package.json` lists development tooling only; the site itself has no dependencies.
+- `.github/workflows/checks.yml` runs the checks on GitHub (pull requests, and weekly with the link check).
+- `.github/workflows/pages.yml` publishes the site, but only after every check passes. In the repository settings, Pages must use the source **GitHub Actions**.
 
 The source book is not in this repository (it is copyrighted); `.gitignore` keeps any local copy out.

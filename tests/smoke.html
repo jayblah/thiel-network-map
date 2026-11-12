@@ -35,6 +35,10 @@ frame.addEventListener('load', async () => {
     const antiExpected = Object.values(N).filter(n => n.anti).length + 1; // the hub never dims
     check('anti-democracy chip spotlights the flagged cards', shown() === antiExpected, `${shown()} shown, expected ${antiExpected}`);
     check('result count is shown', /of \d+ shown/.test($('#count').textContent), $('#count').textContent);
+    check('the status line names the active filter', $('#count').textContent.includes('Anti-Democracy'), $('#count').textContent);
+    $('#count [data-clear]').click();
+    check('the status line has a Clear button', dimmed() === 0 && $('#count').textContent === '');
+    chip('anti').click();
     chip('anti').click();
     check('clicking the chip again clears the filter', dimmed() === 0 && $('#count').textContent === '');
     $('.card .pill[data-f=fund]').click();
@@ -47,7 +51,7 @@ frame.addEventListener('load', async () => {
     q.value = 'yarvin'; q.dispatchEvent(new win.Event('input'));
     check('search finds cards by name and by connection text', shown() >= 2, `${shown()} shown`);
     q.value = 'zzzzzz'; q.dispatchEvent(new win.Event('input'));
-    check('search with no hits says so', $('#count').textContent === 'No matches');
+    check('search with no hits says so', $('#count').textContent.includes('No matches'));
     q.value = ''; q.dispatchEvent(new win.Event('input'));
     check('clearing the search restores everything', dimmed() === 0);
 
