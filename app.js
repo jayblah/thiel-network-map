@@ -2,7 +2,7 @@
 // To add a badge/detail type or a filter chip, add one entry to FACETS. The kinds of government reach (govKinds) are in data.js.
 (() => {
   'use strict';
-  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, govKinds: GOV, people: PEOPLE, portraits: PICS } = DATA;
+  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, govKinds: GOV, people: PEOPLE, portraits: PICS } = DATA;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
   // ---------- configuration ----------
@@ -45,7 +45,6 @@
   const money = s => s.replace(MONEY, m => `<span class="money">${m}</span>`);
   const fmt = s => money(linkNames(esc(s)));         // body text: links + money
   const plain = s => money(esc(s));             // no links (source titles, facts, text inside buttons)
-  const bold = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
 
   // ---------- icons, badges and detail blocks ----------
   // Line icons (24x24 grid, drawn with currentColor) shared by badges, dialog headings and chips.
@@ -153,21 +152,18 @@
   const sampleLine = kind => {
     const head = HEAD[kind], id = `lg-${kind}`;
     return `<svg class="ln" viewBox="0 0 48 20" aria-hidden="true">${head ? `<defs>${markerSvg(id, head, 'oth')}</defs>` : ''}`
-      + `<path class="edge ${kind} cat-oth" d="M2,10 H46"${head ? ` marker-end="url(#${id})"` : ''}/></svg>`;
+      + `<path class="edge ${kind} cat-oth" d="M2,10 H${kind === 'strong' ? 44 : 46}"${head ? ` marker-end="url(#${id})"` : ''}/></svg>`;
   };
   function renderLegend() {
     const row = (title, items) => `<div class="lrow"><b>${title}</b><div class="litems">${items.join('')}</div></div>`;
     const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
     $('#legend').innerHTML =
-      row('Box Colour', SECTIONS.map(([k]) => lg(`<i class="sw cat-${k}"></i>`, `<span class="cat-${k} lg-cat">${CAT[k]}</span>`))) +
-      row('Badges', FACETS.flatMap(f => f.specs || []).map(s => lg(pill(s.label, s.color, { icon: s.icon, f: s.f }), esc(s.title)))) +
       row('Marks', [
         lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
         lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
         lg('<span class="wp static cat-center">&#8599;</span>', 'Link chosen for the card (article or interview)'),
         lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
-        lg('<span class="money">$15M</span>', 'Money amount'),
       ]) +
       row('Lines', [
         lg(sampleLine('strong'), 'Close tie: founder, funder, mentor'),
@@ -213,9 +209,9 @@
   function renderStage() {
     const reach = `<section class="reach"><h2>Reach Into Government</h2><div class="row">`
       + GOV.map(g => stat(g, countWhere(FILTERS[`gov:${g.key}`].test))).join('')
-      + `</div><div class="facts">${FACTS.map(f => `<span>${bold(plain(f))}</span>`).join('')}</div></section>`;
+      + `</div></section>`;
     const hub = N[HUB];
-    const hubLines = [hub.cos, hub.faith].filter(Boolean).map(t => `<div class="r">${fmt(t)}</div>`).join('');
+    const hubLines = [hub.cos].filter(Boolean).map(t => `<div class="r">${fmt(t)}</div>`).join('');
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
       return ns.length ? `<section class="sec cat-${k}" data-span="${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';

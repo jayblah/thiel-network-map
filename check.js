@@ -6,7 +6,7 @@ const crypto = require('crypto');
 const { loadData } = require('./data-loader');
 
 const DATA = loadData();
-const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, ent: ENT, govKinds } = DATA;
+const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, ent: ENT, govKinds } = DATA;
 
 const appSource = fs.readFileSync('app.js', 'utf8');
 const GOV_KEYS = new Set((govKinds || []).map(g => g.key));
@@ -83,14 +83,13 @@ if (/\sstyle="/.test(html) || /style="/.test(appSource)) bad('inline style attri
 
 // text links: each must be a Wikipedia address and must actually be used somewhere in the text
 const allText = [];
-(function collect(v) { if (typeof v === 'string') allText.push(v); else if (Array.isArray(v)) v.forEach(collect); else if (v && typeof v === 'object') Object.values(v).forEach(collect); })([N, E, FACTS]);
+(function collect(v) { if (typeof v === 'string') allText.push(v); else if (Array.isArray(v)) v.forEach(collect); else if (v && typeof v === 'object') Object.values(v).forEach(collect); })([N, E]);
 const corpus = allText.join('\n');
 const escapeRe = k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const [name, url] of Object.entries(ENT || {})) {
   if (!WIKI.test(url)) bad(`ent "${name}": not an English Wikipedia address`);
   if (!new RegExp('(?<![A-Za-z0-9])' + escapeRe(name) + '(?![A-Za-z0-9])').test(corpus)) bad(`ent "${name}": not mentioned anywhere in the text, so it can never link (remove it)`);
 }
-if (!Array.isArray(FACTS) || !FACTS.length) bad('facts is empty');
 
 if (problems.length) {
   console.error(`${problems.length} problem${problems.length === 1 ? '' : 's'} in data.js:\n- ` + problems.join('\n- '));
