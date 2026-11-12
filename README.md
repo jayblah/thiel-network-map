@@ -19,6 +19,7 @@ Live site: https://jayblah.github.io/thiel-network-map/
 - `styles.css`: look and feel. Light/dark colours are defined once each with `light-dark()`; category text colours are checked for WCAG 2.1 AA contrast.
 - `bump-version.js`: `node bump-version.js 1.17` updates the version shown in the header and in the `?v=` cache-busting suffix on the three files above (do this on every release so browsers never mix new and cached old files).
 - `data-loader.js`: how the Node tools (`check.js`, `check-links.js`, `build-static.js`) read `data.js`.
+- `img/`: portraits of the people on the map (Wikimedia Commons, freely licensed; credits live in `data.js` under `portraits`). People without a free photo show initials.
 - `build-static.js`: `node build-static.js` writes a plain-text copy of the whole map into `index.html` (inside `<noscript>`) for search engines, social-media crawlers and visitors with JavaScript off. Rerun it after changing `data.js`; `node check.js` fails if the copy is stale.
 - `social.png`: the preview image shown when the site is shared.
 - `robots.txt`: allows search engines to index the page.

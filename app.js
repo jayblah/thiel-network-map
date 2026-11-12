@@ -2,7 +2,7 @@
 // To add a badge/detail type or a filter chip, add one entry to FACETS. The kinds of government reach (govKinds) are in data.js.
 (() => {
   'use strict';
-  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, govKinds: GOV } = DATA;
+  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, govKinds: GOV, people: PEOPLE, portraits: PICS } = DATA;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
   // ---------- configuration ----------
@@ -187,13 +187,20 @@
 
   // ---------- cards and sections ----------
   // the small round link in a card's corner (Wikipedia "W", or the card's own link)
+  // A person's portrait: a round photo when a freely licensed one exists, otherwise their initials in the card's colour.
+  const PERSON = new Set(PEOPLE);
+  const initials = name => name.replace(/^(Lord|Fr\.|Dr\.)\s+/, '').split(/\s+/).filter(w => /^\p{L}/u.test(w)).map((w, i, a) => i === 0 || i === a.length - 1 ? w[0] : '').join('');
+  const portrait = n => !PERSON.has(n.id) ? ''
+    : PICS[n.id] ? `<img class="pic" src="img/${n.id}.webp" alt="" width="112" height="112" loading="lazy" decoding="async">`
+    : `<span class="pic mono" aria-hidden="true">${esc(initials(n.name))}</span>`;
   const cornerLink = (url, mark, title, cls = '') => extLink(`wp${cls}`, url, mark, `title="${esc(title)}" aria-label="${esc(title)} (opens in a new tab)"`);
   function card(n, { cls = '', lines = '', tail = '' } = {}) {
     const flags = [n.anti && 'anti', n.cat === 'net' && 'net', cls].filter(Boolean).join(' ');
     const pills = facetHtml.pills(n);
     return `<div class="card cat-${n.cat} ${flags}" data-id="${esc(n.id)}">`
-      + `<button type="button" class="n">${esc(n.name)}</button>`
+      + `<div class="hd"><div class="t"><button type="button" class="n">${esc(n.name)}</button>`
       + (n.sub.length ? `<div class="s">${fmt(n.sub.join(' · '))}</div>` : '')
+      + `</div>${portrait(n)}</div>`
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + lines
       + (pills ? `<div class="pills">${pills}</div>` : '')
@@ -398,9 +405,15 @@
     const o = other(e, id);
     return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
   };
+  // the larger portrait in the card dialog, with its credit (the licences ask for one)
+  const portraitCredit = id => {
+    const c = PICS[id];
+    return c ? `<figure class="dpic"><img src="img/${id}-lg.webp" alt="" width="240" height="240">`
+      + `<figcaption>Photo: ${extLink('', c[2], `${esc(c[0])}<span class="sr"> (opens in a new tab)</span>`)}, ${esc(c[1])}</figcaption></figure>` : '';
+  };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
-    cardBody.innerHTML = `<h2 id="cardTitle">${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
+    cardBody.innerHTML = portraitCredit(id) + `<h2 id="cardTitle">${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
       + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
       + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : '')
       + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
