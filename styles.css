@@ -286,7 +286,7 @@ aside h2 { margin: 0 0 4px; font-size: 1.25rem; }
 .edge.normal { stroke-width: 2.5; }
 .edge.weak { stroke-dasharray: 2 6; }
 marker path { fill: var(--c); }
-marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } /* the open arrow for ordinary ties, the outlined triangle for looser ones */
+marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } /* the outlined triangle for ordinary ties, the open arrow for looser ones */
 
 /* printing: the whole map on paper, one column of sections, no controls or panels, light colours */
 @page { margin: 12mm; }

@@ -167,8 +167,8 @@
   }
 
   // ---------- legend and filter chips ----------
-  // Arrowhead for each kind of connection: a filled triangle, an open line arrow, an outlined triangle, or none (plain = mutual).
-  const HEAD = { strong: 'solid', normal: 'line', weak: 'hollow', plain: null };
+  // Arrowhead for each kind of connection: a filled triangle, an outlined triangle, an open line arrow, or none (plain = mutual).
+  const HEAD = { strong: 'solid', normal: 'hollow', weak: 'line', plain: null };
   const arrowPath = { solid: 'M0,0 L10,5 L0,10 z', line: 'M1.5,1 L8.5,5 L1.5,9', hollow: 'M1.5,1 L8.5,5 L1.5,9 z' };
   // a small drawing of one connection style, for the legend
   const sampleLine = kind => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${HEAD[kind] === 'line' || !HEAD[kind] ? 38 : 33}"/>`
