@@ -159,9 +159,14 @@
   // Arrowhead for each kind of connection: a filled triangle, an outlined triangle, an open line arrow, or none (plain = mutual).
   const HEAD = { strong: 'solid', normal: 'hollow', weak: 'line', plain: null };
   const arrowPath = { solid: 'M0,0 L10,5 L0,10 z', line: 'M1.5,1 L8.5,5 L1.5,9', hollow: 'M1.5,1 L8.5,5 L1.5,9 z' };
-  // a small drawing of one connection style, for the legend
-  const sampleLine = kind => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${HEAD[kind] === 'line' || !HEAD[kind] ? 38 : 33}"/>`
-    + (HEAD[kind] ? `<g class="tip ${HEAD[kind]} cat-oth" transform="translate(30 0)"><path d="${arrowPath[HEAD[kind]]}"/></g>` : '') + '</svg>';
+  // An arrowhead as an SVG marker. It scales with the line's stroke width, so a close tie's head is twice the size of a tie's.
+  const markerSvg = (id, head, cat) => `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
+  // a small drawing of one connection style for the legend, built from the same markers and CSS as the map so it always matches
+  const sampleLine = kind => {
+    const head = HEAD[kind], id = `lg-${kind}`;
+    return `<svg class="ln" viewBox="0 0 48 20" aria-hidden="true">${head ? `<defs>${markerSvg(id, head, 'oth')}</defs>` : ''}`
+      + `<path class="edge ${kind} cat-oth" d="M2,10 H46"${head ? ` marker-end="url(#${id})"` : ''}/></svg>`;
+  };
   function renderLegend() {
     const row = (title, items) => `<div class="lrow"><b>${title}</b>${items.join('')}</div>`;
     const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
@@ -262,10 +267,7 @@
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
     const paths = list.map((e, i) => edgeSvg(e, i, boxOf));
     const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${N[isHub(e.a) ? e.b : e.a].cat}`).filter(Boolean))];
-    const markers = heads.map(id => {
-      const [head, cat] = id.split('-');
-      return `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
-    }).join('');
+    const markers = heads.map(id => markerSvg(id, ...id.split('-'))).join('');
     ov.innerHTML = `<defs>${markers}</defs>${paths.join('')}`;
   }
 
