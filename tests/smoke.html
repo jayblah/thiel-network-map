@@ -60,7 +60,7 @@ frame.addEventListener('load', async () => {
     $('.card[data-id=Vance] .n').click();
     check('pinning a card opens its details dialog', $('#cardBody h2').textContent === 'JD Vance');
     check('pinning writes the card into the address', win.location.hash.includes('card=Vance'));
-    check('connection lines are drawn from card borders', $$('#ov path.edge').length === E.filter(e => e.a === 'Vance' || e.b === 'Vance').length);
+    check('connection lines are drawn from card borders', $$('#stage path.edge').length === E.filter(e => e.a === 'Vance' || e.b === 'Vance').length);
     check('source links end in an arrow icon, not a text badge', $$('#cardBody .srcl .ext').length > 0 && !$('#cardBody .srcl i'));
     check('card dialog offers a correction link', !!$('#cardBody a.wl[href*="issues/new"]'));
 
@@ -87,11 +87,12 @@ frame.addEventListener('load', async () => {
     win.location.hash = '';
     await wait(50);
     card.dispatchEvent(new win.MouseEvent('mouseover', { bubbles: true, relatedTarget: doc.body }));
-    const drawn = $('#ov').innerHTML;
+    const lines = () => $('#ov').innerHTML + $('#ovUnder').innerHTML;
+    const drawn = lines();
     card.querySelector('.n').dispatchEvent(new win.MouseEvent('mouseout', { bubbles: true, relatedTarget: card.querySelector('.s') || card }));
-    check('moving within a card keeps its connections drawn', drawn !== '' && $('#ov').innerHTML === drawn);
+    check('moving within a card keeps its connections drawn', drawn !== '' && lines() === drawn);
     card.dispatchEvent(new win.MouseEvent('mouseout', { bubbles: true, relatedTarget: doc.body }));
-    check('leaving the card clears them', $('#ov').innerHTML === '');
+    check('leaving the card clears them', lines() === '');
   } catch (e) {
     check('test ran without an exception', false, String(e && e.stack || e));
   }

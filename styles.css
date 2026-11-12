@@ -136,7 +136,9 @@ main { flex: 1; display: flex; min-height: 0; position: relative; }
 html:not(.js) :is(.bar, .tools, footer) { display: none; } /* these need the script */
 .ver:empty { display: none; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
-svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; overflow: visible; } /* connection lines run over the cards (above their z-index of 2) so they are easy to see */
+svg#ov, svg#ovUnder { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+svg#ov { z-index: 3; } /* most connection lines run over the cards (above their z-index of 2) so they are easy to see */
+svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the cards */
 .sec { grid-column: span var(--span, 12); } /* --span is set per section from data.js */
 @media (max-width: 900px) {
   main { flex-direction: column; }
@@ -179,6 +181,14 @@ svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 10px; }
 .card { position: relative; z-index: 2; display: flex; flex-direction: column; background: color-mix(in srgb, var(--c) 20%, var(--panel)); border: 2px solid var(--c); border-radius: 12px; padding: 9px 11px 8px; cursor: pointer; transition: opacity .15s, transform .12s, box-shadow .15s, filter .15s; color: var(--ink); }
 .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.18); }
+.card .hd { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.card .t { flex: 1; min-width: 0; }
+.pic { flex: none; width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--c); background: var(--panel); }
+.pic.mono { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--c) 22%, var(--panel)); }
+.card.dim .pic { filter: grayscale(1); border-color: var(--line); }
+.card.hero .pic { width: 84px; height: 84px; border-color: #fff; }
+.card.hero .hd { align-items: center; }
+.card.hero .hd::before { content: ""; width: 84px; flex: none; } /* balances the portrait so the name stays centred */
 .card .n { display: block; width: 100%; text-align: left; font-weight: 700; font-size: 1rem; line-height: 1.2; color: var(--t); cursor: pointer; }
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
 .card .n:focus-visible { outline: none; }
@@ -194,7 +204,8 @@ svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; 
 .card.hero .n { color: #fff; font-size: 1.75rem; text-align: center; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
-.card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; filter: grayscale(1); } /* everything outside the spotlight loses its colour */
+.card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; } /* everything outside the spotlight loses its colour... */
+.card.dim :is(.pills, .wp, .wk) { filter: grayscale(1); } /* ...except money, which stays green (a filter on the whole card would grey it too) */
 .card.dim.anti { border: 3px solid var(--line); }
 .card.dim .n { color: var(--ink); }
 .card.dim .s { color: var(--mute); }
@@ -223,6 +234,11 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 #card[open] { display: flex; }
 #cardBody { flex: 1; overflow: auto; padding: 20px 24px 24px; }
 #card h2 { margin: 0 44px 4px 0; font-size: 1.4rem; }
+#card .cat { margin-right: 6px; }
+.dpic { float: left; width: 120px; margin: 0 18px 8px 0; }
+.dpic img { display: block; width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--c, var(--accent)); background: var(--bg); }
+.dpic figcaption { margin-top: 5px; font-size: .68rem; line-height: 1.25; color: var(--mute); text-align: center; }
+.dpic a { color: inherit; }
 /* Reach Into Government: lives inside the Thiel card */
 .reach { margin-top: 12px; padding: 10px 0 2px; color: var(--hero-ink); cursor: default; }
 .reach h2 { margin: 0 0 8px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
@@ -277,7 +293,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
 @media print {
   :root, :root[data-theme=dark] { color-scheme: light; }
   html, body { height: auto; overflow: visible; display: block; background: #fff; color: #000; }
-  .tools, .filters, #legendTab, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
+  .tools, .filters, #legendTab, footer, svg#ov, svg#ovUnder, .ver, .wp, .linkbtn, #count { display: none !important; }
   header, .bar { background: none; border: 0; padding: 0 0 6px; }
   #legend { background: none; border: 1px solid #999; }
   main { display: block; }

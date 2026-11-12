@@ -12,7 +12,7 @@ const TARGETS = { performance: 90, accessibility: 100, 'best-practices': 95, seo
 const MAX_TRANSFER_KB = 100;
 
 const root = path.resolve(__dirname, '..');
-const TYPES = { '.txt': 'text/plain', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png' };
+const TYPES = { '.txt': 'text/plain', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webp': 'image/webp' };
 
 function serve() {
   return new Promise(resolve => {

@@ -41,6 +41,15 @@ for (const [id, n] of Object.entries(N)) {
   for (const f of ['cos', 'fund', 'views', 'faith', 'crypto']) if (n[f] === '') bad(`${at}: empty ${f} (leave empty fields out)`);
 }
 
+// portraits: every credited person has both image files and a full credit
+const PEOPLE = DATA.people || [], PICS = DATA.portraits || {};
+for (const id of PEOPLE) if (!N[id]) bad(`people: no card "${id}"`);
+for (const [id, c] of Object.entries(PICS)) {
+  if (!PEOPLE.includes(id)) bad(`portrait ${id}: not listed in people`);
+  if (!Array.isArray(c) || c.length !== 3 || !c[0] || !c[1] || !/^https:\/\/commons\.wikimedia\.org\//.test(c[2])) bad(`portrait ${id}: needs [photographer, licence, Commons page address]`);
+  for (const f of [`img/${id}.webp`, `img/${id}-lg.webp`]) if (!fs.existsSync(f)) bad(`portrait ${id}: missing ${f}`);
+}
+
 // connections
 const seen = new Set();
 const degree = {};
