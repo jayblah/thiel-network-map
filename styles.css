@@ -15,7 +15,7 @@
   --accent: light-dark(#4338ca, #9995ff);
   --on-accent: light-dark(#ffffff, #0f121a); /* text on an accent background */
   --money: light-dark(#006b24, #39ff7a); /* >= 4.5:1 on every card tint in both themes */
-  --aside-w: min(360px, 42vw);               /* details panel width; the tab and tray are positioned from it */
+  --aside-w: min(360px, 42vw);               /* details panel width; the tab is positioned from it */
 
   /* the Thiel card is dark in both themes */
   --hero-bg: linear-gradient(135deg, #1d2433, #2f3a58);
@@ -149,9 +149,6 @@ main.collapsed #sideTab { right: 0; }
   .sec { grid-column: 1 / -1; }
   #sideTab { top: auto; bottom: calc(38vh + 6px); right: 12px; width: 64px; height: 26px; border-radius: 10px 10px 0 0; border-right: 1px solid var(--line); }
   main.collapsed #sideTab { bottom: 0; }
-  #tray { right: 12px; }
-  #tray.bot { bottom: calc(38vh + 10px); }
-  main.collapsed #tray.bot { bottom: 10px; }
 }
 
 /* badges */
@@ -165,7 +162,7 @@ main.collapsed #sideTab { right: 0; }
 .pill.only .ic { width: 1.25em; height: 1.25em; }
 .pill.on, .stat.on { outline: 3px solid var(--accent); outline-offset: 1px; }
 .ic { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-.dsec .h .ic, .chip2 .d em .ic, .stat .ic { vertical-align: -.17em; margin-right: 4px; }
+.dsec .h .ic, .stat .ic { vertical-align: -.17em; margin-right: 4px; }
 .stat .ic { width: 1.2em; height: 1.2em; color: var(--k); align-self: center; margin-right: 0; }
 
 /* category sections and cards */
@@ -227,25 +224,6 @@ main.collapsed #sideTab { right: 0; }
 .stat { display: inline-flex; align-items: baseline; gap: 6px; border: 2px solid var(--ks); border-radius: 12px; padding: 5px 12px; background: var(--panel); color: var(--ink); }
 .stat b { font-size: 1.35rem; line-height: 1; color: var(--k); }
 
-/* hover tray */
-#tray { position: absolute; left: 12px; right: calc(var(--aside-w) + 12px); z-index: 7; pointer-events: none; background: color-mix(in srgb, var(--panel) 94%, transparent); backdrop-filter: blur(6px); border: 2px solid var(--accent); border-radius: 14px; padding: 10px 12px 12px; box-shadow: 0 10px 30px rgba(0,0,0,.28); opacity: 0; transform: translateY(6px); transition: opacity .12s, transform .12s; overflow: hidden; }
-#tray.top { top: 10px; }
-#tray.bot { bottom: 10px; }
-#tray.show { opacity: 1; transform: none; }
-main.collapsed #tray { right: 12px; }
-#tray .th { font-size: .82rem; color: var(--mute); margin-bottom: 7px; }
-#tray .th b { color: var(--ink); font-size: .95rem; }
-#tray .chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 8px; }
-.chip2 { border-left: 6px solid var(--c); background: color-mix(in srgb, var(--c) 18%, var(--panel)); border-radius: 8px; padding: 7px 10px; font-size: .85rem; line-height: 1.3; }
-.chip2 b { display: block; font-size: .88rem; color: var(--t, var(--ink)); }
-.chip2 span { color: var(--mute); }
-.chip2 .sb { display: block; font-size: .8rem; }
-.chip2 .rl { display: block; margin-top: 3px; font-weight: 600; }
-.chip2 i { font-style: normal; float: right; margin-left: 6px; font-size: .75rem; font-weight: 700; color: var(--accent); }
-.chip2 .d { display: block; margin-top: 3px; font-size: .8rem; padding-left: 7px; border-left: 3px solid var(--k); }
-.chip2 .d em { font-style: normal; font-weight: 700; margin-right: 4px; color: var(--k); }
-#tray.compact .chip2 .d { display: none; }
-
 /* details panel */
 aside h2 { margin: 0 0 4px; font-size: 1.25rem; }
 .hint { color: var(--mute); }
@@ -290,7 +268,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
 @media print {
   :root, :root[data-theme=dark] { color-scheme: light; }
   html, body { height: auto; overflow: visible; display: block; background: #fff; color: #000; }
-  .tools, .filters, #legendTab, #sideTab, aside, #tray, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
+  .tools, .filters, #legendTab, #sideTab, aside, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
   header, .bar { background: none; border: 0; padding: 0 0 6px; }
   #legend { background: none; border: 1px solid #999; }
   main { display: block; }
