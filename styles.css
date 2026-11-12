@@ -148,6 +148,23 @@ main.collapsed #sideTab { right: 0; }
   #sideTab { top: auto; bottom: calc(38vh + 6px); right: 12px; width: 64px; height: 26px; border-radius: 10px 10px 0 0; border-right: 1px solid var(--line); }
   main.collapsed #sideTab { bottom: 0; }
 }
+/* phones: keep the chrome small so the cards get the screen */
+@media (max-width: 700px) {
+  header { padding: 8px 12px; gap: 4px 10px; }
+  h1 { font-size: 1.05rem; }
+  h1 small { display: none; }
+  .tools { margin-left: 0; width: 100%; gap: 6px; }
+  #legendBtn, #sideBtn { display: none; } /* the tabs beside the filters and above the panel do the same job on a phone */
+  .search { flex: 1 1 8rem; }
+  input[type=search] { width: 100%; }
+  .bar { padding: 6px 12px; gap: 6px; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; } /* one scrolling row instead of five wrapped ones */
+  .filters > * { flex: none; }
+  #legend { max-height: 34vh; overflow: auto; }
+  aside { height: 40vh; padding: 12px 14px; }
+  #sideTab { bottom: calc(40vh + 6px); }
+  #view { padding-bottom: 8px; }
+}
 
 /* badges */
 .card .pills { margin-top: auto; padding: 5px 24px 0 0; display: flex; flex-wrap: wrap; gap: 5px; } /* pinned to the bottom of the card so badges line up across a row; the right padding clears the corner link */

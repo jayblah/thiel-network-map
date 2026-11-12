@@ -135,6 +135,7 @@
 
   // ---------- panel toggles (legend and details panel share one mechanism) ----------
   const keyActions = {};
+  const NARROW = matchMedia('(max-width: 700px)');
   function panelToggle({ store, key, buttons, apply }) {
     let open = true;
     const set = (v, keep) => {
@@ -145,7 +146,8 @@
     };
     buttons.forEach(b => b.addEventListener('click', () => set(!open)));
     keyActions[key] = () => set(!open);
-    set(storage.get(store) !== '0', true);
+    const saved = storage.get(store);
+    set(saved === null ? !NARROW.matches : saved !== '0', true); // on a phone the panels start closed unless the reader opened them before
     return { isOpen: () => open, set };
   }
 
@@ -304,6 +306,7 @@
     showCount(null);
     paintSelection();
     showDetails(id);
+    if (NARROW.matches) els[id].scrollIntoView({ block: 'nearest' }); // the panel takes part of a phone screen; keep the chosen card in view above it
     syncUrl();
   }
   // Spotlight what is selected: the chosen path between two cards, or one card's connections.
