@@ -130,9 +130,7 @@ footer a { color: var(--accent); }
 main { flex: 1; display: flex; min-height: 0; position: relative; }
 #view { flex: 1; overflow: auto; position: relative; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
-svg#ov, svg#ovl { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
-svg#ov { z-index: 1; }  /* connection lines run under the cards */
-svg#ovl { z-index: 4; } /* their captions sit above the cards, so they stay readable */
+svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; overflow: visible; } /* connection lines run under the cards */
 aside { width: var(--aside-w); background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 18px; }
 main.collapsed aside { display: none; }
 .sec { grid-column: span var(--span, 12); } /* --span is set per section from data.js */
@@ -268,5 +266,3 @@ aside h2 { margin: 0 0 4px; font-size: 1.25rem; }
 .edge.weak { stroke-dasharray: 2 6; }
 marker path { fill: var(--c); }
 marker.line path { fill: none; stroke: var(--c); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; } /* the open arrow for ordinary ties */
-.lbl { font-size: 11px; font-weight: 600; fill: var(--t); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
-.lbl .money { fill: var(--money); font-weight: 800; }
