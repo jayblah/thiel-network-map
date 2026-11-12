@@ -1,0 +1,16 @@
+# Keeps the pinned GitHub Actions and the development tooling current, in one grouped pull request each week.
+# A new release must be at least 14 days old before it is proposed.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 14 }
+    groups:
+      actions: { patterns: ['*'] }
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    cooldown: { default-days: 14 }
+    groups:
+      dev-tooling: { patterns: ['*'] }

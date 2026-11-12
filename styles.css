@@ -129,6 +129,9 @@ footer a { color: var(--accent); }
 
 /* layout */
 main { flex: 1; display: flex; min-height: 0; position: relative; }
+/* Until the script has built the page, keep the filter bar and main area hidden: they would otherwise jump around as the legend and cards appear. */
+.js:not(.ready) :is(.bar, main) { visibility: hidden; animation: reveal 0s 3s forwards; } /* safety net if the script never finishes */
+@keyframes reveal { to { visibility: visible; } }
 #view { flex: 1; overflow: auto; position: relative; }
 .nojs { margin: 40px auto; max-width: 32rem; padding: 0 16px; font-size: 1.05rem; text-align: center; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
