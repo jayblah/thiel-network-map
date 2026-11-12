@@ -243,5 +243,5 @@ const DATA={
  }
 };
 
-// Fill the defaults the slim records leave out, so every consumer (page, Mermaid export) sees complete nodes.
+// Fill the defaults the slim records leave out, so the page sees complete nodes.
 for (const [id, n] of Object.entries(DATA.nodes)) { n.id = id; n.sub ||= []; }
