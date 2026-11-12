@@ -4,6 +4,8 @@
   "description": "Development tooling only. The site itself has no dependencies and no build step.",
   "scripts": {
     "check": "node check.js",
+    "build": "node build-static.js",
+    "links": "node check-links.js",
     "a11y": "node tests/a11y.js",
     "lighthouse": "node tests/lighthouse.js"
   },

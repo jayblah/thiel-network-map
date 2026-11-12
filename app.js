@@ -1,8 +1,8 @@
 // Thiel network map behaviour. Content lives in data.js, styling in styles.css.
-// To add a badge/detail type or a filter chip, add one entry to FACETS. Kinds of government reach live in GOV.
+// To add a badge/detail type or a filter chip, add one entry to FACETS. The kinds of government reach (govKinds) are in data.js.
 (() => {
   'use strict';
-  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS } = DATA;
+  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, govKinds: GOV } = DATA;
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
   // ---------- configuration ----------
@@ -11,24 +11,19 @@
   const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
   const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
 
-  // Kinds of government reach, in display order; colour names map to .c-<colour> classes in styles.css.
-  const GOV = [
-    { key: 'official', color: 'gold', icon: 'official', pill: 'In Government', title: 'Holds or held a government role', reach: 'In Government' },
-    { key: 'contractor', color: 'navy', icon: 'contractor', pill: 'Gov Contractor', title: 'Government contractor', reach: 'Government Contractors' },
-    { key: 'influence', color: 'slate', icon: 'influence', pill: 'Gov Influence', title: 'Investor or lobbyist with government reach', reach: 'With Government Influence' },
-    { key: 'abroad', color: 'teal', icon: 'abroad', pill: 'Abroad', title: 'Dealings with non-US governments', reach: 'Dealing with Other Governments' },
-  ];
+  // GOV (the kinds of government reach, in display order) comes from data.js; colour names map to .c-<colour> classes in styles.css.
   const GOV_BY_KEY = Object.fromEntries(GOV.map(g => [g.key, g]));
   const govSpec = g => ({ label: g.pill, color: g.color, icon: g.icon, f: `gov:${g.key}`, title: g.title });
 
   // ---------- small helpers ----------
   const storage = {
-    get: k => { try { return localStorage.getItem(k); } catch (e) { return null; } },
-    set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* storage blocked: ignore */ } },
+    get: k => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage blocked: ignore */ } },
   };
   const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const other = (e, id) => e.a === id ? e.b : e.a;
   const isHub = id => id === HUB;
+  const edgeCat = e => N[isHub(e.a) ? e.b : e.a].cat; // a connection takes the colour of its non-hub end: the hub's own colour is near-black
   const arrow = (e, id) => e.kind === 'plain' ? '&harr;' : (e.a === id ? '&rarr;' : '&larr;');
   const countWhere = test => Object.values(N).filter(test).length;
   const extLink = (cls, href, label, attrs = '') => `<a class="${cls}" href="${esc(href)}" target="_blank" rel="noopener" ${attrs}>${label}</a>`;
@@ -46,9 +41,9 @@
   const ENT = DATA.ent || {};
   const ENTRE = new RegExp('(?<![A-Za-z0-9])(' + Object.keys(ENT).sort((a, b) => b.length - a.length)
     .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?![A-Za-z0-9])', 'g');
-  const link = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="Wikipedia: ${m}"`));
+  const linkNames = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="Wikipedia: ${m}"`));
   const money = s => s.replace(MONEY, m => `<span class="money">${m}</span>`);
-  const fmt = s => money(link(esc(s)));         // body text: links + money
+  const fmt = s => money(linkNames(esc(s)));         // body text: links + money
   const plain = s => money(esc(s));             // no links (source titles, facts, text inside buttons)
   const bold = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
 
@@ -133,11 +128,10 @@
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), mainEl = $('main'), sideEl = $('#side');
+  const stage = $('#stage'), ov = $('#ov'), mainEl = $('main'), sideEl = $('#side'), searchBox = $('#q'), searchClear = $('#qClear');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', resizeFrame = 0;
-  let pathTo = null, pathAvoid = true, currentPath = null; // 'how is A connected to B' state
-  const redrawPinned = () => paintSelection();
+  let pathTo = null, pathAvoid = true, currentPath = null, currentPaths = null; // 'how is A connected to B' state
 
   // ---------- panel toggles (legend and details panel share one mechanism) ----------
   const keyActions = {};
@@ -244,7 +238,7 @@
     return to;
   }
   function edgeSvg(e, i, boxOf) {
-    const cat = N[isHub(e.a) ? e.b : e.a].cat, ra = boxOf(e.a), rb = boxOf(e.b); // colour by the non-hub end: the hub's own colour is near-black
+    const cat = edgeCat(e), ra = boxOf(e.a), rb = boxOf(e.b);
     const A = [ra.x + ra.w / 2, ra.y + ra.h / 2], B = [rb.x + rb.w / 2, rb.y + rb.h / 2];
     const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
     const bend = Math.min(BEND.max, len * BEND.ratio) * (i % 2 ? 1 : -1); // alternate curve direction so parallel lines don't overlap
@@ -266,7 +260,7 @@
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
     const paths = list.map((e, i) => edgeSvg(e, i, boxOf));
-    const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${N[isHub(e.a) ? e.b : e.a].cat}`).filter(Boolean))];
+    const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${edgeCat(e)}`).filter(Boolean))];
     const markers = heads.map(id => markerSvg(id, ...id.split('-'))).join('');
     ov.innerHTML = `<defs>${markers}</defs>${paths.join('')}`;
   }
@@ -276,7 +270,8 @@
   const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id) && !isHub(id)));
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
   // everything a search can match on a card, including its connection labels and badge names
-  const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.gov && n.gov.text, n.sub.join(' '), rel[n.id] || '',
+  const HAYSTACKS = {};
+  const haystack = n => HAYSTACKS[n.id] ||= [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.gov && n.gov.text, n.sub.join(' '), rel[n.id] || '',
     ...consOf(n.id).map(e => e.label), ...FACETS.flatMap(f => f.badges ? f.badges(n).map(s => s.label) : [])].join(' ').toLowerCase();
   const TOTAL = Object.keys(N).length;
   const showCount = k => {
@@ -293,11 +288,12 @@
   }
   const reset = () => { ov.innerHTML = ''; applyFilter(); };
   function unpin() {
-    pinned = pathTo = currentPath = null;
+    pinned = pathTo = currentPath = currentPaths = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
   }
   function clearSelection() { unpin(); reset(); syncUrl(); }
   function setFilter(k) { filt = k; syncFilterButtons(); clearSelection(); }
+  function setTerm(value) { term = value; searchBox.value = value; searchClear.hidden = !value; } // the search text and its box, kept in step
   const toggleFilter = k => setFilter(filt === k && k !== 'all' ? 'all' : k); // clicking the active filter again clears it
   function pin(id) {
     if (!side.isOpen()) side.set(true, true);
@@ -319,7 +315,6 @@
   }
   // hover or keyboard focus on a card: spotlight it and draw its connections (unless something is pinned)
   function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id); }
-  function endPreview() { reset(); }
 
   // ---------- how is A connected to B ----------
   // Breadth-first search over the connections, ignoring their direction; optionally refusing to route through the hub.
@@ -340,16 +335,16 @@
   }
   const pathsFor = (a, b) => ({ any: findPath(a, b, false), avoid: isHub(a) || isHub(b) ? null : findPath(a, b, true) });
   function computePath() {
-    currentPath = null;
+    currentPath = currentPaths = null;
     if (!pinned || !pathTo) return;
-    const { any, avoid } = pathsFor(pinned, pathTo);
-    currentPath = (pathAvoid && avoid) || any;
+    currentPaths = pathsFor(pinned, pathTo);
+    currentPath = (pathAvoid && currentPaths.avoid) || currentPaths.any;
   }
   function renderPath() {
     const box = $('#pathResult');
     if (!box) return;
     if (!currentPath) { box.innerHTML = pathTo ? '<p class="hint">No connection found.</p>' : ''; return; }
-    const { any, avoid } = pathsFor(pinned, pathTo);
+    const { any, avoid } = currentPaths;
     const steps = n => `${n} step${n === 1 ? '' : 's'}`;
     const viaHub = any.nodes.slice(1, -1).includes(HUB);
     const choice = (via, text, on) => `<button class="btn${on ? ' on' : ''}" data-via="${via}">${text}</button>`;
@@ -388,9 +383,7 @@
   function applyHash() {
     const p = new URLSearchParams(location.hash.slice(1)), card = p.get('card'), to = p.get('to');
     filt = FILTERS[p.get('filter')] ? p.get('filter') : 'all';
-    term = p.get('q') || '';
-    searchBox.value = term;
-    searchClear.hidden = !term;
+    setTerm(p.get('q') || '');
     pathAvoid = p.get('via') !== 'any';
     syncFilterButtons();
     clearSelection();
@@ -438,7 +431,7 @@
     apply: open => {
       mainEl.classList.toggle('collapsed', !open);
       $('#sideTab').innerHTML = open ? '&#9656;' : '&#9666;';
-      redrawPinned();
+      paintSelection();
     },
   });
   panelToggle({
@@ -465,7 +458,7 @@
   // Pointer and keyboard focus both preview a card. These events also fire when moving between a card's own children,
   // so act only when the pointer or focus actually enters or leaves a card.
   const cardOf = node => node && node.closest ? node.closest('.card') : null;
-  [['mouseover', 'focusin', previewCard, 'enter'], ['mouseout', 'focusout', endPreview, 'leave']].forEach(([pointerEvt, focusEvt, handler]) => {
+  [['mouseover', 'focusin', previewCard], ['mouseout', 'focusout', reset]].forEach(([pointerEvt, focusEvt, handler]) => {
     [pointerEvt, focusEvt].forEach(type => document.addEventListener(type, e => {
       const c = cardOf(e.target);
       if (c && !pinned && c !== cardOf(e.relatedTarget)) handler(c.dataset.id);
@@ -486,13 +479,7 @@
     if (c) { pin(c.dataset.id); return; }
     if (!e.target.closest('aside,header,.bar') && pinned) clearSelection();
   });
-  const searchBox = $('#q'), searchClear = $('#qClear');
-  function setSearch(value) {
-    term = value;
-    searchBox.value = value;
-    searchClear.hidden = !value;
-    clearSelection();
-  }
+  function setSearch(value) { setTerm(value); clearSelection(); }
   searchBox.addEventListener('input', () => setSearch(searchBox.value));
   searchClear.addEventListener('click', () => { setSearch(''); searchBox.focus(); });
   // light/dark: an explicit choice (saved) overrides the operating-system setting
@@ -508,7 +495,7 @@
     storage.set(STORE.theme, root.dataset.theme);
     syncThemeSwitch();
   });
-  addEventListener('resize', () => { cancelAnimationFrame(resizeFrame); resizeFrame = requestAnimationFrame(redrawPinned); });
+  addEventListener('resize', () => { cancelAnimationFrame(resizeFrame); resizeFrame = requestAnimationFrame(paintSelection); });
 
   $('#report').href = `${REPO}/issues/new`;
   addEventListener('hashchange', applyHash);
