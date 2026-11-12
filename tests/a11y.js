@@ -13,7 +13,7 @@ const page = 'file://' + path.resolve(__dirname, '..', 'index.html').replace(/\\
 const STATES = [
   ['home', async () => {}],
   ['card pinned, path chosen', async p => { await p.click('.card[data-id=Yarvin] .n'); await p.selectOption('#pathSel', 'Vance'); }],
-  ['filtered by a badge', async p => { await p.click('#legend .pill[data-f=crypto]'); }],
+  ['filtered by a chip', async p => { await p.click('.chip[data-f=crypto]'); }],
   ['help dialog open', async p => { await p.click('#helpBtn'); }],
 ];
 

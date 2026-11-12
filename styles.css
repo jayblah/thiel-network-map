@@ -192,7 +192,7 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
 .card .n:focus-visible { outline: none; }
 .card:focus-within { outline: 3px solid var(--accent); outline-offset: 2px; }
-.card .s { font-size: .8rem; color: var(--mute); margin-top: 1px; }
+.card .s { font-size: .8rem; color: var(--mute); margin-top: 5px; } /* clear of the name button, so a link in the subtitle is not a cramped touch target */
 .card .r { font-size: .8rem; margin-top: 5px; padding-top: 5px; border-top: 1px dashed color-mix(in srgb, var(--c) 55%, transparent); }
 .card.anti { border: 3px dashed var(--red); padding: 8px 10px 7px; }
 .card.net { border-radius: 4px 22px 4px 22px; }
