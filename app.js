@@ -168,8 +168,12 @@
   }
 
   // ---------- legend and filter chips ----------
+  // Arrowhead for each kind of connection: a filled triangle, an open line arrow, or none (plain = mutual).
+  const HEAD = { strong: 'solid', normal: 'line', weak: 'solid', plain: null };
+  const arrowPath = { solid: 'M0,0 L10,5 L0,10 z', line: 'M1.5,1 L8.5,5 L1.5,9' };
   // a small drawing of one connection style, for the legend
-  const sampleLine = (kind, arrowHead) => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${arrowHead ? 33 : 38}"/>${arrowHead ? '<path class="tip cat-oth" d="M32,1 L39,5 L32,9z"/>' : ''}</svg>`;
+  const sampleLine = kind => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${HEAD[kind] === 'solid' ? 33 : 38}"/>`
+    + (HEAD[kind] ? `<g class="tip ${HEAD[kind]} cat-oth" transform="translate(30 0)"><path d="${arrowPath[HEAD[kind]]}"/></g>` : '') + '</svg>';
   function renderLegend() {
     const row = (title, items) => `<div class="lrow"><b>${title}</b>${items.join('')}</div>`;
     const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
@@ -185,10 +189,10 @@
         lg('<span class="money">$15M</span>', 'Money amount'),
       ]) +
       row('Lines', [
-        lg(sampleLine('strong', true), 'Close tie: founder, funder, mentor'),
-        lg(sampleLine('normal', true), 'Tie: influence, support or role'),
-        lg(sampleLine('weak', true), 'Looser or critical tie'),
-        lg(sampleLine('plain', false), 'Mutual or peer tie (no arrow)'),
+        lg(sampleLine('strong'), 'Close tie: founder, funder, mentor'),
+        lg(sampleLine('normal'), 'Tie: influence, support or role'),
+        lg(sampleLine('weak'), 'Looser or critical tie'),
+        lg(sampleLine('plain'), 'Mutual or peer tie (no arrow)'),
         lg('', 'Arrows point from the one acting (influencing, funding, hiring, criticising) to the other'),
       ]);
   }
@@ -257,7 +261,7 @@
     if (t0 >= t1) { t0 = 0; t1 = 1; }
     const P0 = point(t0), P2 = point(t1);
     const P1 = lerp(P0, lerp(C, B, t0), (t1 - t0) / (1 - t0)); // control point of the trimmed segment
-    const marker = e.kind === 'plain' ? '' : ` marker-end="url(#ah-${cat})"`;
+    const marker = HEAD[e.kind] ? ` marker-end="url(#${HEAD[e.kind]}-${cat})"` : '';
     let svg = `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
     if (withLabels && e.label) { // label sits on the curve at t = 0.5
       svg += `<text class="lbl cat-${cat}" x="${.25 * P0[0] + .5 * P1[0] + .25 * P2[0]}" y="${.25 * P0[1] + .5 * P1[1] + .25 * P2[1]}" text-anchor="middle">${svgText(cut(e.label, LABEL_MAX))}</text>`;
@@ -272,8 +276,11 @@
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
     const edges = list.map((e, i) => edgeSvg(e, i, withLabels, boxOf));
-    const markers = [...new Set(edges.map(x => x.cat))].map(c =>
-      `<marker id="ah-${c}" class="cat-${c}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>`).join('');
+    const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${N[e.a].cat}`).filter(Boolean))];
+    const markers = heads.map(id => {
+      const [head, cat] = id.split('-');
+      return `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
+    }).join('');
     ov.innerHTML = `<defs>${markers}</defs>${edges.map(x => x.svg).join('')}`;
   }
 
