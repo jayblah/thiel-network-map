@@ -9,7 +9,7 @@ Live site: https://jayblah.github.io/thiel-network-map/
 - Hover a card to trace its connections; click it to pin it and read the details. Clicking any badge, filter chip or government count spotlights the matching cards; click it again to clear.
 - With a card pinned, **How is it connected to…** finds the chain between two cards, with or without going through Thiel.
 - The address bar mirrors the view, so any view can be shared, for example `#card=Yarvin&to=Vance`, `#filter=crypto` or `#q=greenland`.
-- Shortcuts: `/` search, `L` legend, `D` details panel, `?` help, `Esc` clear.
+- Shortcuts: `/` search, `L` legend, `?` help, `Esc` close a card.
 
 ## Files
 

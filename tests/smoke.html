@@ -58,11 +58,11 @@ frame.addEventListener('load', async () => {
 
     // selecting a card: details, page references, address bar, connection lines
     $('.card[data-id=Vance] .n').click();
-    check('pinning a card shows its details', $('#side h2').textContent === 'JD Vance');
+    check('pinning a card opens its details dialog', $('#cardBody h2').textContent === 'JD Vance');
     check('pinning writes the card into the address', win.location.hash.includes('card=Vance'));
     check('connection lines are drawn from card borders', $$('#ov path.edge').length === E.filter(e => e.a === 'Vance' || e.b === 'Vance').length);
-    check('source links end in an arrow icon, not a text badge', $$('#side .srcl .ext').length > 0 && !$('#side .srcl i'));
-    check('details panel offers a correction link', !!$('#side a.wl[href*="issues/new"]'));
+    check('source links end in an arrow icon, not a text badge', $$('#cardBody .srcl .ext').length > 0 && !$('#cardBody .srcl i'));
+    check('card dialog offers a correction link', !!$('#cardBody a.wl[href*="issues/new"]'));
 
     // how is A connected to B
     const sel = $('#pathSel');
@@ -77,7 +77,7 @@ frame.addEventListener('load', async () => {
     }
     win.location.hash = '#card=Yarvin&to=Vance&filter=crypto';
     await wait(100);
-    check('the address restores a card, a path and a filter', $('#side h2').textContent === 'Curtis Yarvin' && $('#pathSel').value === 'Vance' && $(`.chip[data-f=crypto]`).classList.contains('on'));
+    check('the address restores a card, a path and a filter', $('#cardBody h2').textContent === 'Curtis Yarvin' && $('#pathSel').value === 'Vance' && $(`.chip[data-f=crypto]`).classList.contains('on'));
     doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     check('Escape clears the selection and the address', !$('.card.sel') && !win.location.hash.includes('card='));
     check('unpinning leaves no stale pressed state on card names', !$$('.card .n[aria-pressed]').length);

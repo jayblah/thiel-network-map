@@ -15,7 +15,6 @@
   --accent: light-dark(#4338ca, #9995ff);
   --on-accent: light-dark(#ffffff, #0f121a); /* text on an accent background */
   --money: light-dark(#006b24, #39ff7a); /* >= 4.5:1 on every card tint in both themes */
-  --aside-w: min(360px, 42vw);               /* details panel width; the tab is positioned from it */
 
   /* the Thiel card is dark in both themes */
   --hero-bg: linear-gradient(135deg, #1d2433, #2f3a58);
@@ -75,7 +74,7 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 ::placeholder { color: var(--mute); opacity: 1; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
-.tools button[aria-pressed=false] { opacity: .7; } /* the Legend and Details Panel buttons look dimmed while their panel is hidden */
+.tools button[aria-pressed=false] { opacity: .7; } /* the Legend button looks dimmed while the legend is hidden */
 
 /* light/dark switch: sun and moon glyphs (text-presentation, not emoji, so they follow the theme colours); the knob sits under the active one */
 .switch { position: relative; display: inline-flex; align-items: center; width: 62px; height: 32px; padding: 0; border-radius: 999px; border: 1px solid var(--ctl); background: var(--bg); }
@@ -131,22 +130,29 @@ main { flex: 1; display: flex; min-height: 0; position: relative; }
 #view { flex: 1; overflow: auto; position: relative; }
 .nojs { margin: 24px auto; max-width: 52rem; padding: 0 16px; line-height: 1.5; }
 .nojs ul { padding-left: 1.2rem; } .nojs li { margin: 0 0 .7rem; }
-html:not(.js) :is(aside, #sideTab, .bar, .tools, footer) { display: none; } /* these need the script */
+html:not(.js) :is(.bar, .tools, footer) { display: none; } /* these need the script */
 .ver:empty { display: none; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
-svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; overflow: visible; } /* connection lines run under the cards */
-aside { width: var(--aside-w); background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 18px; }
-main.collapsed aside { display: none; }
+svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; overflow: visible; } /* connection lines run over the cards (above their z-index of 2) so they are easy to see */
 .sec { grid-column: span var(--span, 12); } /* --span is set per section from data.js */
-#sideTab { position: absolute; top: 14px; right: var(--aside-w); z-index: 6; width: 26px; height: 64px; padding: 0; border-radius: 10px 0 0 10px; border-right: 0; background: var(--panel); font-size: 1.1rem; line-height: 1; box-shadow: -2px 2px 8px rgba(0,0,0,.15); }
-main.collapsed #sideTab { right: 0; }
 @media (max-width: 900px) {
   main { flex-direction: column; }
-  aside { width: 100%; height: 38vh; border-left: 0; border-top: 1px solid var(--line); }
   #stage { grid-template-columns: 1fr; }
   .sec { grid-column: 1 / -1; }
-  #sideTab { top: auto; bottom: calc(38vh + 6px); right: 12px; width: 64px; height: 26px; border-radius: 10px 10px 0 0; border-right: 1px solid var(--line); }
-  main.collapsed #sideTab { bottom: 0; }
+}
+/* phones: keep the chrome small so the cards get the screen */
+@media (max-width: 700px) {
+  header { padding: 8px 12px; gap: 4px 10px; }
+  h1 { font-size: 1.05rem; }
+  h1 small { display: none; }
+  .tools { margin-left: 0; width: 100%; gap: 6px; }
+  #legendBtn { display: none; } /* the tab beside the filters does the same job on a phone */
+  .search { flex: 1 1 8rem; }
+  input[type=search] { width: 100%; }
+  .bar { padding: 6px 12px; gap: 6px; }
+  .filters { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; } /* one scrolling row instead of five wrapped ones */
+  .filters > * { flex: none; }
+  #legend { max-height: 34vh; overflow: auto; }
 }
 
 /* badges */
@@ -178,9 +184,10 @@ main.collapsed #sideTab { right: 0; }
 .card.anti { border: 3px dashed var(--red); padding: 8px 10px 7px; }
 .card.net { border-radius: 4px 22px 4px 22px; }
 .card.sel { outline: 4px solid var(--accent); outline-offset: 2px; }
-.card.hero { grid-column: 1 / -1; background: var(--hero-bg); color: #fff; border-color: #000; border-radius: 16px; --money: #39ff7a; } /* dark in both themes, so money uses the bright green even in light mode */
+.card.hero { text-align: center; grid-column: 1 / -1; background: var(--hero-bg); color: #fff; border-color: #000; border-radius: 16px; --money: #39ff7a; } /* dark in both themes, so money uses the bright green even in light mode */
 .card.hero:hover { transform: none; }
-.card.hero .n { color: #fff; font-size: 1.75rem; }
+.card.hero .pills { justify-content: center; padding-right: 0; }
+.card.hero .n { color: #fff; font-size: 1.75rem; text-align: center; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
 .card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; filter: grayscale(1); } /* everything outside the spotlight loses its colour */
@@ -201,16 +208,21 @@ main.collapsed #sideTab { right: 0; }
   .linkbtn { min-height: 36px; padding: 0 8px; }
 }
 
-/* how-to-read dialog */
+/* dialogs: how to read, and a card's details */
 #helpBtn { width: 32px; height: 32px; padding: 0; font-weight: 700; }
-#help { background: var(--panel); color: var(--ink); border: 2px solid var(--accent); border-radius: 16px; padding: 20px 24px 22px; width: min(560px, calc(100vw - 32px)); max-height: calc(100vh - 48px); overflow: auto; line-height: 1.5; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
-#help::backdrop { background: rgba(10, 14, 24, .55); }
-#help h2 { margin: 0 0 8px; font-size: 1.15rem; }
-#helpClose { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; padding: 0; font-size: 1.3rem; line-height: 1; }
+dialog { background: var(--panel); color: var(--ink); border: 2px solid var(--accent); border-radius: 16px; padding: 20px 24px 22px; width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 48px); overflow: auto; line-height: 1.5; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+dialog::backdrop { background: rgba(10, 14, 24, .55); }
+dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
+.x { position: absolute; top: 10px; right: 12px; width: 30px; height: 30px; padding: 0; font-size: 1.3rem; line-height: 1; }
+/* the card dialog is large; its content scrolls under a close button that stays put */
+#card { width: min(760px, calc(100vw - 24px)); height: min(900px, calc(100dvh - 24px)); max-height: none; padding: 0; overflow: hidden; }
+#card[open] { display: flex; }
+#cardBody { flex: 1; overflow: auto; padding: 20px 24px 24px; }
+#card h2 { margin: 0 44px 4px 0; font-size: 1.4rem; }
 /* Reach Into Government: lives inside the Thiel card */
-.reach { margin-top: 12px; padding: 10px 28px 2px 0; color: var(--hero-ink); cursor: default; }
+.reach { margin-top: 12px; padding: 10px 0 2px; color: var(--hero-ink); cursor: default; }
 .reach h2 { margin: 0 0 8px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
-.reach .row { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; }
+.reach .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 12px; align-items: center; }
 .reach .facts { margin-top: 9px; font-size: .88rem; }
 .reach .stat, .reach .facts { position: relative; z-index: 1; } /* above the card's click overlay */
 .reach .facts span { display: inline-block; margin: 2px 0; }
@@ -218,8 +230,7 @@ main.collapsed #sideTab { right: 0; }
 .stat { display: inline-flex; align-items: baseline; gap: 6px; border: 2px solid var(--ks); border-radius: 12px; padding: 5px 12px; background: var(--panel); color: var(--ink); }
 .stat b { font-size: 1.35rem; line-height: 1; color: var(--k); }
 
-/* details panel */
-aside h2 { margin: 0 0 4px; font-size: 1.25rem; }
+/* card details */
 .hint { color: var(--mute); }
 .cat { display: inline-block; font-size: .78rem; padding: 2px 10px; border-radius: 999px; margin-bottom: 8px; color: var(--t); background: color-mix(in srgb, var(--c) 20%, var(--panel)); border: 2px solid var(--c); font-weight: 700; }
 .dsec { margin: 14px 0; padding-left: 10px; border-left: 4px solid var(--kb, var(--k)); }
@@ -262,7 +273,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
 @media print {
   :root, :root[data-theme=dark] { color-scheme: light; }
   html, body { height: auto; overflow: visible; display: block; background: #fff; color: #000; }
-  .tools, .filters, #legendTab, #sideTab, aside, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
+  .tools, .filters, #legendTab, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
   header, .bar { background: none; border: 0; padding: 0 0 6px; }
   #legend { background: none; border: 1px solid #999; }
   main { display: block; }

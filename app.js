@@ -8,7 +8,7 @@
   // ---------- configuration ----------
   const HUB = 'T'; // id of the central node (Peter Thiel)
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
-  const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
+  const STORE = { legend: 'thielLegend', theme: 'thielTheme' };
   const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
 
   // GOV (the kinds of government reach, in display order) comes from data.js; colour names map to .c-<colour> classes in styles.css.
@@ -48,7 +48,7 @@
   const bold = s => s.replace(/\*([^*]+)\*/g, '<b>$1</b>');
 
   // ---------- icons, badges and detail blocks ----------
-  // Line icons (24x24 grid, drawn with currentColor) shared by badges, panel headings and chips.
+  // Line icons (24x24 grid, drawn with currentColor) shared by badges, dialog headings and chips.
   const ICON_PATHS = {
     views: '<path d="M12 3 2 21h20z"/><path d="M12 10v5M12 18h.01"/>',
     faith: '<path d="M12 3v18M6.5 9h11"/>',
@@ -79,7 +79,7 @@
   //   key + color + icon       identity (key is also the filter id and, by default, the node field it reads)
   //   label, desc              badge text and its legend description (no label: no badge, e.g. network states)
   //   has(n), text(n)          whether a node gets the badge/block, and the text shown (default: n[key])
-  //   head                     details-panel heading (string or fn); no head: no panel block
+  //   head                     card dialog heading (string or fn); no head: no panel block
   //   chip                     text of the filter chip; chipId/chipTest add a second filter (anti-democracy)
   //   filter(n)                what the filter matches (default: has)
   const facet = def => {
@@ -128,25 +128,19 @@
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), mainEl = $('main'), sideEl = $('#side'), searchBox = $('#q'), searchClear = $('#qClear');
+  const stage = $('#stage'), ov = $('#ov'), cardDlg = $('#card'), cardBody = $('#cardBody'), searchBox = $('#q'), searchClear = $('#qClear');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null, currentPaths = null; // 'how is A connected to B' state
 
-  // ---------- panel toggles (legend and details panel share one mechanism) ----------
+  // ---------- legend toggle ----------
   const keyActions = {};
-  function panelToggle({ store, key, buttons, apply }) {
-    let open = true;
-    const set = (v, keep) => {
-      open = v;
-      buttons.forEach(b => b.setAttribute('aria-pressed', v));
-      apply(v);
-      if (!keep) storage.set(store, v ? '1' : '0');
-    };
-    buttons.forEach(b => b.addEventListener('click', () => set(!open)));
-    keyActions[key] = () => set(!open);
-    set(storage.get(store) !== '0', true);
-    return { isOpen: () => open, set };
+  const NARROW = matchMedia('(max-width: 700px)');
+  function setLegend(open, keep) {
+    $('#legend').hidden = !open;
+    $('#legendTab .chev').innerHTML = open ? '&#9652;' : '&#9662;';
+    [$('#legendBtn'), $('#legendTab')].forEach(b => b.setAttribute('aria-pressed', open));
+    if (!keep) storage.set(STORE.legend, open ? '1' : '0');
   }
 
   // ---------- legend and filter chips ----------
@@ -291,12 +285,11 @@
     pinned = pathTo = currentPath = currentPaths = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
   }
-  function clearSelection() { unpin(); reset(); syncUrl(); }
+  function clearSelection() { unpin(); if (cardDlg.open) cardDlg.close(); reset(); syncUrl(); }
   function setFilter(k) { filt = k; syncFilterButtons(); clearSelection(); }
   function setTerm(value) { term = value; searchBox.value = value; searchClear.hidden = !value; } // the search text and its box, kept in step
   const toggleFilter = k => setFilter(filt === k && k !== 'all' ? 'all' : k); // clicking the active filter again clears it
   function pin(id) {
-    if (!side.isOpen()) side.set(true, true);
     unpin();
     pinned = id;
     els[id].classList.add('sel');
@@ -304,6 +297,7 @@
     showCount(null);
     paintSelection();
     showDetails(id);
+    if (!cardDlg.open) cardDlg.showModal();
     syncUrl();
   }
   // Spotlight what is selected: the chosen path between two cards, or one card's connections.
@@ -390,7 +384,7 @@
     if (card && els[card]) { pin(card); if (to && els[to] && to !== card) setPath(to); }
   }
 
-  // ---------- details panel ----------
+  // ---------- card dialog ----------
   const sourcesHtml = n => n.sources && n.sources.length
     ? block('accent', 'Sources Cited in the Book (to Fact-Check)',
       n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<span class="ext" aria-hidden="true">&#8599;</span>`
@@ -404,7 +398,7 @@
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
-    sideEl.innerHTML = `<h2>${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
+    cardBody.innerHTML = `<h2 id="cardTitle">${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
       + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
       + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : '')
       + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
@@ -414,7 +408,7 @@
       + pathBox(n)
       + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''))
       + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, 'Report a correction for this card &#8599;');
-    sideEl.scrollTop = 0;
+    cardBody.scrollTop = 0;
   }
 
   // ---------- start up ----------
@@ -426,29 +420,25 @@
   renderStage();
   syncFilterButtons();
 
-  const side = panelToggle({
-    store: STORE.side, key: 'd', buttons: [$('#sideBtn'), $('#sideTab')],
-    apply: open => {
-      mainEl.classList.toggle('collapsed', !open);
-      $('#sideTab').innerHTML = open ? '&#9656;' : '&#9666;';
-      paintSelection();
-    },
-  });
-  panelToggle({
-    store: STORE.legend, key: 'l', buttons: [$('#legendBtn'), $('#legendTab')],
-    apply: open => { $('#legend').hidden = !open; $('#legendTab .chev').innerHTML = open ? '&#9652;' : '&#9662;'; },
-  });
+  const legendKey = () => setLegend($('#legend').hidden);
+  [$('#legendBtn'), $('#legendTab')].forEach(b => b.addEventListener('click', legendKey));
+  keyActions.l = legendKey;
+  const savedLegend = storage.get(STORE.legend);
+  setLegend(savedLegend === null ? !NARROW.matches : savedLegend !== '0', true); // on a phone the legend starts closed unless the reader opened it before
 
-  // how-to-read dialog: native <dialog> gives Esc-to-close and focus handling; also close on backdrop click
+  // the two dialogs: native <dialog> gives Esc-to-close and focus handling; also close on a click on the backdrop
+  [cardDlg, $('#help')].forEach(d => {
+    d.addEventListener('click', e => { if (e.target === d) d.close(); });
+    d.querySelector('.x').addEventListener('click', () => d.close());
+  });
+  cardDlg.addEventListener('close', () => { if (pinned) clearSelection(); }); // closed by the reader (not reopened for another card)
   const help = $('#help');
   $('#helpBody').innerHTML = $('#howto').innerHTML;
   const openHelp = () => { if (!help.open) help.showModal(); };
   $('#helpBtn').addEventListener('click', openHelp);
-  $('#helpClose').addEventListener('click', () => help.close());
-  help.addEventListener('click', e => { if (e.target === help) help.close(); });
 
   // keyboard shortcuts (ignored while typing)
-  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); }, escape: () => { if (pinned) clearSelection(); } });
+  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); } });
   addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
     const act = keyActions[e.key.toLowerCase()];
@@ -473,11 +463,10 @@
     const f = e.target.closest('[data-f]');
     if (f) { toggleFilter(f.dataset.f); return; }
     const go = e.target.closest('[data-go]');
-    if (go) { pin(go.dataset.go); els[go.dataset.go].scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+    if (go) { pin(go.dataset.go); return; }
     if (e.target.closest('a')) return; // external links
     const c = cardOf(e.target);
-    if (c) { pin(c.dataset.id); return; }
-    if (!e.target.closest('aside,header,.bar') && pinned) clearSelection();
+    if (c) pin(c.dataset.id);
   });
   function setSearch(value) { setTerm(value); clearSelection(); }
   searchBox.addEventListener('input', () => setSearch(searchBox.value));
