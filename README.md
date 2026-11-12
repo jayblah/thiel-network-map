@@ -2,6 +2,8 @@
 
 An interactive map of the people, companies and projects connected to Peter Thiel, as described in *The Nerd Reich* by Gil Duran.
 
+Live site: https://jayblah.github.io/thiel-network-map/
+
 ## Using it
 
 - Hover a card to trace its connections; click it to pin it and read the details. Clicking any badge, filter chip or government count spotlights the matching cards; click it again to clear.
@@ -16,6 +18,8 @@ An interactive map of the people, companies and projects connected to Peter Thie
 - `app.js`: behaviour. Each kind of badge, detail block and filter chip is one entry in `FACETS`; kinds of government reach are in `GOV`.
 - `styles.css`: look and feel. Light/dark colours are defined once each with `light-dark()`; category text colours are checked for WCAG 2.1 AA contrast.
 - `bump-version.js`: `node bump-version.js 1.17` updates the version shown in the header and in the `?v=` cache-busting suffix on the three files above (do this on every release so browsers never mix new and cached old files).
+- `data-loader.js`: how the Node tools (`check.js`, `check-links.js`, `build-static.js`) read `data.js`.
+- `build-static.js`: `node build-static.js` writes a plain-text copy of the whole map into `index.html` (inside `<noscript>`) for search engines, social-media crawlers and visitors with JavaScript off. Rerun it after changing `data.js`; `node check.js` fails if the copy is stale.
 - `social.png`: the preview image shown when the site is shared.
 - `robots.txt`: allows search engines to index the page.
 
@@ -29,6 +33,10 @@ An interactive map of the people, companies and projects connected to Peter Thie
 - `.github/workflows/checks.yml` runs all of the above on GitHub (pull requests, and weekly with the link check).
 - `.github/workflows/pages.yml` publishes the site, but only after every check passes. In the repository settings, Pages must use the source **GitHub Actions**.
 - `.github/dependabot.yml` proposes weekly, grouped updates to the pinned GitHub Actions and the development tooling (only releases at least 14 days old). The actions in the workflows are pinned to exact commits.
+
+## Working on it
+
+`main` is protected: change it through a pull request, which must pass the checks (data, browser test, accessibility, Lighthouse) before it can be merged. Merging publishes the site. After editing `data.js`, run `node build-static.js` and `node check.js`.
 
 ## Security
 

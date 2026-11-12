@@ -29,12 +29,24 @@ function serve() {
   });
 }
 
+// Chrome occasionally fails to open its debugging port on a busy CI machine; try a few times before giving up.
+async function launchChrome(chromeLauncher, attempts = 3) {
+  for (let i = 1; ; i++) {
+    try {
+      return await chromeLauncher.launch({ chromeFlags: ['--headless', '--no-sandbox', '--disable-gpu', '--disable-dev-shm-usage'], chromePath: process.env.CHROME_PATH || undefined });
+    } catch (e) {
+      if (i >= attempts) throw e;
+      console.error(`Chrome did not start (attempt ${i} of ${attempts}); retrying`);
+    }
+  }
+}
+
 (async () => {
   const { default: lighthouse } = await import('lighthouse');
   const chromeLauncher = await import('chrome-launcher');
   const server = await serve();
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const chrome = await chromeLauncher.launch({ chromeFlags: ['--headless', '--no-sandbox', '--disable-gpu'], chromePath: process.env.CHROME_PATH || undefined });
+  const chrome = await launchChrome(chromeLauncher);
   let failed = false;
   try {
     const { lhr } = await lighthouse(url, { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: Object.keys(TARGETS) });

@@ -1,11 +1,18 @@
 // All map content. Edit here; app.js and styles.css hold no data.
+// govKinds: the kinds of government reach (colour and icon names are defined in styles.css and app.js).
 // cats: category key -> section title. sections: display order and width (columns of 12) of each category.
 // Node (key = id): name, cat, sub [lines under the name], cos (companies), fund, crypto, views, faith, anti (red dashed border),
-//   gov {kinds[contractor|official|influence|abroad], text}, link {u,l} (replaces the Wikipedia link on the card),
+//   gov {kinds [keys from govKinds], text}, link {u,l} (replaces the Wikipedia link on the card),
 //   wiki, sources [{l,u,s:ok|blocked}]. Empty fields are simply left out.
 // Edge: a, b, label, kind (strong|normal|weak|plain).
 const DATA={
  sections:[["infl",5],["pp",7],["neo",12],["pol",12],["prot",12],["faith",12],["net",12],["oth",12],["obs",12]],
+ govKinds:[
+ {"key":"official","color":"gold","icon":"official","pill":"In Government","title":"Holds or held a government role","reach":"In Government"},
+ {"key":"contractor","color":"navy","icon":"contractor","pill":"Gov Contractor","title":"Government contractor","reach":"Government Contractors"},
+ {"key":"influence","color":"slate","icon":"influence","pill":"Gov Influence","title":"Investor or lobbyist with government reach","reach":"With Government Influence"},
+ {"key":"abroad","color":"teal","icon":"abroad","pill":"Abroad","title":"Dealings with non-US governments","reach":"Dealing with Other Governments"}
+ ],
  cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","obs":"Interviewers, Critics and Biographers","net":"Network States / Startup Cities","faith":"Christian Nationalist Groups and Figures","center":"Peter Thiel"},
  facts:[
   "*$2.5B* in federal contracts to Palantir since 2009",
@@ -37,7 +44,7 @@ const DATA={
   "Andreessen":{"name":"Marc Andreessen","cat":"neo","cos":"Netscape, Andreessen Horowitz","views":"backs push to undo democracy","faith":"Techno-Optimist Manifesto written in biblical-prophecy style","crypto":"a16z is widely credited as the largest venture investor in digital assets: eight Coinbase investments from 2013 to 2020, and a backer of the Fairshake PACs.","anti":true,"wiki":"https://en.wikipedia.org/wiki/Marc_Andreessen","gov":{"kinds":["influence"],"text":"a16z 'American Dynamism' portfolio includes Anduril, Flock Safety, Palantir and SpaceX, all major government contractors."},"sources":[{"l":"a16z, Oct 2023: The Techno-Optimist Manifesto","u":"https://a16z.com/the-techno-optimist-manifesto/","s":"ok"},{"l":"Reuters, Apr 2025: a16z seeks a $20B megafund","u":"https://www.reuters.com/business/finance/andreessen-horowitz-seeks-raise-20-billion-megafund-amid-global-interest-us-ai-2025-04-08/","s":"blocked"}]},
   "Friedman":{"name":"Patri Friedman","cat":"neo","sub":["Seasteading"],"cos":"Seasteading Institute, Pronomos Capital","fund":"$500K to Seasteading Institute; Pronomos backer","views":"seasteading: exit from governments","anti":true,"wiki":"https://en.wikipedia.org/wiki/Patri_Friedman","sources":[{"l":"Seasteading Institute, Apr 2008: introduction","u":"https://www.seasteading.org/introducing-the-seasteading-institute/","s":"ok"},{"l":"Wired, May 2008: Thiel's $500K to the Seasteading Institute","u":"https://www.wired.com/2008/05/peter-thiel-makes-down-payment-on-libertarian-ocean-colonies/","s":"ok"}]},
   "Brown":{"name":"Dryden Brown","cat":"neo","sub":["Praxis"],"cos":"Praxis","views":"Praxis: replace nation states","crypto":"GEM Digital, a Bahamas crypto investment firm, was said to have lined up $525M to build a crypto city (Praxis, Oct 2024).","anti":true,"gov":{"kinds":["abroad"],"text":"Scouted Greenland for Praxis and talked of buying it; sought a host government for the city."},"sources":[{"l":"Air Mail, Jul 2023: inside the Praxis Society","u":"https://airmail.news/issues/2023-7-29/company-town","s":"ok"},{"l":"WSJ, Oct 2024: Praxis gets $525M in commitments","u":"https://www.wsj.com/articles/tech-utopian-project-praxis-gets-525-million-in-commitments-for-planned-heroic-city-f4623e98","s":"blocked"},{"l":"Vanity Fair, Jun 2025: Welcome to Praxis","u":"https://www.vanityfair.com/news/praxis-dryden-brown","s":"ok"}]},
-  "Sramek":{"name":"Jan Sramek","cat":"neo","sub":["California Forever founder"],"views":"California Forever (denies network-state link)","anti":true},
+  "Sramek":{"name":"Jan Sramek","cat":"neo","sub":["California Forever founder"],"views":"California Forever","anti":true},
   "Lutter":{"name":"Mark Lutter","cat":"neo","cos":"Charter Cities Institute","views":"Freedom Cities / charter cities","anti":true,"sources":[{"l":"Lutter and Mason, \"Build the Presidio Freedom City,\" Palladium (Jan 2025)","u":"https://www.palladiummag.com/2025/01/17/build-the-presidio-freedom-city/","s":"ok"}]},
   "Fischer":{"name":"Nate Fischer","cat":"neo","cos":"New Founding","views":"calls Highland Rim a network state","faith":"'Christian nations could organize network states'","anti":true,"sources":[{"l":"Mother Jones, Apr 2025: Christian \"TheoBros\" and Highland Rim","u":"https://www.motherjones.com/politics/2025/04/christian-theobros-are-building-a-tech-utopia-in-appalachia/","s":"ok"}]},
   "Vance":{"name":"JD Vance","cat":"pol","cos":"Circuit, Mithril Capital, Revolution, Narya Capital, Rockbridge Network","fund":"$15M for Senate race; early Narya/fund backer","views":"Yarvin / anti-liberal circle","faith":"Catholic convert 2019 (credits Thiel); postliberal Catholic circle","anti":true,"wiki":"https://en.wikipedia.org/wiki/JD_Vance","gov":{"kinds":["official"],"text":"Vice President of the United States."},"sources":[{"l":"Politico, May 2022: Thiel's funding of Vance's primary","u":"https://www.politico.com/news/2022/05/03/jd-vance-win-ohio-primary-00029881","s":"blocked"},{"l":"USA Today, Jul 2024: how Thiel boosted Vance","u":"https://www.usatoday.com/story/news/politics/elections/2024/07/17/peter-thiel-boosted-jd-vance-career/74397520007/","s":"blocked"}]},
@@ -240,34 +247,25 @@ const DATA={
   "Cambridge Analytica":"https://en.wikipedia.org/wiki/Cambridge_Analytica",
   "Stanford Review":"https://en.wikipedia.org/wiki/The_Stanford_Review",
   "The Sovereign Individual":"https://en.wikipedia.org/wiki/The_Sovereign_Individual",
-  "The Bell Curve":"https://en.wikipedia.org/wiki/The_Bell_Curve",
   "Zero to One":"https://en.wikipedia.org/wiki/Zero_to_One",
-  "Hillbilly Elegy":"https://en.wikipedia.org/wiki/Hillbilly_Elegy",
   "DOGE":"https://en.wikipedia.org/wiki/Department_of_Government_Efficiency",
   "Gawker":"https://en.wikipedia.org/wiki/Gawker",
   "ICE":"https://en.wikipedia.org/wiki/United_States_Immigration_and_Customs_Enforcement",
   "DHS":"https://en.wikipedia.org/wiki/United_States_Department_of_Homeland_Security",
-  "American Enterprise Institute":"https://en.wikipedia.org/wiki/American_Enterprise_Institute",
   "Opus Dei":"https://en.wikipedia.org/wiki/Opus_Dei",
-  "Anthropic":"https://en.wikipedia.org/wiki/Anthropic",
   "Greenland":"https://en.wikipedia.org/wiki/Greenland",
   "Honduras":"https://en.wikipedia.org/wiki/Honduras",
   "Próspera":"https://en.wikipedia.org/wiki/Pr%C3%B3spera",
   "Seasteading Institute":"https://en.wikipedia.org/wiki/The_Seasteading_Institute",
-  "Urbit":"https://en.wikipedia.org/wiki/Urbit",
   "Bitcoin":"https://en.wikipedia.org/wiki/Bitcoin",
-  "Facebook":"https://en.wikipedia.org/wiki/Facebook",
   "Pentagon":"https://en.wikipedia.org/wiki/The_Pentagon",
   "Israel Ministry of Defense":"https://en.wikipedia.org/wiki/Ministry_of_Defense_(Israel)",
-  "Department of Health and Human Services":"https://en.wikipedia.org/wiki/United_States_Department_of_Health_and_Human_Services",
   "Health and Human Services":"https://en.wikipedia.org/wiki/United_States_Department_of_Health_and_Human_Services",
   "HHS":"https://en.wikipedia.org/wiki/United_States_Department_of_Health_and_Human_Services",
   "Rockbridge":"https://en.wikipedia.org/wiki/Rockbridge_Network",
   "Narya Capital":"https://en.wikipedia.org/wiki/Narya_Capital",
   "Flock Safety":"https://en.wikipedia.org/wiki/Flock_Safety",
   "Dark Enlightenment":"https://en.wikipedia.org/wiki/Dark_Enlightenment",
-  "TESCREAL":"https://en.wikipedia.org/wiki/TESCREAL",
-  "Daily Stormer":"https://en.wikipedia.org/wiki/The_Daily_Stormer",
   "Gaza":"https://en.wikipedia.org/wiki/Gaza_Strip",
   "Denmark":"https://en.wikipedia.org/wiki/Denmark",
   "OSTP":"https://en.wikipedia.org/wiki/Office_of_Science_and_Technology_Policy"

@@ -1,12 +1,9 @@
 // Usage: node check-links.js   (Node 18 or newer; needs internet)
 // Checks that every Wikipedia address in data.js still resolves. Publisher addresses in `sources` are not checked
 // because many block automated requests (that is what their ok/blocked flag records).
-const fs = require('fs');
-const vm = require('vm');
+const { loadData } = require('./data-loader');
 
-const sandbox = {};
-vm.runInNewContext(fs.readFileSync('data.js', 'utf8') + '\nthis.DATA = DATA;', sandbox);
-const { nodes: N, ent: ENT } = sandbox.DATA;
+const { nodes: N, ent: ENT } = loadData();
 
 const urls = new Map(); // address -> who uses it
 const add = (u, who) => { if (u) urls.set(u, [...(urls.get(u) || []), who]); };
@@ -19,7 +16,7 @@ async function check(url) {
       const res = await fetch(url, { redirect: 'follow', headers: { 'user-agent': 'thiel-network-map-link-check (github.com/jayblah/thiel-network-map)' } });
       if (res.ok) return null;
       if (res.status !== 429 && res.status < 500) return `HTTP ${res.status}`;
-    } catch (e) { /* retry */ }
+    } catch { /* retry */ }
     await new Promise(r => setTimeout(r, 1500 * (attempt + 1)));
   }
   return 'no response';
