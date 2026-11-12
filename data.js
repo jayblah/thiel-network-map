@@ -10,7 +10,7 @@ const DATA={
  govKinds:[
  {"key":"official","color":"gold","icon":"official","pill":"In Government","title":"Holds or held a government role","reach":"In Government"},
  {"key":"contractor","color":"navy","icon":"contractor","pill":"Gov Contractor","title":"Government contractor","reach":"Government Contractors"},
- {"key":"influence","color":"slate","icon":"influence","pill":"Gov Influence","title":"Investor or lobbyist with government reach","reach":"With Government Influence"},
+ {"key":"influence","color":"slate","icon":"influence","pill":"Gov Influence","title":"Investor or lobbyist with gov. reach","reach":"With Government Influence"},
  {"key":"abroad","color":"teal","icon":"abroad","pill":"Abroad","title":"Dealings with non-US governments","reach":"Dealing with Other Governments"}
  ],
  cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","obs":"Interviewers, Critics and Biographers","net":"Network States / Startup Cities","faith":"Christian Nationalist Groups and Figures","center":"Peter Thiel"},
