@@ -191,7 +191,7 @@
   const PERSON = new Set(PEOPLE);
   const initials = name => name.replace(/^(Lord|Fr\.|Dr\.)\s+/, '').split(/\s+/).filter(w => /^\p{L}/u.test(w)).map((w, i, a) => i === 0 || i === a.length - 1 ? w[0] : '').join('');
   const portrait = n => !PERSON.has(n.id) ? ''
-    : PICS[n.id] ? `<img class="pic" src="img/${n.id}.webp" alt="" width="112" height="112" loading="lazy" decoding="async">`
+    : PICS[n.id] ? `<img class="pic" src="img/${n.id}.webp" alt="" width="112" height="112" ${n.id === HUB ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`
     : `<span class="pic mono" aria-hidden="true">${esc(initials(n.name))}</span>`;
   const cornerLink = (url, mark, title, cls = '') => extLink(`wp${cls}`, url, mark, `title="${esc(title)}" aria-label="${esc(title)} (opens in a new tab)"`);
   function card(n, { cls = '', lines = '', tail = '' } = {}) {
