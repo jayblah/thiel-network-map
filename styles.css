@@ -110,9 +110,12 @@ input[type=search] { padding: 7px 12px; border: 1px solid var(--ctl); border-rad
 #legendTab .chev { font-size: 1rem; }
 .filters { display: flex; flex-wrap: wrap; justify-content: flex-start; align-items: center; gap: 8px; }
 #legend { align-self: stretch; display: flex; flex-direction: column; align-items: flex-start; gap: 7px; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 14px; }
-.lrow { display: flex; flex-wrap: wrap; justify-content: flex-start; gap: 6px 16px; align-items: center; }
-.lrow > b { color: var(--ink); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; min-width: 74px; }
-.lg { display: inline-flex; align-items: center; gap: 6px; }
+.lrow { align-self: stretch; display: grid; grid-template-columns: 6.5rem 1fr; gap: 4px 12px; align-items: start; }
+.lrow > b { color: var(--ink); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; padding-top: 3px; }
+.litems { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 6px 18px; } /* aligned columns; a long description wraps beside its mark, not under it */
+.lg { display: flex; align-items: flex-start; gap: 6px; }
+.lg > :first-child { flex: none; }
+.lnote { grid-column: 1 / -1; }
 .lg-cat { color: var(--t); font-weight: 600; }
 .sw { width: 15px; height: 15px; border-radius: 4px; display: inline-block; background: var(--c); }
 .sw.anti { background: none; border: 3px dashed var(--red); }
@@ -153,6 +156,7 @@ svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 3; 
   .filters { flex-wrap: nowrap; overflow-x: auto; max-width: 100%; padding-bottom: 4px; } /* one scrolling row instead of five wrapped ones */
   .filters > * { flex: none; }
   #legend { max-height: 34vh; overflow: auto; }
+  .lrow { grid-template-columns: 1fr; }
 }
 
 /* badges */

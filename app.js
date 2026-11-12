@@ -156,7 +156,7 @@
       + `<path class="edge ${kind} cat-oth" d="M2,10 H46"${head ? ` marker-end="url(#${id})"` : ''}/></svg>`;
   };
   function renderLegend() {
-    const row = (title, items) => `<div class="lrow"><b>${title}</b>${items.join('')}</div>`;
+    const row = (title, items) => `<div class="lrow"><b>${title}</b><div class="litems">${items.join('')}</div></div>`;
     const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
     $('#legend').innerHTML =
       row('Box Colour', SECTIONS.map(([k]) => lg(`<i class="sw cat-${k}"></i>`, `<span class="cat-${k} lg-cat">${CAT[k]}</span>`))) +
@@ -174,7 +174,7 @@
         lg(sampleLine('normal'), 'Tie: influence, support or role'),
         lg(sampleLine('weak'), 'Looser or critical tie'),
         lg(sampleLine('plain'), 'Mutual or peer tie (no arrow)'),
-        lg('', 'Arrows point from the one acting (influencing, funding, hiring, criticising) to the other'),
+        `<span class="lnote">Arrows point from the one acting (influencing, funding, hiring, criticising) to the other</span>`,
       ]);
   }
   function renderChips() {
