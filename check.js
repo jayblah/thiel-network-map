@@ -3,6 +3,7 @@
 // Exits with a non-zero status (and lists the problems) if anything is wrong. Needs no packages.
 const fs = require('fs');
 const vm = require('vm');
+const crypto = require('crypto');
 
 const sandbox = {};
 vm.runInNewContext(fs.readFileSync('data.js', 'utf8') + '\nthis.DATA = DATA;', sandbox);
@@ -57,6 +58,19 @@ E.forEach((e, i) => {
   seen.add(key);
 });
 for (const id of Object.keys(N)) if (!degree[id]) bad(`card ${id}: has no connections`);
+
+// the page's Content Security Policy: every inline script must be allowed by its hash, and inline style attributes are forbidden
+const html = fs.readFileSync('index.html', 'utf8').split('\r\n').join('\n');
+const csp = (html.match(/http-equiv="Content-Security-Policy" content="([^"]*)"/) || [])[1];
+if (!csp) bad('index.html has no Content-Security-Policy meta tag');
+else {
+  const allowed = [...csp.matchAll(/'sha256-([^']+)'/g)].map(m => m[1]);
+  for (const m of html.matchAll(/<script>([\s\S]*?)<\/script>/g)) {
+    const hash = crypto.createHash('sha256').update(m[1]).digest('base64');
+    if (!allowed.includes(hash)) bad(`an inline script in index.html has hash sha256-${hash}, which the Content-Security-Policy does not allow (update the meta tag)`);
+  }
+}
+if (/\sstyle="/.test(html) || /style="/.test(appSource)) bad('inline style attributes are blocked by the Content-Security-Policy; set the property from script instead');
 
 // text links and summary facts
 for (const [name, url] of Object.entries(ENT || {})) if (!WIKI.test(url)) bad(`ent "${name}": not an English Wikipedia address`);

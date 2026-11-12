@@ -228,10 +228,11 @@
     const hubLines = [hub.cos, hub.faith].filter(Boolean).map(t => `<div class="r">${fmt(t)}</div>`).join('');
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
-      return ns.length ? `<section class="sec cat-${k}" style="--span:${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
+      return ns.length ? `<section class="sec cat-${k}" data-span="${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
     }).join('');
     stage.insertAdjacentHTML('afterbegin', card(hub, { cls: 'hero', lines: hubLines, tail: reach }) + sections);
     $$('.card').forEach(c => { els[c.dataset.id] = c; });
+    $$('.sec').forEach(sec => sec.style.setProperty('--span', sec.dataset.span)); // set from script: a strict policy forbids inline style attributes
   }
 
   // ---------- connection lines ----------
@@ -561,4 +562,5 @@
   $('#report').href = `${REPO}/issues/new`;
   addEventListener('hashchange', applyHash);
   applyHash(); // open the view named in the address, if any
+  document.documentElement.classList.add('ready'); // reveals the main area (see styles.css)
 })();

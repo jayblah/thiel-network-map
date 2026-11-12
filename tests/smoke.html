@@ -7,6 +7,7 @@
 <h1>Smoke test</h1>
 <pre id="out">running…</pre>
 <iframe id="app" src="../index.html" title="page under test"></iframe>
+<script src="../data.js"></script>
 <script>
 const frame = document.getElementById('app'), out = document.getElementById('out');
 const results = [];
@@ -18,7 +19,7 @@ frame.addEventListener('load', async () => {
     const win = frame.contentWindow, doc = win.document;
     await wait(300);
     const $ = s => doc.querySelector(s), $$ = s => [...doc.querySelectorAll(s)];
-    const DATA = win.eval('DATA'), N = DATA.nodes, E = DATA.edges; // DATA is a top-level const, so it is not a window property
+    const N = DATA.nodes, E = DATA.edges; // the page's own data, loaded below (the page's policy forbids reading it with eval)
     const dimmed = () => $$('.card.dim').length;
     const shown = () => $$('.card').length - dimmed();
 
