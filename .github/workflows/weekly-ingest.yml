@@ -1,0 +1,40 @@
+name: Weekly research digest
+
+# Every Monday: gather facts from official sources (USAspending, the FEC, Wikipedia) and open an issue listing what to look at.
+# It never edits the map. Changes are still made by hand, with a source, in a pull request.
+on:
+  schedule:
+    - cron: '0 13 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with: { node-version: 22 }
+      # remembers which Wikipedia revisions it saw last week, so it can say what changed
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ingest/snapshot.json
+          key: wiki-snapshot-${{ github.run_id }}
+          restore-keys: wiki-snapshot-
+      - name: Gather the digest
+        run: node ingest/ingest.js
+        env:
+          FEC_API_KEY: ${{ secrets.FEC_API_KEY }} # optional; the shared DEMO_KEY is used when this is empty
+      - name: Open an issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create digest --color 5319e7 --description "Weekly research digest" 2>/dev/null || true
+          for n in $(gh issue list --label digest --state open --json number --jq '.[].number'); do
+            gh issue close "$n" --comment "Superseded by this week's digest."
+          done
+          gh issue create --label digest --title "Weekly research digest, $(date -u +%F)" --body-file ingest/report.md
