@@ -148,7 +148,7 @@ main.collapsed #sideTab { right: 0; }
 }
 
 /* badges */
-.pills { margin-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; }
+.pills { margin-top: auto; padding-top: 5px; display: flex; flex-wrap: wrap; gap: 5px; } /* in a card, pinned to the bottom so badges line up across a row */
 .card .pills { padding-right: 24px; }
 .pill { display: inline-flex; align-items: center; gap: 3px; font-size: .75rem; line-height: 1; padding: 3px 7px; border-radius: 99px; color: #fff; font-weight: 700; background: var(--ks); }
 .pill[data-f] { cursor: pointer; }
@@ -166,7 +166,7 @@ main.collapsed #sideTab { right: 0; }
 .sec h2 { margin: 0 0 10px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: var(--t); display: flex; align-items: center; gap: 8px; }
 .sec h2::before { content: ""; width: 12px; height: 12px; border-radius: 4px; background: var(--c); }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(205px, 1fr)); gap: 10px; }
-.card { position: relative; z-index: 2; background: color-mix(in srgb, var(--c) 20%, var(--panel)); border: 2px solid var(--c); border-radius: 12px; padding: 9px 11px 8px; cursor: pointer; transition: opacity .15s, transform .12s, box-shadow .15s, filter .15s; color: var(--ink); }
+.card { position: relative; z-index: 2; display: flex; flex-direction: column; background: color-mix(in srgb, var(--c) 20%, var(--panel)); border: 2px solid var(--c); border-radius: 12px; padding: 9px 11px 8px; cursor: pointer; transition: opacity .15s, transform .12s, box-shadow .15s, filter .15s; color: var(--ink); }
 .card:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.18); }
 .card .n { display: block; width: 100%; text-align: left; font-weight: 700; font-size: 1rem; line-height: 1.2; color: var(--t); cursor: pointer; }
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
