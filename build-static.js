@@ -3,7 +3,7 @@
 // inside <noscript>. Search engines and social-media crawlers that do not run scripts read it, and so do visitors with JavaScript off.
 // It is generated from data.js, so rerun this after changing data.js; `node check.js` fails if the copy is out of date.
 const fs = require('fs');
-const vm = require('vm');
+const { loadData } = require('./data-loader');
 
 const START = '<!-- static-content:start -->';
 const END = '<!-- static-content:end -->';
@@ -11,12 +11,6 @@ const HUB = 'T';
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const strip = s => String(s).replace(/\*([^*]+)\*/g, '$1'); // the summary facts mark emphasis with *asterisks*
-
-function loadData() {
-  const sandbox = {};
-  vm.runInNewContext(fs.readFileSync('data.js', 'utf8') + '\nthis.DATA = DATA;', sandbox);
-  return sandbox.DATA;
-}
 
 // The page's text as semantic HTML: a heading per section, a list of cards, each with its facts and connections.
 function render(data) {
@@ -61,7 +55,7 @@ function inject(html, block) {
   return html.slice(0, a + START.length) + '\n' + block + '\n' + html.slice(b);
 }
 
-module.exports = { render, inject, loadData };
+module.exports = { render, inject };
 
 if (require.main === module) {
   const file = 'index.html';

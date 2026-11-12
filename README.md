@@ -18,6 +18,7 @@ Live site: https://jayblah.github.io/thiel-network-map/
 - `app.js`: behaviour. Each kind of badge, detail block and filter chip is one entry in `FACETS`; kinds of government reach are in `GOV`.
 - `styles.css`: look and feel. Light/dark colours are defined once each with `light-dark()`; category text colours are checked for WCAG 2.1 AA contrast.
 - `bump-version.js`: `node bump-version.js 1.17` updates the version shown in the header and in the `?v=` cache-busting suffix on the three files above (do this on every release so browsers never mix new and cached old files).
+- `data-loader.js`: how the Node tools (`check.js`, `check-links.js`, `build-static.js`) read `data.js`.
 - `build-static.js`: `node build-static.js` writes a plain-text copy of the whole map into `index.html` (inside `<noscript>`) for search engines, social-media crawlers and visitors with JavaScript off. Rerun it after changing `data.js`; `node check.js` fails if the copy is stale.
 - `social.png`: the preview image shown when the site is shared.
 - `robots.txt`: allows search engines to index the page.

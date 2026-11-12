@@ -2,24 +2,21 @@
 // Validates data.js: every connection points at a real card, no duplicates, nothing orphaned, and the fields have the shapes app.js expects.
 // Exits with a non-zero status (and lists the problems) if anything is wrong. Needs no packages.
 const fs = require('fs');
-const vm = require('vm');
 const crypto = require('crypto');
+const { loadData } = require('./data-loader');
 
-const sandbox = {};
-vm.runInNewContext(fs.readFileSync('data.js', 'utf8') + '\nthis.DATA = DATA;', sandbox);
-const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, ent: ENT } = sandbox.DATA;
+const DATA = loadData();
+const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, facts: FACTS, ent: ENT, govKinds } = DATA;
 
-// the kinds of government reach are defined once, in app.js
 const appSource = fs.readFileSync('app.js', 'utf8');
-const govBlock = appSource.slice(appSource.indexOf('const GOV = ['), appSource.indexOf('const GOV_BY_KEY'));
-const GOV_KEYS = new Set([...govBlock.matchAll(/key: '(\w+)'/g)].map(m => m[1]));
+const GOV_KEYS = new Set((govKinds || []).map(g => g.key));
 const KINDS = new Set(['strong', 'normal', 'weak', 'plain']);
 const WIKI = /^https:\/\/en\.wikipedia\.org\/wiki\//;
 
 const problems = [];
 const bad = msg => problems.push(msg);
 
-if (!GOV_KEYS.size) bad('could not read the government kinds from app.js');
+if (!GOV_KEYS.size) bad('data.js has no govKinds');
 
 // categories and sections
 for (const [k] of SECTIONS) if (!CAT[k]) bad(`section "${k}" is not in cats`);
@@ -72,11 +69,18 @@ else {
 }
 // the plain-text copy of the map (for crawlers and visitors without scripts) must match data.js
 const { render, inject } = require('./build-static');
-if (inject(html, render(sandbox.DATA)) !== html) bad('the text copy of the map in index.html is out of date: run node build-static.js');
+if (inject(html, render(DATA)) !== html) bad('the text copy of the map in index.html is out of date: run node build-static.js');
 if (/\sstyle="/.test(html) || /style="/.test(appSource)) bad('inline style attributes are blocked by the Content-Security-Policy; set the property from script instead');
 
-// text links and summary facts
-for (const [name, url] of Object.entries(ENT || {})) if (!WIKI.test(url)) bad(`ent "${name}": not an English Wikipedia address`);
+// text links: each must be a Wikipedia address and must actually be used somewhere in the text
+const allText = [];
+(function collect(v) { if (typeof v === 'string') allText.push(v); else if (Array.isArray(v)) v.forEach(collect); else if (v && typeof v === 'object') Object.values(v).forEach(collect); })([N, E, FACTS]);
+const corpus = allText.join('\n');
+const escapeRe = k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+for (const [name, url] of Object.entries(ENT || {})) {
+  if (!WIKI.test(url)) bad(`ent "${name}": not an English Wikipedia address`);
+  if (!new RegExp('(?<![A-Za-z0-9])' + escapeRe(name) + '(?![A-Za-z0-9])').test(corpus)) bad(`ent "${name}": not mentioned anywhere in the text, so it can never link (remove it)`);
+}
 if (!Array.isArray(FACTS) || !FACTS.length) bad('facts is empty');
 
 if (problems.length) {

@@ -1,11 +1,18 @@
 // All map content. Edit here; app.js and styles.css hold no data.
+// govKinds: the kinds of government reach (colour and icon names are defined in styles.css and app.js).
 // cats: category key -> section title. sections: display order and width (columns of 12) of each category.
 // Node (key = id): name, cat, sub [lines under the name], cos (companies), fund, crypto, views, faith, anti (red dashed border),
-//   gov {kinds[contractor|official|influence|abroad], text}, link {u,l} (replaces the Wikipedia link on the card),
+//   gov {kinds [keys from govKinds], text}, link {u,l} (replaces the Wikipedia link on the card),
 //   wiki, sources [{l,u,s:ok|blocked}]. Empty fields are simply left out.
 // Edge: a, b, label, kind (strong|normal|weak|plain).
 const DATA={
  sections:[["infl",5],["pp",7],["neo",12],["pol",12],["prot",12],["faith",12],["net",12],["oth",12],["obs",12]],
+ govKinds:[
+ {"key":"official","color":"gold","icon":"official","pill":"In Government","title":"Holds or held a government role","reach":"In Government"},
+ {"key":"contractor","color":"navy","icon":"contractor","pill":"Gov Contractor","title":"Government contractor","reach":"Government Contractors"},
+ {"key":"influence","color":"slate","icon":"influence","pill":"Gov Influence","title":"Investor or lobbyist with government reach","reach":"With Government Influence"},
+ {"key":"abroad","color":"teal","icon":"abroad","pill":"Abroad","title":"Dealings with non-US governments","reach":"Dealing with Other Governments"}
+ ],
  cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","obs":"Interviewers, Critics and Biographers","net":"Network States / Startup Cities","faith":"Christian Nationalist Groups and Figures","center":"Peter Thiel"},
  facts:[
   "*$2.5B* in federal contracts to Palantir since 2009",
@@ -240,34 +247,25 @@ const DATA={
   "Cambridge Analytica":"https://en.wikipedia.org/wiki/Cambridge_Analytica",
   "Stanford Review":"https://en.wikipedia.org/wiki/The_Stanford_Review",
   "The Sovereign Individual":"https://en.wikipedia.org/wiki/The_Sovereign_Individual",
-  "The Bell Curve":"https://en.wikipedia.org/wiki/The_Bell_Curve",
   "Zero to One":"https://en.wikipedia.org/wiki/Zero_to_One",
-  "Hillbilly Elegy":"https://en.wikipedia.org/wiki/Hillbilly_Elegy",
   "DOGE":"https://en.wikipedia.org/wiki/Department_of_Government_Efficiency",
   "Gawker":"https://en.wikipedia.org/wiki/Gawker",
   "ICE":"https://en.wikipedia.org/wiki/United_States_Immigration_and_Customs_Enforcement",
   "DHS":"https://en.wikipedia.org/wiki/United_States_Department_of_Homeland_Security",
-  "American Enterprise Institute":"https://en.wikipedia.org/wiki/American_Enterprise_Institute",
   "Opus Dei":"https://en.wikipedia.org/wiki/Opus_Dei",
-  "Anthropic":"https://en.wikipedia.org/wiki/Anthropic",
   "Greenland":"https://en.wikipedia.org/wiki/Greenland",
   "Honduras":"https://en.wikipedia.org/wiki/Honduras",
   "Próspera":"https://en.wikipedia.org/wiki/Pr%C3%B3spera",
   "Seasteading Institute":"https://en.wikipedia.org/wiki/The_Seasteading_Institute",
-  "Urbit":"https://en.wikipedia.org/wiki/Urbit",
   "Bitcoin":"https://en.wikipedia.org/wiki/Bitcoin",
-  "Facebook":"https://en.wikipedia.org/wiki/Facebook",
   "Pentagon":"https://en.wikipedia.org/wiki/The_Pentagon",
   "Israel Ministry of Defense":"https://en.wikipedia.org/wiki/Ministry_of_Defense_(Israel)",
-  "Department of Health and Human Services":"https://en.wikipedia.org/wiki/United_States_Department_of_Health_and_Human_Services",
   "Health and Human Services":"https://en.wikipedia.org/wiki/United_States_Department_of_Health_and_Human_Services",
   "HHS":"https://en.wikipedia.org/wiki/United_States_Department_of_Health_and_Human_Services",
   "Rockbridge":"https://en.wikipedia.org/wiki/Rockbridge_Network",
   "Narya Capital":"https://en.wikipedia.org/wiki/Narya_Capital",
   "Flock Safety":"https://en.wikipedia.org/wiki/Flock_Safety",
   "Dark Enlightenment":"https://en.wikipedia.org/wiki/Dark_Enlightenment",
-  "TESCREAL":"https://en.wikipedia.org/wiki/TESCREAL",
-  "Daily Stormer":"https://en.wikipedia.org/wiki/The_Daily_Stormer",
   "Gaza":"https://en.wikipedia.org/wiki/Gaza_Strip",
   "Denmark":"https://en.wikipedia.org/wiki/Denmark",
   "OSTP":"https://en.wikipedia.org/wiki/Office_of_Science_and_Technology_Policy"
