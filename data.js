@@ -16,7 +16,7 @@ const DATA={
  cats:{"infl":"Intellectual Influences","pp":"PayPal Mafia","neo":"Neoreaction / Network State","pol":"Politics and Government","prot":"Protégés and Portfolio","oth":"Other Connections","obs":"Interviewers, Critics and Biographers","net":"Network States / Startup Cities","faith":"Christian Nationalist Groups and Figures","center":"Peter Thiel"},
  facts:[
   "*$2.5B* in federal contracts to Palantir since 2009",
-  "*16* longtime Thiel associates in Trump administration posts (Bloomberg)",
+  "*16* longtime Thiel associates in Trump administration posts",
   "Up to *$10B* Army contract consolidation planned for Palantir",
   "Countries: *United States · Israel · Honduras · Denmark/Greenland*"
  ],
