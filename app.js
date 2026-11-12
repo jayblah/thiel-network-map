@@ -16,6 +16,7 @@
   const LABEL_MAX = 46;                    // longest line label drawn on the map
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { side: 'thielSide', legend: 'thielLegend', theme: 'thielTheme' };
+  const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
 
   // Kinds of government reach, in display order; colour names map to .c-<colour> classes in styles.css.
   const GOV = [
@@ -85,7 +86,9 @@
     const tip = title ? ` title="${esc(title)}"` : '';
     return f ? `<button type="button" class="${cls}"${data}${tip}>${iconed(ic, esc(label))}</button>` : `<span class="${cls}"${tip}>${iconed(ic, esc(label))}</span>`;
   }
-  const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}</span>${body}</div>`;
+  // where in the book a claim appears (print page numbers, computed from the book's own page markers)
+  const pageTag = pg => pg && pg.length ? `<span class="pg" title="Page in The Nerd Reich (print edition)">${pg.length > 1 ? 'pp.' : 'p.'} ${pg.join(', ')}</span>` : '';
+  const block = (color, head, body, ic, pg) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}${pageTag(pg)}</span>${body}</div>`;
   // the tray is display-only (pointer-events: none), so its text carries no links
   const trayRow = (color, label, text, max, ic) => `<span class="d c-${color}"><em>${iconed(ic, label)}</em>${plain(cut(text, max))}</span>`;
 
@@ -138,7 +141,7 @@
     pills: n => FACETS.flatMap(f => f.badges ? f.badges(n) : []).map(s => pill(s.label, s.color, { icon: s.icon, f: s.f, title: s.title, compact: true })).join(''),
     panel: n => FACETS.filter(f => f.head && f.has(n)).map(f => {
       const lead = f.lead ? `<div>${f.badges(n).map(s => pill(s.label, s.color, { icon: s.icon, title: s.title })).join(' ')}</div>` : '';
-      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon);
+      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon, (n.pg || {})[f.key]);
     }).join(''),
     tray: n => FACETS.filter(f => f.tray && f.has(n) && f.text(n)).map(f => trayRow(f.color, f.tray.label, f.text(n), f.tray.max || 110, f.icon)).join(''),
   };
@@ -147,7 +150,8 @@
   const stage = $('#stage'), ov = $('#ov'), tray = $('#tray'), mainEl = $('main'), sideEl = $('#side');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', trayTimer = null, resizeFrame = 0;
-  const redrawPinned = () => { if (pinned) draw(pinned, !isHub(pinned)); };
+  let pathTo = null, pathAvoid = true, currentPath = null; // 'how is A connected to B' state
+  const redrawPinned = () => paintSelection();
 
   // ---------- panel toggles (legend and details panel share one mechanism) ----------
   const keyActions = {};
@@ -166,6 +170,8 @@
   }
 
   // ---------- legend and filter chips ----------
+  // a small drawing of one connection style, for the legend
+  const sampleLine = (kind, arrowHead) => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${arrowHead ? 33 : 38}"/>${arrowHead ? '<path class="tip cat-oth" d="M32,1 L39,5 L32,9z"/>' : ''}</svg>`;
   function renderLegend() {
     const row = (title, items) => `<div class="lrow"><b>${title}</b>${items.join('')}</div>`;
     const lg = (mark, desc) => `<span class="lg">${mark}${desc}</span>`;
@@ -179,12 +185,19 @@
         lg('<span class="wp static cat-center">&#8599;</span>', 'Link chosen for the card (article or interview)'),
         lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
         lg('<span class="money">$15M</span>', 'Money amount'),
+      ]) +
+      row('Lines', [
+        lg(sampleLine('strong', true), 'Close tie: founder, funder, mentor'),
+        lg(sampleLine('normal', true), 'Tie: influence, support or role'),
+        lg(sampleLine('weak', true), 'Looser or critical tie'),
+        lg(sampleLine('plain', false), 'Mutual or peer tie (no arrow)'),
+        lg('', 'Arrows point from the one acting (influencing, funding, hiring, criticising) to the other'),
       ]);
   }
   function renderChips() {
     const chips = Object.entries(FILTERS).filter(([, f]) => f.chip)
       .map(([k, f]) => `<button class="btn chip${f.color ? ` tinted c-${f.color}` : ''}" data-f="${k}">${iconed(f.icon, f.chip)}</button>`).join('');
-    $('#filters').insertAdjacentHTML('beforeend', chips);
+    $('#filters').insertAdjacentHTML('beforeend', chips + '<span id="count" class="count" aria-live="polite"></span>');
   }
   // everything that sets a filter (chips, badges, counts) shows which one is active
   const syncFilterButtons = () => $$('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filt));
@@ -253,13 +266,14 @@
     }
     return { cat, svg };
   }
-  function draw(id, withLabels) {
+  const draw = (id, withLabels) => drawEdges(consOf(id).filter(e => els[other(e, id)]), withLabels);
+  function drawEdges(list, withLabels) {
     ov.setAttribute('width', stage.scrollWidth);
     ov.setAttribute('height', stage.scrollHeight);
     // read every position first (one stage rect, one rect per card), then build the markup
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
-    const edges = consOf(id).filter(e => els[other(e, id)]).map((e, i) => edgeSvg(e, i, withLabels, boxOf));
+    const edges = list.map((e, i) => edgeSvg(e, i, withLabels, boxOf));
     const markers = [...new Set(edges.map(x => x.cat))].map(c =>
       `<marker id="ah-${c}" class="cat-${c}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker>`).join('');
     ov.innerHTML = `<defs>${markers}</defs>${edges.map(x => x.svg).join('')}`;
@@ -269,19 +283,25 @@
   // The hub never dims: the government counts inside its card are controls and must stay readable.
   const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id) && !isHub(id)));
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
-  const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.sub.join(' '), rel[n.id] || ''].join(' ').toLowerCase();
+  // everything a search can match on a card, including its connection labels and badge names
+  const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.gov && n.gov.text, n.sub.join(' '), rel[n.id] || '',
+    ...consOf(n.id).map(e => e.label), ...FACETS.flatMap(f => f.badges ? f.badges(n).map(s => s.label) : [])].join(' ').toLowerCase();
+  const TOTAL = Object.keys(N).length;
+  const showCount = k => { $('#count').textContent = k === null ? '' : (k ? `${k} of ${TOTAL} shown` : 'No matches'); };
   function applyFilter() {
     if (pinned) return;
     const t = term.trim().toLowerCase();
-    if (filt === 'all' && !t) { setDim(null); return; }
-    setDim(new Set(Object.values(N).filter(n => FILTERS[filt].test(n) && (!t || haystack(n).includes(t))).map(n => n.id)));
+    if (filt === 'all' && !t) { setDim(null); showCount(null); return; }
+    const hits = Object.values(N).filter(n => FILTERS[filt].test(n) && (!t || haystack(n).includes(t))).map(n => n.id);
+    setDim(new Set(hits));
+    showCount(hits.length);
   }
   const reset = () => { ov.innerHTML = ''; applyFilter(); };
   function unpin() {
-    pinned = null;
+    pinned = pathTo = currentPath = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
   }
-  function clearSelection() { unpin(); reset(); }
+  function clearSelection() { unpin(); reset(); syncUrl(); }
   function setFilter(k) { filt = k; syncFilterButtons(); clearSelection(); }
   const toggleFilter = k => setFilter(filt === k && k !== 'all' ? 'all' : k); // clicking the active filter again clears it
   function pin(id) {
@@ -291,13 +311,97 @@
     pinned = id;
     els[id].classList.add('sel');
     els[id].querySelector('.n').setAttribute('aria-pressed', 'true');
-    setDim(neighbours(id));
-    draw(id, !isHub(id));
+    showCount(null);
+    paintSelection();
     showDetails(id);
+    syncUrl();
+  }
+  // Spotlight what is selected: the chosen path between two cards, or one card's connections.
+  function paintSelection() {
+    if (!pinned) return;
+    if (currentPath) { setDim(new Set(currentPath.nodes)); drawEdges(currentPath.edges, true); return; }
+    setDim(neighbours(pinned));
+    draw(pinned, !isHub(pinned));
   }
   // hover or keyboard focus on a card: spotlight it and open the tray (unless something is pinned)
-  function previewCard(id) { setDim(neighbours(id)); draw(id, false); showTray(id); }
+  function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id, false); showTray(id); }
   function endPreview() { reset(); hideTray(); }
+
+  // ---------- how is A connected to B ----------
+  // Breadth-first search over the connections, ignoring their direction; optionally refusing to route through the hub.
+  function findPath(from, to, avoidHub) {
+    const prev = { [from]: null }, queue = [from];
+    for (let i = 0; i < queue.length && !(to in prev); i++) {
+      for (const e of consOf(queue[i])) {
+        const o = other(e, queue[i]);
+        if (o in prev || (avoidHub && isHub(o) && o !== to)) continue;
+        prev[o] = { id: queue[i], e };
+        queue.push(o);
+      }
+    }
+    if (!(to in prev)) return null;
+    const nodes = [to], edges = [];
+    for (let id = to; prev[id]; id = prev[id].id) { nodes.unshift(prev[id].id); edges.unshift(prev[id].e); }
+    return { nodes, edges };
+  }
+  const pathsFor = (a, b) => ({ any: findPath(a, b, false), avoid: isHub(a) || isHub(b) ? null : findPath(a, b, true) });
+  function computePath() {
+    currentPath = null;
+    if (!pinned || !pathTo) return;
+    const { any, avoid } = pathsFor(pinned, pathTo);
+    currentPath = (pathAvoid && avoid) || any;
+  }
+  function renderPath() {
+    const box = $('#pathResult');
+    if (!box) return;
+    if (!currentPath) { box.innerHTML = pathTo ? '<p class="hint">No connection found.</p>' : ''; return; }
+    const { any, avoid } = pathsFor(pinned, pathTo);
+    const steps = n => `${n} step${n === 1 ? '' : 's'}`;
+    const viaHub = any.nodes.slice(1, -1).includes(HUB);
+    const choice = (via, text, on) => `<button class="btn${on ? ' on' : ''}" data-via="${via}">${text}</button>`;
+    const choices = avoid && viaHub
+      ? `<div class="via">${choice('avoid', `Without Thiel · ${steps(avoid.edges.length)}`, pathAvoid)}${choice('any', `Shortest · ${steps(any.edges.length)}, via Thiel`, !pathAvoid)}</div>`
+      : (viaHub ? '<p class="hint">Every route between them runs through Thiel.</p>' : '');
+    const hop = (e, from) => `<div class="hop">${arrow(e, from)} ${plain(e.label || 'connected')}${pageTag(e.pg)}</div>`;
+    const list = currentPath.nodes.map((id, i) =>
+      `<button class="btn con cat-${N[id].cat}" data-go="${esc(id)}"><b>${esc(N[id].name)}</b></button>` + (i < currentPath.edges.length ? hop(currentPath.edges[i], id) : '')).join('');
+    box.innerHTML = `${choices}<p class="hint">${steps(currentPath.edges.length)}</p>${list}`;
+  }
+  function setPath(to) {
+    pathTo = to || null;
+    computePath();
+    paintSelection();
+    renderPath();
+    const sel = $('#pathSel');
+    if (sel) sel.value = pathTo || '';
+    syncUrl();
+  }
+  const pathBox = n => `<div class="dsec c-accent"><span class="h">How is ${esc(n.name)} connected to…</span>`
+    + `<select id="pathSel" aria-label="Find the connection to another card"><option value="">Choose a card</option>`
+    + Object.values(N).filter(x => x.id !== n.id).sort((x, y) => x.name.localeCompare(y.name)).map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')
+    + `</select><div id="pathResult"></div></div>`;
+
+  // ---------- the address bar mirrors the view, so any view can be shared ----------
+  function syncUrl() {
+    const p = new URLSearchParams();
+    if (pinned) p.set('card', pinned);
+    if (pathTo) { p.set('to', pathTo); if (!pathAvoid) p.set('via', 'any'); }
+    if (filt !== 'all') p.set('filter', filt);
+    if (term.trim()) p.set('q', term.trim());
+    const h = p.toString();
+    history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : ''));
+  }
+  function applyHash() {
+    const p = new URLSearchParams(location.hash.slice(1)), card = p.get('card'), to = p.get('to');
+    filt = FILTERS[p.get('filter')] ? p.get('filter') : 'all';
+    term = p.get('q') || '';
+    searchBox.value = term;
+    searchClear.hidden = !term;
+    pathAvoid = p.get('via') !== 'any';
+    syncFilterButtons();
+    clearSelection();
+    if (card && els[card]) { pin(card); if (to && els[to] && to !== card) setPath(to); }
+  }
 
   // ---------- hover tray ----------
   function hideTray() { clearTimeout(trayTimer); tray.classList.remove('show'); tray.setAttribute('aria-hidden', 'true'); }
@@ -349,7 +453,7 @@
     : '';
   const connectionButton = (e, id) => {
     const o = other(e, id);
-    return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
+    return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}${pageTag(e.pg)}</span></button>`;
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
@@ -360,7 +464,9 @@
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + facetHtml.panel(n)
       + sourcesHtml(n)
-      + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''));
+      + pathBox(n)
+      + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''))
+      + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, 'Report a correction for this card &#8599;');
     sideEl.scrollTop = 0;
   }
 
@@ -395,11 +501,11 @@
   help.addEventListener('click', e => { if (e.target === help) help.close(); });
 
   // keyboard shortcuts (ignored while typing)
-  Object.assign(keyActions, { '?': openHelp, escape: () => { hideTray(); if (pinned) clearSelection(); } });
+  Object.assign(keyActions, { '?': openHelp, '/': () => { searchBox.focus(); searchBox.select(); }, escape: () => { hideTray(); if (pinned) clearSelection(); } });
   addEventListener('keydown', e => {
     if (e.ctrlKey || e.metaKey || e.altKey || /INPUT|TEXTAREA/.test(document.activeElement.tagName)) return;
     const act = keyActions[e.key.toLowerCase()];
-    if (act) act();
+    if (act) { e.preventDefault(); act(); }
   });
 
   // Pointer and keyboard focus both preview a card. These events also fire when moving between a card's own children,
@@ -412,7 +518,10 @@
     }));
   });
 
+  document.addEventListener('change', e => { if (e.target.id === 'pathSel') setPath(e.target.value); });
   document.addEventListener('click', e => {
+    const via = e.target.closest('[data-via]');
+    if (via) { pathAvoid = via.dataset.via === 'avoid'; computePath(); paintSelection(); renderPath(); syncUrl(); return; }
     const f = e.target.closest('[data-f]');
     if (f) { toggleFilter(f.dataset.f); return; }
     const go = e.target.closest('[data-go]');
@@ -445,4 +554,8 @@
     syncThemeSwitch();
   });
   addEventListener('resize', () => { cancelAnimationFrame(resizeFrame); resizeFrame = requestAnimationFrame(redrawPinned); });
+
+  $('#report').href = `${REPO}/issues/new`;
+  addEventListener('hashchange', applyHash);
+  applyHash(); // open the view named in the address, if any
 })();

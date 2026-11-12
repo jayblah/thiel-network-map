@@ -1,0 +1,41 @@
+name: Checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 6 * * 1'   # Mondays: also re-check the Wikipedia links
+  workflow_dispatch:
+
+jobs:
+  data:
+    name: Data is consistent
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node check.js
+
+  page:
+    name: Page works in a browser
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests/smoke.html in headless Chrome
+        run: |
+          google-chrome --headless --no-sandbox --disable-gpu --allow-file-access-from-files \
+            --virtual-time-budget=15000 --dump-dom "file://$PWD/tests/smoke.html" > result.html
+          sed -n '/<pre id="out"/,/<\/pre>/p' result.html | sed 's/<[^>]*>//g'
+          grep -q 'data-result="PASS"' result.html
+
+  links:
+    name: Wikipedia links resolve
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: node check-links.js

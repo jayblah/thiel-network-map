@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Smoke test</title>
+<style>body{font:14px/1.4 system-ui;margin:16px}iframe{width:1400px;height:900px;border:1px solid #888}.fail{color:#b00020}.pass{color:#0a7d2c}</style></head>
+<body>
+<!-- Open this file in a browser (or serve the folder); it loads the real page in a frame and checks it.
+     The title becomes PASS or FAIL; headless Chrome can read it with --dump-dom (see .github/workflows/checks.yml). -->
+<h1>Smoke test</h1>
+<pre id="out">running…</pre>
+<iframe id="app" src="../index.html" title="page under test"></iframe>
+<script>
+const frame = document.getElementById('app'), out = document.getElementById('out');
+const results = [];
+const check = (name, ok, detail) => results.push({ name, ok: !!ok, detail });
+const wait = ms => new Promise(r => setTimeout(r, ms));
+
+frame.addEventListener('load', async () => {
+  try {
+    const win = frame.contentWindow, doc = win.document;
+    await wait(300);
+    const $ = s => doc.querySelector(s), $$ = s => [...doc.querySelectorAll(s)];
+    const DATA = win.eval('DATA'), N = DATA.nodes, E = DATA.edges; // DATA is a top-level const, so it is not a window property
+    const dimmed = () => $$('.card.dim').length;
+    const shown = () => $$('.card').length - dimmed();
+
+    // structure
+    check('one card per node', $$('.card').length === Object.keys(N).length, `${$$('.card').length} cards, ${Object.keys(N).length} nodes`);
+    check('every card has a name button', $$('.card .n').every(b => b.textContent.trim()));
+    check('footer correction link points at the repo issues', /github\.com\/.+\/issues\/new/.test($('#report').href));
+    check('page has a description and favicon', !!doc.querySelector('meta[name=description]') && !!doc.querySelector('link[rel=icon]'));
+    check('legend explains badges, marks and lines', $$('#legend .lrow').length === 4 && $$('#legend .lrow:last-child .lg').length >= 4);
+
+    // filters, badges and the result count
+    const chip = id => $(`.chip[data-f=${id}]`);
+    chip('anti').click();
+    const antiExpected = Object.values(N).filter(n => n.anti).length + 1; // the hub never dims
+    check('anti-democracy chip spotlights the flagged cards', shown() === antiExpected, `${shown()} shown, expected ${antiExpected}`);
+    check('result count is shown', /of \d+ shown/.test($('#count').textContent), $('#count').textContent);
+    chip('anti').click();
+    check('clicking the chip again clears the filter', dimmed() === 0 && $('#count').textContent === '');
+    $('.card .pill[data-f=fund]').click();
+    check('a card badge filters like its chip', shown() === Object.values(N).filter(n => n.fund).length + 1);
+    check('card badges are labelled images, not tab stops', $('.card .pill[data-f=fund]').getAttribute('role') === 'img' && !!$('.card .pill[data-f=fund]').getAttribute('aria-label'));
+    $('.chip[data-f=all]').click();
+
+    // search
+    const q = $('#q');
+    q.value = 'yarvin'; q.dispatchEvent(new win.Event('input'));
+    check('search finds cards by name and by connection text', shown() >= 2, `${shown()} shown`);
+    q.value = 'zzzzzz'; q.dispatchEvent(new win.Event('input'));
+    check('search with no hits says so', $('#count').textContent === 'No matches');
+    q.value = ''; q.dispatchEvent(new win.Event('input'));
+    check('clearing the search restores everything', dimmed() === 0);
+
+    // selecting a card: details, page references, address bar, connection lines
+    $('.card[data-id=Vance] .n').click();
+    check('pinning a card shows its details', $('#side h2').textContent === 'JD Vance');
+    check('pinning writes the card into the address', win.location.hash.includes('card=Vance'));
+    check('connection lines are drawn from card borders', $$('#ov path.edge').length === E.filter(e => e.a === 'Vance' || e.b === 'Vance').length);
+    check('connections list page references from the book', $$('#side .con .pg').length > 0);
+    check('details panel offers a correction link', !!$('#side a.wl[href*="issues/new"]'));
+
+    // how is A connected to B
+    const sel = $('#pathSel');
+    sel.value = 'Musk'; sel.dispatchEvent(new win.Event('change', { bubbles: true }));
+    check('a path is found and listed', $$('#pathResult .con').length >= 2, $('#pathResult').textContent.slice(0, 80));
+    check('the path is written into the address', /to=Musk/.test(win.location.hash));
+    const via = $('#pathResult [data-via]');
+    if (via) {
+      const before = $$('#pathResult .con').length;
+      $$('#pathResult [data-via]').find(b => !b.classList.contains('on')).click();
+      check('the route can switch between "without Thiel" and "via Thiel"', $$('#pathResult .con').length !== before || /via=any/.test(win.location.hash));
+    }
+    win.location.hash = '#card=Yarvin&to=Vance&filter=crypto';
+    await wait(100);
+    check('the address restores a card, a path and a filter', $('#side h2').textContent === 'Curtis Yarvin' && $('#pathSel').value === 'Vance' && $(`.chip[data-f=crypto]`).classList.contains('on'));
+    doc.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    check('Escape clears the selection and the address', !$('.card.sel') && !win.location.hash.includes('card='));
+    check('unpinning leaves no stale pressed state on card names', !$$('.card .n[aria-pressed]').length);
+
+    // hover preview acts once per card, not per child element
+    const card = $('.card[data-id=Yarvin]');
+    win.location.hash = '';
+    await wait(50);
+    card.dispatchEvent(new win.MouseEvent('mouseover', { bubbles: true, relatedTarget: doc.body }));
+    const drawn = $('#ov').innerHTML;
+    card.querySelector('.n').dispatchEvent(new win.MouseEvent('mouseout', { bubbles: true, relatedTarget: card.querySelector('.s') || card }));
+    check('moving within a card keeps its connections drawn', drawn !== '' && $('#ov').innerHTML === drawn);
+    card.dispatchEvent(new win.MouseEvent('mouseout', { bubbles: true, relatedTarget: doc.body }));
+    check('leaving the card clears them', $('#ov').innerHTML === '');
+  } catch (e) {
+    check('test ran without an exception', false, String(e && e.stack || e));
+  }
+  const failed = results.filter(r => !r.ok);
+  out.innerHTML = results.map(r => `<span class="${r.ok ? 'pass' : 'fail'}">${r.ok ? 'PASS' : 'FAIL'}</span> ${r.name}${r.ok ? '' : ' — ' + (r.detail || '')}`).join('\n')
+    + `\n\n${results.length - failed.length}/${results.length} passed`;
+  out.dataset.result = failed.length ? 'FAIL' : 'PASS';
+  document.title = failed.length ? 'FAIL' : 'PASS';
+});
+</script>
+</body></html>
