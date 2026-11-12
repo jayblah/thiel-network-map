@@ -1,5 +1,5 @@
 // Usage: npm install && node tests/lighthouse.js
-// Serves the site locally (gzip-compressed, like GitHub Pages) and audits it with Lighthouse on a throttled mobile profile.
+// Serves the site locally (gzip-compressed, like GitHub Pages) and audits it three times with Lighthouse on a throttled mobile profile, judging the median run.
 // Exits non-zero if a category falls below its target or the page grows past its size budget, so the page cannot quietly get slower.
 // Uses the Chrome that is installed; set CHROME_PATH to use a different browser binary.
 const http = require('http');
@@ -10,6 +10,7 @@ const zlib = require('zlib');
 // What the page must keep scoring (out of 100) and how heavy it may get (compressed KB over the wire).
 const TARGETS = { performance: 90, accessibility: 100, 'best-practices': 95, seo: 90 };
 const MAX_TRANSFER_KB = 100;
+const RUNS = 3;
 
 const root = path.resolve(__dirname, '..');
 const TYPES = { '.txt': 'text/plain', '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.webp': 'image/webp' };
@@ -49,7 +50,13 @@ async function launchChrome(chromeLauncher, attempts = 3) {
   const chrome = await launchChrome(chromeLauncher);
   let failed = false;
   try {
-    const { lhr } = await lighthouse(url, { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: Object.keys(TARGETS) });
+    // A shared CI machine sometimes stalls for a moment, which can cost a run ten points for no fault of the page.
+    // So audit three times and judge the median run.
+    const runs = [];
+    for (let i = 0; i < RUNS; i++) runs.push((await lighthouse(url, { port: chrome.port, output: 'json', logLevel: 'error', onlyCategories: Object.keys(TARGETS) })).lhr);
+    runs.sort((x, y) => x.categories.performance.score - y.categories.performance.score);
+    console.log(`     performance in ${RUNS} runs: ${runs.map(r => Math.round(r.categories.performance.score * 100)).join(', ')} (judging the middle one)`);
+    const lhr = runs[Math.floor(RUNS / 2)];
     for (const [id, target] of Object.entries(TARGETS)) {
       const score = Math.round((lhr.categories[id].score || 0) * 100);
       const ok = score >= target;
@@ -58,6 +65,13 @@ async function launchChrome(chromeLauncher, attempts = 3) {
       if (!ok) for (const ref of lhr.categories[id].auditRefs) {
         const a = lhr.audits[ref.id];
         if (ref.weight > 0 && a.score !== null && a.score < 0.9) console.log(`       - ${a.title}${a.displayValue ? ` (${a.displayValue})` : ''}`);
+      }
+    }
+    if (failed) {
+      // say where the time went, so a slow run can be diagnosed from the log
+      for (const [id, key] of [['mainthread-work-breakdown', 'groupLabel'], ['long-tasks', 'url'], ['third-party-summary', 'entity']]) {
+        const items = (lhr.audits[id].details && lhr.audits[id].details.items) || [];
+        if (items.length) console.log(`     ${id}: ` + items.slice(0, 6).map(i => `${String(i[key] || i.label || '').slice(-40)} ${Math.round(i.duration || i.blockingTime || 0)}ms`).join('; '));
       }
     }
     const kb = Math.round(lhr.audits['total-byte-weight'].numericValue / 1024);
