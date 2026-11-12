@@ -128,10 +128,10 @@
   const FILTERS = { all: { chip: 'Everyone', test: () => true } };
   FACETS.forEach(f => {
     const look = { color: f.color, icon: f.icon };
-    FILTERS[f.key] = { test: f.filter || f.has, chip: f.chipId ? undefined : f.chip, ...look }; // with chipId, the chip filters on chipTest instead
-    if (f.chipId) FILTERS[f.chipId] = { test: f.chipTest, chip: f.chip, ...look };
+    FILTERS[f.key] = { test: f.filter || f.has, chip: f.chipId ? undefined : f.chip, name: f.label || f.chip, ...look }; // with chipId, the chip filters on chipTest instead
+    if (f.chipId) FILTERS[f.chipId] = { test: f.chipTest, chip: f.chip, name: f.chip, ...look };
   });
-  GOV.forEach(g => { FILTERS[`gov:${g.key}`] = { test: n => n.gov && n.gov.kinds.includes(g.key) }; });
+  GOV.forEach(g => { FILTERS[`gov:${g.key}`] = { test: n => n.gov && n.gov.kinds.includes(g.key), name: g.reach }; });
 
   const facetHtml = {
     pills: n => FACETS.flatMap(f => f.badges ? f.badges(n) : []).map(s => pill(s.label, s.color, { icon: s.icon, f: s.f, title: s.title, compact: true })).join(''),
@@ -286,7 +286,10 @@
   const haystack = n => [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.gov && n.gov.text, n.sub.join(' '), rel[n.id] || '',
     ...consOf(n.id).map(e => e.label), ...FACETS.flatMap(f => f.badges ? f.badges(n).map(s => s.label) : [])].join(' ').toLowerCase();
   const TOTAL = Object.keys(N).length;
-  const showCount = k => { $('#count').textContent = k === null ? '' : (k ? `${k} of ${TOTAL} shown` : 'No matches'); };
+  const showCount = k => {
+    const name = filt === 'all' ? '' : `${esc(FILTERS[filt].name)} · `;
+    $('#count').innerHTML = k === null ? '' : `${name}${k ? `${k} of ${TOTAL} shown` : 'No matches'} <button type="button" class="linkbtn" data-clear>Clear</button>`;
+  };
   function applyFilter() {
     if (pinned) return;
     const t = term.trim().toLowerCase();
@@ -519,6 +522,7 @@
 
   document.addEventListener('change', e => { if (e.target.id === 'pathSel') setPath(e.target.value); });
   document.addEventListener('click', e => {
+    if (e.target.closest('[data-clear]')) { setSearch(''); setFilter('all'); return; }
     const via = e.target.closest('[data-via]');
     if (via) { pathAvoid = via.dataset.via === 'avoid'; computePath(); paintSelection(); renderPath(); syncUrl(); return; }
     const f = e.target.closest('[data-f]');

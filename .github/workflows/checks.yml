@@ -1,12 +1,11 @@
 name: Checks
 
 on:
-  push:
-    branches: [main]
   pull_request:
   schedule:
     - cron: '0 6 * * 1'   # Mondays: also re-check the Wikipedia links
   workflow_dispatch:
+  workflow_call:          # the deploy workflow runs these first and only publishes if they pass
 
 jobs:
   data:
@@ -29,6 +28,16 @@ jobs:
             --virtual-time-budget=15000 --dump-dom "file://$PWD/tests/smoke.html" > result.html
           sed -n '/<pre id="out"/,/<\/pre>/p' result.html | sed 's/<[^>]*>//g'
           grep -q 'data-result="PASS"' result.html
+
+  accessibility:
+    name: No accessibility violations (axe)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20 }
+      - run: npm ci
+      - run: node tests/a11y.js
 
   links:
     name: Wikipedia links resolve
