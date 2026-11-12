@@ -166,11 +166,11 @@
   }
 
   // ---------- legend and filter chips ----------
-  // Arrowhead for each kind of connection: a filled triangle, an open line arrow, or none (plain = mutual).
-  const HEAD = { strong: 'solid', normal: 'line', weak: 'solid', plain: null };
-  const arrowPath = { solid: 'M0,0 L10,5 L0,10 z', line: 'M1.5,1 L8.5,5 L1.5,9' };
+  // Arrowhead for each kind of connection: a filled triangle, an open line arrow, an outlined triangle, or none (plain = mutual).
+  const HEAD = { strong: 'solid', normal: 'line', weak: 'hollow', plain: null };
+  const arrowPath = { solid: 'M0,0 L10,5 L0,10 z', line: 'M1.5,1 L8.5,5 L1.5,9', hollow: 'M1.5,1 L8.5,5 L1.5,9 z' };
   // a small drawing of one connection style, for the legend
-  const sampleLine = kind => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${HEAD[kind] === 'solid' ? 33 : 38}"/>`
+  const sampleLine = kind => `<svg class="ln" viewBox="0 0 40 10" aria-hidden="true"><path class="edge ${kind} cat-oth" d="M2,5 H${HEAD[kind] === 'line' || !HEAD[kind] ? 38 : 33}"/>`
     + (HEAD[kind] ? `<g class="tip ${HEAD[kind]} cat-oth" transform="translate(30 0)"><path d="${arrowPath[HEAD[kind]]}"/></g>` : '') + '</svg>';
   function renderLegend() {
     const row = (title, items) => `<div class="lrow"><b>${title}</b>${items.join('')}</div>`;
@@ -249,7 +249,7 @@
     return to;
   }
   function edgeSvg(e, i, boxOf) {
-    const cat = N[e.a].cat, ra = boxOf(e.a), rb = boxOf(e.b);
+    const cat = N[isHub(e.a) ? e.b : e.a].cat, ra = boxOf(e.a), rb = boxOf(e.b); // colour by the non-hub end: the hub's own colour is near-black
     const A = [ra.x + ra.w / 2, ra.y + ra.h / 2], B = [rb.x + rb.w / 2, rb.y + rb.h / 2];
     const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
     const bend = Math.min(BEND.max, len * BEND.ratio) * (i % 2 ? 1 : -1); // alternate curve direction so parallel lines don't overlap
@@ -271,7 +271,7 @@
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
     const paths = list.map((e, i) => edgeSvg(e, i, boxOf));
-    const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${N[e.a].cat}`).filter(Boolean))];
+    const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${N[isHub(e.a) ? e.b : e.a].cat}`).filter(Boolean))];
     const markers = heads.map(id => {
       const [head, cat] = id.split('-');
       return `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;

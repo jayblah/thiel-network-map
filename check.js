@@ -70,6 +70,9 @@ else {
     if (!allowed.includes(hash)) bad(`an inline script in index.html has hash sha256-${hash}, which the Content-Security-Policy does not allow (update the meta tag)`);
   }
 }
+// the plain-text copy of the map (for crawlers and visitors without scripts) must match data.js
+const { render, inject } = require('./build-static');
+if (inject(html, render(sandbox.DATA)) !== html) bad('the text copy of the map in index.html is out of date: run node build-static.js');
 if (/\sstyle="/.test(html) || /style="/.test(appSource)) bad('inline style attributes are blocked by the Content-Security-Policy; set the property from script instead');
 
 // text links and summary facts
