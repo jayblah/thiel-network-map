@@ -130,7 +130,9 @@ footer a { color: var(--accent); }
 main { flex: 1; display: flex; min-height: 0; position: relative; }
 #view { flex: 1; overflow: auto; position: relative; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
-svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 1; overflow: visible; }
+svg#ov, svg#ovl { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+svg#ov { z-index: 1; }  /* connection lines run under the cards */
+svg#ovl { z-index: 4; } /* their captions sit above the cards, so they stay readable */
 aside { width: var(--aside-w); background: var(--panel); border-left: 1px solid var(--line); overflow: auto; padding: 18px; }
 main.collapsed aside { display: none; }
 .sec { grid-column: span var(--span, 12); } /* --span is set per section from data.js */
@@ -180,6 +182,7 @@ main.collapsed #sideTab { right: 0; }
 .card.sel { outline: 4px solid var(--accent); outline-offset: 2px; }
 .card.hero { grid-column: 1 / -1; background: var(--hero-bg); color: #fff; border-color: #000; border-radius: 16px; }
 .card.hero:hover { transform: none; }
+.card.hero { --money: #39ff7a; } /* the Thiel card is dark in both themes, so money uses the bright green even in light mode */
 .card.hero .n { color: #fff; font-size: 1.75rem; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
