@@ -232,7 +232,9 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 #card { width: min(760px, calc(100vw - 24px)); height: min(900px, calc(100dvh - 24px)); max-height: none; padding: 0; overflow: hidden; }
 #card[open] { display: flex; }
 #cardBody { flex: 1; overflow: auto; padding: 20px 24px 24px; }
-#card h2 { margin: 0 44px 4px 0; font-size: 1.4rem; }
+.dtitle { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 44px 4px 0; }
+#card h2 { margin: 0; font-size: 1.4rem; }
+.wp.inline { position: static; flex: none; width: 26px; height: 26px; font-size: 13px; line-height: 23px; } /* the card badges again, sitting beside the name in the dialog */
 #card .cat { margin-right: 6px; }
 .dpic { float: left; width: 120px; margin: 0 18px 8px 0; }
 .dpic img { display: block; width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--c, var(--accent)); background: var(--bg); }
