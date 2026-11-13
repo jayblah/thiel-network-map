@@ -221,6 +221,8 @@ const DATA={
  // the image files are img/<id>.webp (card) and img/<id>-lg.webp (details). A person with no free photo shows initials instead.
  people:["T","Barbaccia","Ramaswamy","Farritor","Lee", "Davidson", "ReesMogg", "Girard", "Strauss", "Schmitt", "Palaver", "Panula", "Land", "Musk", "Sacks", "Lonsdale", "Howery", "Yarvin", "Burnham", "Srinivasan", "Andreessen", "Friedman", "Brown", "Sramek", "Lutter", "Fischer", "Vance", "Masters", "Trump", "ONeill", "Kratsios", "Mercer", "Buskirk", "Boyle", "Altman", "Tan", "Buterin", "Stephens", "Luckey", "Karp", "Armstrong", "DSouza", "Cowen", "Epstein", "Douthat", "Chafkin", "Benanti", "Dugin", "MStephens", "Deneen", "Vermeule", "Isker"],
  portraits:{
+  "Land":["Three Billion Nances","CC BY 3.0","https://commons.wikimedia.org/wiki/File:Nick_Land_in_2025.jpg"],
+  "DSouza":["Nothing Left Unsaid","CC BY 4.0","https://commons.wikimedia.org/wiki/File:Aron_D%27Souza_2025.jpg"],
   "Barbaccia":["Executive Office of the President of the United States","Public domain","https://commons.wikimedia.org/wiki/File:Federal_Chief_Information_Officer_of_the_United_States_Gregory_Barbaccia.jpg"],
   "Ramaswamy":["Gage Skidmore","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Vivek_Ramaswamy_(55241367373)_(cropped).jpg"],
   "Farritor":["HaeB","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Luke_Farritor_(AI_Tinkerers_SF,_October_2023)_-2.jpg"],
@@ -305,7 +307,32 @@ const DATA={
   "Dark Enlightenment":"https://en.wikipedia.org/wiki/Dark_Enlightenment",
   "Gaza":"https://en.wikipedia.org/wiki/Gaza_Strip",
   "Denmark":"https://en.wikipedia.org/wiki/Denmark",
-  "OSTP":"https://en.wikipedia.org/wiki/Office_of_Science_and_Technology_Policy"
+  "OSTP":"https://en.wikipedia.org/wiki/Office_of_Science_and_Technology_Policy",
+  "Counsyl":"https://en.wikipedia.org/wiki/Counsyl",
+  "The Diversity Myth":"https://en.wikipedia.org/wiki/The_Diversity_Myth",
+  "Tlon":"https://en.wikipedia.org/wiki/Urbit",
+  "Rockbridge Network":"https://en.wikipedia.org/wiki/Rockbridge_Network",
+  "Strive Asset Management":"https://en.wikipedia.org/wiki/Strive_Asset_Management",
+  "Emergent Ventures":"https://en.wikipedia.org/wiki/Emergent_Ventures",
+  "Microsoft":"https://en.wikipedia.org/wiki/Microsoft",
+  "The Network State":"https://en.wikipedia.org/wiki/The_Network_State",
+  "Department of Government Efficiency":"https://en.wikipedia.org/wiki/Department_of_Government_Efficiency",
+  "Silk Road":"https://en.wikipedia.org/wiki/Silk_Road_(marketplace)",
+  "Ross Ulbricht":"https://en.wikipedia.org/wiki/Ross_Ulbricht",
+  "Block.one":"https://en.wikipedia.org/wiki/Block.one",
+  "MicroStrategy":"https://en.wikipedia.org/wiki/MicroStrategy",
+  "Techno-Optimist Manifesto":"https://en.wikipedia.org/wiki/Techno-Optimist_Manifesto",
+  "BitPay":"https://en.wikipedia.org/wiki/BitPay",
+  "Libertopia":"https://en.wikipedia.org/wiki/Libertopia",
+  "Antichrist":"https://en.wikipedia.org/wiki/Antichrist",
+  "Stanford":"https://en.wikipedia.org/wiki/Stanford_University",
+  "Thiel Capital":"https://en.wikipedia.org/wiki/Thiel_Capital",
+  "Kushner":"https://en.wikipedia.org/wiki/Jared_Kushner",
+  "New Apostolic Reformation":"https://en.wikipedia.org/wiki/New_Apostolic_Reformation",
+  "General Services Administration":"https://en.wikipedia.org/wiki/General_Services_Administration",
+  "Pope Leo":"https://en.wikipedia.org/wiki/Pope_Leo_XIV",
+  "Mithril":"https://en.wikipedia.org/wiki/Mithril_Capital",
+  "Ripple":"https://en.wikipedia.org/wiki/Ripple_Labs"
  }
 };
 
