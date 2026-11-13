@@ -413,7 +413,7 @@
     // the same small round links as on the card, beside the name
     const links = (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`, ` inline cat-${n.cat}`) : '')
       + (n.link ? cornerLink(n.link.u, '&#8599;', n.link.l, ` inline cat-${n.cat}`) : '');
-    cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${links}</div><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
+    cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${links}</div>${n.id === HUB ? '' : `<span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`}`
       + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + '<hr class="dsep">'
