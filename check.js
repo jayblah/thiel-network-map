@@ -3,20 +3,20 @@
 // Exits with a non-zero status (and lists the problems) if anything is wrong. Needs no packages.
 const fs = require('fs');
 const crypto = require('crypto');
-const { loadData } = require('./data-loader');
+const { loadData, isWikipedia } = require('./data-loader');
 
 const DATA = loadData();
-const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, ent: ENT, govKinds } = DATA;
+const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, ent: ENT, govKinds, hub: HUB } = DATA;
 
 const appSource = fs.readFileSync('app.js', 'utf8');
 const GOV_KEYS = new Set((govKinds || []).map(g => g.key));
 const KINDS = new Set(['strong', 'normal', 'weak', 'plain']);
-const WIKI = /^https:\/\/en\.wikipedia\.org\/wiki\//;
 
 const problems = [];
 const bad = msg => problems.push(msg);
 
 if (!GOV_KEYS.size) bad('data.js has no govKinds');
+if (!N[HUB]) bad(`hub "${HUB}" is not a card`);
 
 // categories and sections
 for (const [k] of SECTIONS) if (!CAT[k]) bad(`section "${k}" is not in cats`);
@@ -27,7 +27,7 @@ for (const [id, n] of Object.entries(N)) {
   const at = `card ${id}`;
   if (!n.name) bad(`${at}: no name`);
   if (!CAT[n.cat]) bad(`${at}: unknown category "${n.cat}"`);
-  if (n.wiki && !WIKI.test(n.wiki)) bad(`${at}: wiki is not an English Wikipedia address`);
+  if (n.wiki && !isWikipedia(n.wiki)) bad(`${at}: wiki is not an English Wikipedia address`);
   if (n.link && !(n.link.u && n.link.l && /^https:\/\//.test(n.link.u))) bad(`${at}: link needs an https u and a label l`);
   if (n.gov) {
     if (!n.gov.text) bad(`${at}: gov has no text`);
@@ -88,7 +88,7 @@ const allText = [];
 const corpus = allText.join('\n');
 const escapeRe = k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const [name, url] of Object.entries(ENT || {})) {
-  if (!WIKI.test(url) && !CITED.has(url)) bad(`ent "${name}": not an English Wikipedia address or a source cited on a card`);
+  if (!isWikipedia(url) && !CITED.has(url)) bad(`ent "${name}": not an English Wikipedia address or a source cited on a card`);
   if (!new RegExp('(?<![A-Za-z0-9])' + escapeRe(name) + '(?![A-Za-z0-9])').test(corpus)) bad(`ent "${name}": not mentioned anywhere in the text, so it can never link (remove it)`);
 }
 

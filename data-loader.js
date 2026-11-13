@@ -8,4 +8,8 @@ function loadData() {
   return sandbox.DATA;
 }
 
-module.exports = { loadData };
+// Text links and card links go to English Wikipedia (or, for text links only, to a source the map already cites).
+const WIKI_PREFIX = 'https://en.wikipedia.org/wiki/';
+const isWikipedia = u => typeof u === 'string' && u.startsWith(WIKI_PREFIX);
+
+module.exports = { loadData, isWikipedia };

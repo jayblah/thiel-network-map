@@ -6,10 +6,13 @@
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
   // ---------- configuration ----------
-  const HUB = 'T'; // id of the central node (Peter Thiel)
+  const HUB = DATA.hub; // id of the central card (Peter Thiel), set in data.js
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { legend: 'thielLegend', theme: 'thielTheme' };
   const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
+  const WIKI = 'https://en.wikipedia.org/';
+  const NEW_TAB = ' (opens in a new tab)';
+  const EXT = '&#8599;'; // the north-east arrow that marks a link out
 
   // GOV (the kinds of government reach, in display order) comes from data.js; colour names map to .c-<colour> classes in styles.css.
   const GOV_BY_KEY = Object.fromEntries(GOV.map(g => [g.key, g]));
@@ -41,7 +44,7 @@
   const ENT = DATA.ent || {};
   const ENTRE = new RegExp('(?<![A-Za-z0-9])(' + Object.keys(ENT).sort((a, b) => b.length - a.length)
     .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?![A-Za-z0-9])', 'g');
-  const linkNames = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="${ENT[m].startsWith('https://en.wikipedia.org/') ? 'Wikipedia' : 'Source'}: ${m}"`));
+  const linkNames = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="${ENT[m].startsWith(WIKI) ? 'Wikipedia' : 'Source'}: ${m}"`));
   const money = s => s.replace(MONEY, m => `<span class="money">${m}</span>`);
   const fmt = s => money(linkNames(esc(s)));         // body text: links + money
   const plain = s => money(esc(s));             // no links (source titles, facts, text inside buttons)
@@ -134,11 +137,12 @@
 
   // ---------- legend toggle ----------
   const keyActions = {};
+  const LEGEND_BUTTONS = [$('#legendBtn'), $('#legendTab')];
   const NARROW = matchMedia('(max-width: 700px)');
   function setLegend(open, keep) {
     $('#legend').hidden = !open;
     $('#legendTab .chev').innerHTML = open ? '&#9652;' : '&#9662;';
-    [$('#legendBtn'), $('#legendTab')].forEach(b => b.setAttribute('aria-pressed', open));
+    LEGEND_BUTTONS.forEach(b => b.setAttribute('aria-pressed', open));
     if (!keep) storage.set(STORE.legend, open ? '1' : '0');
   }
 
@@ -162,7 +166,7 @@
         lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
         lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
-        lg('<span class="wp static cat-center">&#8599;</span>', 'Link chosen for the card (article or interview)'),
+        lg(`<span class="wp static cat-center">${EXT}</span>`, 'Link chosen for the card (article or interview)'),
         lg('<span class="wk">underlined</span>', 'Link for a name in the text'),
       ]) +
       row('Lines', [
@@ -177,32 +181,33 @@
       .map(([k, f]) => `<button class="btn chip${f.color ? ` tinted c-${f.color}` : ''}" data-f="${k}">${iconed(f.icon, f.chip)}</button>`).join('');
     $('#filters').insertAdjacentHTML('beforeend', chips + '<span id="count" class="count" aria-live="polite"></span>');
   }
-  // everything that sets a filter (chips, badges, counts) shows which one is active
-  // choosing Government Reach also lights the four kinds of government badge under it
+  // everything that sets a filter (chips, badges, counts) shows which one is active; choosing Government Reach also lights the four kinds of government badge under it
   const syncFilterButtons = () => $$('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filt || (filt === 'gov' && b.dataset.f.startsWith('gov:'))));
 
   // ---------- cards and sections ----------
-  // the small round link in a card's corner (Wikipedia "W", or the card's own link)
   // A person's portrait: a round photo when a freely licensed one exists, otherwise their initials in the card's colour.
   const PERSON = new Set(PEOPLE);
   const initials = name => name.replace(/^(Lord|Fr\.|Dr\.)\s+/, '').split(/\s+/).filter(w => /^\p{L}/u.test(w)).map((w, i, a) => i === 0 || i === a.length - 1 ? w[0] : '').join('');
   const portrait = n => !PERSON.has(n.id) ? ''
     : PICS[n.id] ? `<img class="pic" src="img/${n.id}.webp" alt="" width="112" height="112" ${n.id === HUB ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">`
     : `<span class="pic mono" aria-hidden="true">${esc(initials(n.name))}</span>`;
-  const cornerLink = (url, mark, title, cls = '') => extLink(`wp${cls}`, url, mark, `title="${esc(title)}" aria-label="${esc(title)} (opens in a new tab)"`);
+  // The small round links of a card: the Wikipedia "W", then the card's own link. `cls` places them (corner of the card, or beside the name in the dialog).
+  const cornerLink = (url, mark, title, cls) => extLink(`wp${cls ? ' ' + cls : ''}`, url, mark, `title="${esc(title)}" aria-label="${esc(title)}${NEW_TAB}"`);
+  const cornerLinks = (n, cls = '') => (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`, cls) : '')
+    + (n.link ? cornerLink(n.link.u, EXT, n.link.l, cls || (n.wiki ? 'alt' : '')) : '');
+  const subText = n => fmt(n.sub.join(' · '));
   function card(n, { cls = '', lines = '', tail = '' } = {}) {
     const flags = [n.anti && 'anti', n.cat === 'net' && 'net', cls].filter(Boolean).join(' ');
     const pills = facetHtml.pills(n);
     const hero = cls.includes('hero'); // the hub card puts its portrait top left and its badges top right
-    const title = `<div class="t"><button type="button" class="n">${esc(n.name)}</button>` + (n.sub.length ? `<div class="s">${fmt(n.sub.join(' · '))}</div>` : '') + '</div>';
+    const title = `<div class="t"><button type="button" class="n">${esc(n.name)}</button>` + (n.sub.length ? `<div class="s">${subText(n)}</div>` : '') + '</div>';
     const badges = pills ? `<div class="pills">${pills}</div>` : '';
     return `<div class="card cat-${n.cat} ${flags}" data-id="${esc(n.id)}">`
       + (hero ? `<div class="hd">${portrait(n)}${title}${badges}</div>` : `<div class="hd">${title}${portrait(n)}</div>`)
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + lines
       + (hero ? '' : badges)
-      + (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`) : '')
-      + (n.link ? cornerLink(n.link.u, '&#8599;', n.link.l, n.wiki ? ' alt' : '') : '')
+      + cornerLinks(n)
       + tail + '</div>';
   }
   const stat = (g, count) => `<button class="stat c-${g.color}" data-f="gov:${g.key}">${icon(g.icon)}<b>${count}</b>${g.reach}</button>`;
@@ -395,9 +400,9 @@
   // ---------- card dialog ----------
   const sourcesHtml = n => n.sources && n.sources.length
     ? block('accent', 'Sources',
-      n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<span class="ext" aria-hidden="true">&#8599;</span>`
+      n.sources.map(s => extLink('srcl', s.u, `${plain(s.l)}<span class="ext" aria-hidden="true">${EXT}</span>`
         + (s.s === 'ok' ? '' : `<span class="lock" title="May be paywalled or block automated access">${icon('lock')}</span>`)
-        + `<span class="sr">${s.s === 'ok' ? '' : ' (may be paywalled)'} (opens in a new tab)</span>`)).join('')
+        + `<span class="sr">${s.s === 'ok' ? '' : ' (may be paywalled)'}${NEW_TAB}</span>`)).join('')
       + `<div class="hint fine">Some links may require an account.</div>`)
     : '';
   const connectionButton = (e, id) => {
@@ -408,22 +413,20 @@
   const portraitCredit = id => {
     const c = PICS[id];
     return c ? `<figure class="dpic"><img src="img/${id}-lg.webp" alt="" width="240" height="240">`
-      + `<figcaption>Photo: ${extLink('', c[2], `${esc(c[0])}<span class="sr"> (opens in a new tab)</span>`)}, ${esc(c[1])}</figcaption></figure>` : '';
+      + `<figcaption>Photo: ${extLink('', c[2], `${esc(c[0])}<span class="sr">${NEW_TAB}</span>`)}, ${esc(c[1])}</figcaption></figure>` : '';
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
-    // the same small round links as on the card, beside the name
-    const links = (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`, ` inline cat-${n.cat}`) : '')
-      + (n.link ? cornerLink(n.link.u, '&#8599;', n.link.l, ` inline cat-${n.cat}`) : '');
+    const links = cornerLinks(n, `inline cat-${n.cat}`); // the same round links as on the card, beside the name
     cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${links}</div>${n.id === HUB ? '' : `<span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`}`
-      + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
+      + (n.sub.length ? `<div class="hint">${subText(n)}</div>` : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + '<hr class="dsep">'
       + facetHtml.panel(n)
       + pathBox(n)
       + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''))
       + sourcesHtml(n)
-      + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, 'Report a correction for this card &#8599;');
+      + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, `Report a correction for this card ${EXT}`);
     cardBody.scrollTop = 0;
   }
 
@@ -437,7 +440,7 @@
   syncFilterButtons();
 
   const legendKey = () => setLegend($('#legend').hidden);
-  [$('#legendBtn'), $('#legendTab')].forEach(b => b.addEventListener('click', legendKey));
+  LEGEND_BUTTONS.forEach(b => b.addEventListener('click', legendKey));
   keyActions.l = legendKey;
   const savedLegend = storage.get(STORE.legend);
   setLegend(savedLegend === null ? !NARROW.matches : savedLegend !== '0', true); // on a phone the legend starts closed unless the reader opened it before

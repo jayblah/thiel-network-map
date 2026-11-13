@@ -14,12 +14,14 @@
   --line: light-dark(#d9dde6, #2b3350);
   --accent: light-dark(#4338ca, #9995ff);
   --on-accent: light-dark(#ffffff, #0f121a); /* text on an accent background */
-  --money: light-dark(#006b24, #39ff7a); /* >= 4.5:1 on every card tint in both themes */
+  --money-light: #006b24; --money-dark: #39ff7a; /* >= 4.5:1 on every card tint in the matching theme */
+  --money: light-dark(var(--money-light), var(--money-dark));
 
   /* the Thiel card is dark in both themes */
   --hero-bg: linear-gradient(135deg, #1d2433, #2f3a58);
   --hero-ink: #cfd6ea;
   --hero-faint: #8d97b3;
+  --hero-white: #fff; /* text and rings on the dark card */
 
   /* facet text colours below are >= 4.5:1 on the page, panel and every category tint in their theme */
   /* facet colours: themed text/border colour (--x) and fixed pill background with white text (--x-solid) */
@@ -186,7 +188,7 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .pic { flex: none; width: 46px; height: 46px; border-radius: 50%; object-fit: cover; border: 2px solid var(--c); background: var(--panel); }
 .pic.mono { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--c) 22%, var(--panel)); }
 .card.dim .pic { filter: grayscale(1); border-color: var(--line); }
-.card.hero .pic { width: 84px; height: 84px; border-color: #fff; }
+.card.hero .pic { width: 84px; height: 84px; border-color: var(--hero-white); }
 .card.hero .hd { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 12px; }
 .card.hero .pic { justify-self: start; }
 .card.hero .pills { margin-top: 0; padding: 0; justify-content: flex-end; align-self: start; } /* badges top right, the name stays centred between portrait and badges */
@@ -199,9 +201,9 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .card.anti { border: 3px dashed var(--red); padding: 8px 10px 7px; }
 .card.net { border-radius: 4px 22px 4px 22px; }
 .card.sel { outline: 4px solid var(--accent); outline-offset: 2px; }
-.card.hero { text-align: center; grid-column: 1 / -1; background: var(--hero-bg); color: #fff; border-color: #000; border-radius: 16px; --money: #39ff7a; } /* dark in both themes, so money uses the bright green even in light mode */
+.card.hero { text-align: center; grid-column: 1 / -1; background: var(--hero-bg); color: var(--hero-white); border-color: #000; border-radius: 16px; --money: var(--money-dark); } /* dark in both themes, so money uses the bright green even in light mode */
 .card.hero:hover { transform: none; }
-.card.hero .n { color: #fff; font-size: 1.75rem; text-align: center; }
+.card.hero .n { color: var(--hero-white); font-size: 1.75rem; text-align: center; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
 .card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; } /* everything outside the spotlight loses its colour... */
@@ -244,7 +246,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .dpic a { color: inherit; }
 /* Reach Into Government: lives inside the Thiel card */
 .reach { margin-top: 12px; padding: 10px 0 34px; color: var(--hero-ink); cursor: default; }
-.reach h2 { margin: 0 0 8px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: #fff; }
+.reach h2 { margin: 0 0 8px; font-size: .9rem; letter-spacing: .05em; text-transform: uppercase; color: var(--hero-white); }
 .reach .row { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 12px; align-items: center; }
 .reach .stat { position: relative; z-index: 1; } /* above the card's click overlay */
 .stat { display: inline-flex; align-items: baseline; gap: 6px; border: 2px solid var(--ks); border-radius: 12px; padding: 5px 12px; background: var(--panel); color: var(--ink); }
@@ -307,7 +309,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
   .grid { grid-template-columns: repeat(3, 1fr); }
   .card, .reach .stat { break-inside: avoid; box-shadow: none; transform: none; background: #fff; }
   .card .n { color: #000; }
-  .card.hero { margin-bottom: 12px; background: #fff; color: #000; border: 2px solid #000; --money: #006b24; }
+  .card.hero { margin-bottom: 12px; background: #fff; color: #000; border: 2px solid #000; --money: var(--money-light); }
   .card.hero .n, .reach h2 { color: #000; }
   .card.hero .s, .card.hero .r, .reach { color: #222; }
   .reach .stat { border-width: 1.5px; }

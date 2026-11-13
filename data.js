@@ -6,6 +6,7 @@
 //   wiki, sources [{l,u,s:ok|blocked}]. Empty fields are simply left out.
 // Edge: a, b, label, kind (strong|normal|weak|plain).
 const DATA={
+ hub:"T", // id of the central card (Peter Thiel); app.js, build-static.js and the digest read it from here
  sections:[["infl",5],["pp",7],["neo",12],["pol",12],["prot",12],["faith",12],["net",12],["oth",12],["obs",12]],
  govKinds:[
  {"key":"official","color":"gold","icon":"official","pill":"In Government","title":"Holds or held a government role","reach":"In Government"},

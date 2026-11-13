@@ -7,13 +7,12 @@ const { loadData } = require('./data-loader');
 
 const START = '<!-- static-content:start -->';
 const END = '<!-- static-content:end -->';
-const HUB = 'T';
 
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 // The page's text as semantic HTML: a heading per section, a list of cards, each with its facts and connections.
 function render(data) {
-  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS } = data;
+  const { nodes: N, edges: E, cats: CAT, sections: SECTIONS, hub: HUB } = data;
   const other = (e, id) => e.a === id ? e.b : e.a;
   const consOf = id => E.filter(e => e.a === id || e.b === id);
   const rel = id => { const e = consOf(id).find(x => other(x, id) === HUB); return e ? e.label : ''; };
