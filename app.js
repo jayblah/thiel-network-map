@@ -147,12 +147,12 @@
   const HEAD = { strong: 'solid', normal: 'hollow', weak: 'line', plain: null };
   const arrowPath = { solid: 'M0,0 L10,5 L0,10 z', line: 'M1.5,1 L8.5,5 L1.5,9', hollow: 'M1.5,1 L8.5,5 L1.5,9 z' };
   // An arrowhead as an SVG marker. It scales with the line's stroke width, so a close tie's head is twice the size of a tie's.
-  const markerSvg = (id, head, cat) => `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
+  const markerSvg = (id, head, cat) => `<marker id="${id}" class="cat-${cat} ${head}" viewBox="0 0 10 10" refX="${head === 'solid' ? 8 : 9}" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="${arrowPath[head]}"/></marker>`;
   // a small drawing of one connection style for the legend, built from the same markers and CSS as the map so it always matches
   const sampleLine = kind => {
     const head = HEAD[kind], id = `lg-${kind}`;
     return `<svg class="ln" viewBox="0 0 48 20" aria-hidden="true">${head ? `<defs>${markerSvg(id, head, 'oth')}</defs>` : ''}`
-      + `<path class="edge ${kind} cat-oth" d="M2,10 H${kind === 'strong' ? 44 : 46}"${head ? ` marker-end="url(#${id})"` : ''}/></svg>`;
+      + `<path class="edge ${kind} cat-oth" d="M2,10 H${kind === 'strong' ? 42 : 46}"${head ? ` marker-end="url(#${id})"` : ''}/></svg>`;
   };
   function renderLegend() {
     const row = (title, items) => `<div class="lrow"><b>${title}</b><div class="litems">${items.join('')}</div></div>`;
@@ -170,7 +170,6 @@
         lg(sampleLine('normal'), 'Tie: influence, support or role'),
         lg(sampleLine('weak'), 'Looser or critical tie'),
         lg(sampleLine('plain'), 'Mutual or peer tie (no arrow)'),
-        `<span class="lnote">Arrows point from the one acting (influencing, funding, hiring, criticising) to the other</span>`,
       ]);
   }
   function renderChips() {
