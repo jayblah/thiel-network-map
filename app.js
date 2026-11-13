@@ -250,7 +250,9 @@
     const marker = HEAD[e.kind] ? ` marker-end="url(#${HEAD[e.kind]}-${cat})"` : '';
     return `<path class="edge ${e.kind} cat-${cat}" d="M${P0[0]},${P0[1]} Q${P1[0]},${P1[1]} ${P2[0]},${P2[1]}"${marker}/>`;
   }
-  const draw = id => drawEdges(consOf(id).filter(e => els[other(e, id)]));
+  // The hub has dozens of connections; drawn all at once they are a tangle nobody can read. Its card spotlights its neighbours without lines,
+  // and each neighbour draws its own line to the hub when hovered or selected.
+  const draw = id => drawEdges(isHub(id) ? [] : consOf(id).filter(e => els[other(e, id)]));
   function drawEdges(list) {
     [ov, ovUnder].forEach(svg => { svg.setAttribute('width', stage.scrollWidth); svg.setAttribute('height', stage.scrollHeight); });
     // read every position first (one stage rect, one rect per card), then build the markup
