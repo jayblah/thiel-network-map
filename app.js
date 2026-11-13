@@ -178,7 +178,8 @@
     $('#filters').insertAdjacentHTML('beforeend', chips + '<span id="count" class="count" aria-live="polite"></span>');
   }
   // everything that sets a filter (chips, badges, counts) shows which one is active
-  const syncFilterButtons = () => $$('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filt));
+  // choosing Government Reach also lights the four kinds of government badge under it
+  const syncFilterButtons = () => $$('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filt || (filt === 'gov' && b.dataset.f.startsWith('gov:'))));
 
   // ---------- cards and sections ----------
   // the small round link in a card's corner (Wikipedia "W", or the card's own link)
@@ -192,13 +193,14 @@
   function card(n, { cls = '', lines = '', tail = '' } = {}) {
     const flags = [n.anti && 'anti', n.cat === 'net' && 'net', cls].filter(Boolean).join(' ');
     const pills = facetHtml.pills(n);
+    const hero = cls.includes('hero'); // the hub card puts its portrait top left and its badges top right
+    const title = `<div class="t"><button type="button" class="n">${esc(n.name)}</button>` + (n.sub.length ? `<div class="s">${fmt(n.sub.join(' · '))}</div>` : '') + '</div>';
+    const badges = pills ? `<div class="pills">${pills}</div>` : '';
     return `<div class="card cat-${n.cat} ${flags}" data-id="${esc(n.id)}">`
-      + `<div class="hd"><div class="t"><button type="button" class="n">${esc(n.name)}</button>`
-      + (n.sub.length ? `<div class="s">${fmt(n.sub.join(' · '))}</div>` : '')
-      + `</div>${portrait(n)}</div>`
+      + (hero ? `<div class="hd">${portrait(n)}${title}${badges}</div>` : `<div class="hd">${title}${portrait(n)}</div>`)
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + lines
-      + (pills ? `<div class="pills">${pills}</div>` : '')
+      + (hero ? '' : badges)
       + (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`) : '')
       + (n.link ? cornerLink(n.link.u, '&#8599;', n.link.l, n.wiki ? ' alt' : '') : '')
       + tail + '</div>';
