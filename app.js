@@ -41,7 +41,7 @@
   const ENT = DATA.ent || {};
   const ENTRE = new RegExp('(?<![A-Za-z0-9])(' + Object.keys(ENT).sort((a, b) => b.length - a.length)
     .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')(?![A-Za-z0-9])', 'g');
-  const linkNames = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="Wikipedia: ${m}"`));
+  const linkNames = s => s.replace(ENTRE, m => extLink('wk', ENT[m], m, `title="${ENT[m].startsWith('https://en.wikipedia.org/') ? 'Wikipedia' : 'Source'}: ${m}"`));
   const money = s => s.replace(MONEY, m => `<span class="money">${m}</span>`);
   const fmt = s => money(linkNames(esc(s)));         // body text: links + money
   const plain = s => money(esc(s));             // no links (source titles, facts, text inside buttons)

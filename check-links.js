@@ -8,7 +8,7 @@ const { nodes: N, ent: ENT } = loadData();
 const urls = new Map(); // address -> who uses it
 const add = (u, who) => { if (u) urls.set(u, [...(urls.get(u) || []), who]); };
 for (const [id, n] of Object.entries(N)) add(n.wiki, `card ${id}`);
-for (const [name, u] of Object.entries(ENT || {})) add(u, `text link "${name}"`);
+for (const [name, u] of Object.entries(ENT || {})) if (u.startsWith('https://en.wikipedia.org/')) add(u, `text link "${name}"`); // cited publisher addresses are not checked, like the rest of the sources
 
 async function check(url) {
   for (let attempt = 0; attempt < 3; attempt++) {
