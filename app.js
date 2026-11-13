@@ -409,10 +409,11 @@
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
-    cardBody.innerHTML = portraitCredit(id) + `<h2 id="cardTitle">${esc(n.name)}</h2><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
+    // the same small round links as on the card, beside the name
+    const links = (n.wiki ? cornerLink(n.wiki, 'W', `Wikipedia article: ${n.name}`, ` inline cat-${n.cat}`) : '')
+      + (n.link ? cornerLink(n.link.u, '&#8599;', n.link.l, ` inline cat-${n.cat}`) : '');
+    cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${links}</div><span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`
       + (n.sub.length ? `<div class="hint">${fmt(n.sub.join(' · '))}</div>` : '')
-      + (n.link ? extLink('wl', n.link.u, `${esc(n.link.l)} &#8599;`) : '')
-      + (n.wiki ? extLink('wl', n.wiki, 'Wikipedia article &#8599;') : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + '<hr class="dsep">'
       + facetHtml.panel(n)
