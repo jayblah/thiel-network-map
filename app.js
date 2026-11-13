@@ -163,7 +163,7 @@
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
         lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
         lg('<span class="wp static cat-center">&#8599;</span>', 'Link chosen for the card (article or interview)'),
-        lg('<span class="wk">underlined</span>', 'Wikipedia link for a name in the text'),
+        lg('<span class="wk">underlined</span>', 'Link for a name in the text'),
       ]) +
       row('Lines', [
         lg(sampleLine('strong'), 'Close tie: founder, funder, mentor'),
