@@ -39,7 +39,7 @@ async function contracts() {
   const parent = await json('https://api.usaspending.gov/api/v2/recipient/1ea8a9a4-3726-3491-9040-66950bb67606-P/?year=all');
   say('| Fiscal year | Total | By recipient |', '|---|---|---|', ...rows, '',
     `All years on record for the parent company (${parent.name}): **${usd(parent.total_transaction_amount)}** in ${parent.total_transactions} transactions.`, '');
-  const mapSays = [DATA.facts.find(f => /Palantir/.test(f)), (DATA.nodes.T.gov || {}).text].filter(Boolean).map(t => `- ${t.replace(/\*/g, '')}`);
+  const mapSays = [(DATA.nodes[DATA.hub].gov || {}).text].filter(Boolean).map(t => `- ${t}`);
   say('What the map says:', ...mapSays, '', 'If these disagree, decide whether the map should cite USAspending for the figure, and say which time period it covers.', '');
 }
 
