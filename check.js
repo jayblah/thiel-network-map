@@ -81,13 +81,14 @@ const { render, inject } = require('./build-static');
 if (inject(html, render(DATA)) !== html) bad('the text copy of the map in index.html is out of date: run node build-static.js');
 if (/\sstyle="/.test(html) || /style="/.test(appSource)) bad('inline style attributes are blocked by the Content-Security-Policy; set the property from script instead');
 
-// text links: each must be a Wikipedia address and must actually be used somewhere in the text
+// text links: each must be a Wikipedia address or a source the map already cites (an essay, an article), and must actually be used somewhere in the text
+const CITED = new Set(Object.values(N).flatMap(n => [...(n.sources || []).map(s => s.u), n.link && n.link.u].filter(Boolean)));
 const allText = [];
 (function collect(v) { if (typeof v === 'string') allText.push(v); else if (Array.isArray(v)) v.forEach(collect); else if (v && typeof v === 'object') Object.values(v).forEach(collect); })([N, E]);
 const corpus = allText.join('\n');
 const escapeRe = k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 for (const [name, url] of Object.entries(ENT || {})) {
-  if (!WIKI.test(url)) bad(`ent "${name}": not an English Wikipedia address`);
+  if (!WIKI.test(url) && !CITED.has(url)) bad(`ent "${name}": not an English Wikipedia address or a source cited on a card`);
   if (!new RegExp('(?<![A-Za-z0-9])' + escapeRe(name) + '(?![A-Za-z0-9])').test(corpus)) bad(`ent "${name}": not mentioned anywhere in the text, so it can never link (remove it)`);
 }
 
