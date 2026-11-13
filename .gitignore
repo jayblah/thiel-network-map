@@ -6,3 +6,4 @@
 node_modules/
 ingest/snapshot.json
 ingest/report.md
+BLUEPRINT.md
