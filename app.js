@@ -450,7 +450,7 @@
       const anchor = side ? (c > 0 ? 'start' : 'end') : 'middle';
       const label = lines2.map((t, i) => `<tspan x="${lx}" dy="${i ? 18 : 0}">${esc(t)}</tspan>`).join('');
       const cap = `${arrow(e, id)} ${esc(n.name)}: ${plain(e.label || '')}`;
-      return `<g class="gnode cat-${n.cat}" data-go="${esc(o)}" data-cap="${esc(cap)}" tabindex="0" role="link" aria-label="${esc(n.name)}: ${esc(e.label || '')}">${bubble(o, x, y, r)}<text class="lbl" x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${label}</text></g>`;
+      return `<g class="gnode cat-${n.cat}" data-go="${esc(o)}" data-cap="${esc(cap)}" tabindex="0" role="link" aria-label="${esc(n.name)}: ${esc(e.label || '')}">${bubble(o, x, y, r)}<text class="lbl" aria-hidden="true" x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${label}</text></g>`;
     }).join('');
     return `<svg class="graph cat-${N[id].cat}" viewBox="0 0 ${w} ${h}" role="group" aria-label="Connections of ${esc(N[id].name)}"><defs>${markers}</defs>${lines}<g class="gnode centre" aria-hidden="true">${bubble(id, cx, cy, rc)}</g>${nodes}</svg>`
       + `<div class="gcap" aria-hidden="true" data-idle="Hover or focus a bubble to see how it connects; select it to open its card.">Hover or focus a bubble to see how it connects; select it to open its card.</div>`;
