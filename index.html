@@ -17,7 +17,7 @@
      so the main area can stay hidden until it is built (no layout shift). Keep the storage key in step with STORE.theme in app.js. -->
 <script>try { var t = localStorage.getItem('thielTheme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) { /* storage blocked */ } document.documentElement.classList.add('js');</script>
 <!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
-<link rel="stylesheet" href="styles.css?v=1.92">
+<link rel="stylesheet" href="styles.css?v=1.93">
 </head><body>
 <header>
  <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>inspired by <a href="https://www.thenerdreich.com/" target="_blank" rel="noopener"><i>The Nerd Reich</i></a> by <a href="https://www.gilduran.com/" target="_blank" rel="noopener">Gil Duran</a>. Hover a card to trace its links, click for details.</small></h1>
@@ -142,7 +142,7 @@
 
 <template id="howto">
  <h2 id="helpTitle">How to Read This</h2>
- Each card is a person, company or project the book connects to Thiel. The <b>Legend</b> (L) explains the marks and lines, and clicking any icon, filter or count spotlights the matching cards (click it again to clear). Clicking a card opens its details, including the <b>sources cited in the book</b> for key claims, so they can be fact-checked. The line under each name is how that card relates to Thiel. Select a card, then use <b>How is it connected to…</b> to trace the chain between two cards. Shortcuts: <b>/</b> search, <b>L</b> legend, <b>Esc</b> close a card.
+ Each card is a person, company or project the book connects to Thiel. The <b>Legend</b> (L) explains the marks and lines, and clicking any icon, filter or count spotlights the matching cards (click it again to clear). Clicking a card opens its details, including the <b>sources</b> cited for key claims, so they can be fact-checked. The line under each name is how that card relates to Thiel. Select a card, then use <b>How is it connected to…</b> to trace the chain between two cards. Shortcuts: <b>/</b> search, <b>L</b> legend, <b>Esc</b> close a card.
 </template>
 
 <dialog id="help" aria-labelledby="helpTitle">
@@ -155,6 +155,6 @@
  <div id="cardBody"></div>
 </dialog>
 
-<script src="data.js?v=1.92"></script>
-<script src="app.js?v=1.92"></script>
+<script src="data.js?v=1.93"></script>
+<script src="app.js?v=1.93"></script>
 </body></html>
