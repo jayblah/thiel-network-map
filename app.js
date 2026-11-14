@@ -94,7 +94,7 @@
   };
   const FACETS = [
     facet({ key: 'views', color: 'red', icon: 'views', label: 'Views', desc: 'Anti-democracy / exit views',
-      has: n => n.anti || n.views, fallback: 'Flagged in the book as echoing these views',
+      has: n => n.anti || n.views, fallback: 'Flagged as echoing these views',
       head: n => n.anti ? 'Anti-Democracy / Exit Views' : 'Views',
       chip: 'Anti-Democracy / Exit Views', chipId: 'anti', chipTest: n => n.anti }),
     facet({ key: 'faith', color: 'purple', icon: 'faith', label: 'Christian Nationalism', desc: 'Christian nationalist tie',
@@ -199,14 +199,14 @@
   function card(n, { cls = '', lines = '', tail = '' } = {}) {
     const flags = [n.anti && 'anti', n.cat === 'net' && 'net', cls].filter(Boolean).join(' ');
     const pills = facetHtml.pills(n);
-    const hero = cls.includes('hero'); // the hub card puts its portrait top left and its badges top right
-    const title = `<div class="t"><button type="button" class="n">${esc(n.name)}</button>` + (n.sub.length ? `<div class="s">${subText(n)}</div>` : '') + '</div>';
-    const badges = pills ? `<div class="pills">${pills}</div>` : '';
+    const hero = cls.includes('hero'); // the hub card has no badges: its portrait sits beside the name, its companies under it
+    const title = `<div class="t"><button type="button" class="n">${esc(n.name)}</button>` + (n.sub.length ? `<div class="s">${subText(n)}</div>` : '') + (hero && n.cos ? `<div class="r">${fmt(n.cos)}</div>` : '') + '</div>';
+    const badges = pills && !hero ? `<div class="pills">${pills}</div>` : '';
     return `<div class="card cat-${n.cat} ${flags}" data-id="${esc(n.id)}">`
-      + (hero ? `<div class="hd">${portrait(n)}${title}${badges}</div>` : `<div class="hd">${title}${portrait(n)}</div>`)
+      + (hero ? `<div class="hd">${portrait(n)}${title}</div>` : `<div class="hd">${title}${portrait(n)}</div>`)
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + lines
-      + (hero ? '' : badges)
+      + badges
       + cornerLinks(n)
       + tail + '</div>';
   }
@@ -217,12 +217,11 @@
       + GOV.map(g => stat(g, countWhere(FILTERS[`gov:${g.key}`].test))).join('')
       + `</div></section>`;
     const hub = N[HUB];
-    const hubLines = [hub.cos].filter(Boolean).map(t => `<div class="r">${fmt(t)}</div>`).join('');
     const sections = SECTIONS.map(([k, span]) => {
       const ns = Object.values(N).filter(n => n.cat === k);
       return ns.length ? `<section class="sec cat-${k}" data-span="${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
     }).join('');
-    stage.insertAdjacentHTML('afterbegin', card(hub, { cls: 'hero', lines: hubLines, tail: reach }) + sections);
+    stage.insertAdjacentHTML('afterbegin', card(hub, { cls: 'hero', tail: reach }) + sections);
     $$('.card').forEach(c => { els[c.dataset.id] = c; });
     $$('.sec').forEach(sec => sec.style.setProperty('--span', sec.dataset.span)); // set from script: a strict policy forbids inline style attributes
   }

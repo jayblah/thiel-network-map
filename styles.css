@@ -147,8 +147,6 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 }
 /* phones: keep the chrome small so the cards get the screen */
 @media (max-width: 700px) {
-  .card.hero .hd { grid-template-columns: auto 1fr; }
-  .card.hero .pills { grid-column: 1 / -1; justify-content: center; } /* on a phone the badges drop under the portrait and name */
   header { padding: 8px 12px; gap: 4px 10px; }
   h1 { font-size: 1.05rem; }
   h1 small { display: none; }
@@ -189,9 +187,8 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .pic.mono { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--c) 22%, var(--panel)); }
 .card.dim .pic { filter: grayscale(1); border-color: var(--line); }
 .card.hero .pic { width: 84px; height: 84px; border-color: var(--hero-white); }
-.card.hero .hd { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 12px; }
-.card.hero .pic { justify-self: start; }
-.card.hero .pills { margin-top: 0; padding: 0; justify-content: flex-end; align-self: start; } /* badges top right, the name stays centred between portrait and badges */
+.card.hero .hd { justify-content: center; align-items: center; gap: 16px; }
+.card.hero .t { flex: 0 1 auto; }
 .card .n { display: block; width: 100%; text-align: left; font-weight: 700; font-size: 1rem; line-height: 1.2; color: var(--t); cursor: pointer; }
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
 .card .n:focus-visible { outline: none; }
