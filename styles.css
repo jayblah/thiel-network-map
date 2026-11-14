@@ -91,7 +91,10 @@ h1 { font-size: 1.15rem; margin: 0; display: flex; flex-wrap: wrap; align-items:
 h1 small { font-weight: 400; color: var(--mute); font-size: .8rem; }
 h1 small a { color: var(--ink); text-decoration: underline dotted; text-underline-offset: 3px; }
 h1 small a:hover { color: var(--accent); }
-.ver { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent); color: var(--on-accent); align-self: center; }
+.ver { font: inherit; font-size: .75rem; font-weight: 700; padding: 2px 8px; border: 0; border-radius: 99px; background: var(--accent); color: var(--on-accent); align-self: center; cursor: pointer; }
+.credit a { color: var(--ink); text-decoration: underline dotted; text-underline-offset: 3px; }
+#updatesBody h3 { margin: 14px 0 4px; font-size: .95rem; }
+#updatesBody ul { margin: 0; padding-left: 1.2em; }
 .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-left: auto; }
 .search { position: relative; display: inline-flex; align-items: center; }
 #q::-webkit-search-cancel-button { appearance: none; display: none; } /* replaced by #qClear, which looks the same in every browser */
@@ -122,7 +125,7 @@ input[type=search] { padding: 7px 12px; border: 1px solid var(--ctl); border-rad
 .sw.notch { background: none; border: 2px solid var(--mute); border-radius: 3px 9px 3px 9px; }
 
 /* footer */
-footer { flex: none; display: flex; justify-content: flex-end; padding: 6px 18px; border-top: 1px solid var(--line); background: var(--panel); color: var(--mute); font-size: .78rem; }
+footer { flex: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px 16px; padding: 6px 18px; border-top: 1px solid var(--line); background: var(--panel); color: var(--mute); font-size: .78rem; }
 footer a { color: var(--accent); }
 
 /* layout */

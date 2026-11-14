@@ -17,10 +17,10 @@
      so the main area can stay hidden until it is built (no layout shift). Keep the storage key in step with STORE.theme in app.js. -->
 <script>try { var t = localStorage.getItem('thielTheme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) { /* storage blocked */ } document.documentElement.classList.add('js');</script>
 <!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
-<link rel="stylesheet" href="styles.css?v=1.103">
+<link rel="stylesheet" href="styles.css?v=1.104">
 </head><body>
 <header>
- <h1>Peter Thiel's Network <span class="ver" id="ver" title="Page version"></span><small>inspired by <a href="https://www.thenerdreich.com/" target="_blank" rel="noopener"><i>The Nerd Reich</i></a> by <a href="https://www.gilduran.com/" target="_blank" rel="noopener">Gil Duran</a>. Hover a card to trace its links, click for details.</small></h1>
+ <h1>Peter Thiel's Network <small>Hover a card to trace its links, click for details.</small></h1>
  <div class="tools">
   <div class="search">
    <input type="search" id="q" placeholder="Search a name or company" aria-label="Search a name or company">
@@ -137,6 +137,7 @@
 </noscript><div id="stage"><svg id="ov"></svg></div></div>
 </main>
 <footer>
+ <span class="credit"><button type="button" class="ver" id="ver" title="What data was added, by date" aria-haspopup="dialog"></button> Inspired by <a href="https://www.thenerdreich.com/" target="_blank" rel="noopener"><i>The Nerd Reich</i></a> by <a href="https://www.gilduran.com/" target="_blank" rel="noopener">Gil Duran</a></span>
  <a id="report" target="_blank" rel="noopener">Report a correction</a>
 </footer>
 
@@ -150,11 +151,16 @@
  <div id="helpBody"></div>
 </dialog>
 
+<dialog id="updates" aria-labelledby="updatesTitle">
+ <button class="btn x" aria-label="Close" title="Close (Esc)">&times;</button>
+ <div id="updatesBody"></div>
+</dialog>
+
 <dialog id="card" aria-labelledby="cardTitle">
  <button class="btn x" aria-label="Close" title="Close (Esc)">&times;</button>
  <div id="cardBody"></div>
 </dialog>
 
-<script src="data.js?v=1.103"></script>
-<script src="app.js?v=1.103"></script>
+<script src="data.js?v=1.104"></script>
+<script src="app.js?v=1.104"></script>
 </body></html>

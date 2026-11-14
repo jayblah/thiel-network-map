@@ -495,6 +495,9 @@
   // ---------- start up ----------
   const VERSION = new URL(document.currentScript.src).searchParams.get('v'); // single source of truth: the ?v= in index.html
   $('#ver').textContent = `v${VERSION}`;
+  // the version opens the log of data added, by date
+  $('#updatesBody').innerHTML = `<h2 id="updatesTitle">Data updates</h2>` + DATA.updates.map(u => `<h3>${esc(new Date(u.date + 'T00:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }))}</h3><ul>${u.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('');
+  $('#ver').addEventListener('click', () => { if (!$('#updates').open) $('#updates').showModal(); });
 
   renderLegend();
   renderChips();
@@ -508,7 +511,7 @@
   setLegend(savedLegend === null ? !NARROW.matches : savedLegend !== '0', true); // on a phone the legend starts closed unless the reader opened it before
 
   // the two dialogs: native <dialog> gives Esc-to-close and focus handling; also close on a click on the backdrop
-  [cardDlg, $('#help')].forEach(d => {
+  [cardDlg, $('#help'), $('#updates')].forEach(d => {
     d.addEventListener('click', e => { if (e.target === d) d.close(); });
     d.querySelector('.x').addEventListener('click', () => d.close());
   });

@@ -18,6 +18,11 @@ const bad = msg => problems.push(msg);
 if (!GOV_KEYS.size) bad('data.js has no govKinds');
 if (!N[HUB]) bad(`hub "${HUB}" is not a card`);
 
+// the data-updates log: dated, newest first, each with at least one line
+const UPD = DATA.updates || [];
+if (!UPD.length) bad('data.js has no updates log');
+UPD.forEach((u, i) => { if (!/^\d{4}-\d\d-\d\d$/.test(u.date) || !u.items || !u.items.length) bad(`updates[${i}] needs a date (YYYY-MM-DD) and items`); if (i && u.date >= UPD[i - 1].date) bad(`updates[${i}] is not older than the one before it`); });
+
 // categories and sections
 for (const [k] of SECTIONS) if (!CAT[k]) bad(`section "${k}" is not in cats`);
 for (const k of Object.keys(CAT)) if (k !== 'center' && !SECTIONS.some(([s]) => s === k)) bad(`category "${k}" has no section`);
