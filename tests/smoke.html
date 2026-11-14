@@ -48,6 +48,9 @@ frame.addEventListener('load', async () => {
     chip('crypto').click();
     check('chips combine: a card must match every chosen filter', shown() === Object.values(N).filter(n => n.fund && n.crypto).length + 1 && chip('fund').getAttribute('aria-pressed') === 'true' && $('#count').textContent.includes(' + '), `${shown()} shown; ${$('#count').textContent}`);
     $('.chip[data-f=all]').click();
+    chip('anti').click(); chip('net').click();
+    check('Anti-Democracy and Network States together match the people tied to a network state', shown() > 2, `${shown()} shown`);
+    $('.chip[data-f=all]').click();
     check('Everyone clears all the chosen filters', dimmed() === 0 && chip('crypto').getAttribute('aria-pressed') === 'false');
 
     // search
