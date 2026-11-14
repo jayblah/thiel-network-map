@@ -8,4 +8,9 @@ ingest/snapshot.json
 ingest/report.md
 BLUEPRINT.md
 
-todo.md
+TODO.md
+
+# Claude rules and settings stay local
+CLAUDE.md
+CLAUDE.local.md
+.claude/

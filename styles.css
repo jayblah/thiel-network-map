@@ -1,9 +1,9 @@
 /* Thiel network map styles.
    Theming: every colour that changes between light and dark is defined ONCE with light-dark().
-   The theme button sets data-theme on <html>, which pins color-scheme; with no choice it follows the OS. */
+   The theme button sets data-theme on <html>, which pins color-scheme; with no choice the page is dark. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark; /* dark unless the reader chose light */
 
   /* surface and text */
   --bg: light-dark(#eef0f5, #0f121a);
@@ -108,6 +108,7 @@ input[type=search] { padding: 7px 12px; border: 1px solid var(--ctl); border-rad
 .chip.tinted { border: 2px solid var(--k); color: var(--k); padding: 3px 12px; display: inline-flex; align-items: center; gap: 5px; }
 .chip.tinted.on { background: var(--ks); border-color: var(--ks); color: var(--on-ks, #fff); }
 .chip .ic { width: 1.1em; height: 1.1em; }
+.chip[aria-pressed="true"]:not([data-f="all"])::before { content: "\2713"; font-weight: 700; } /* a tick: the chips are checkboxes, several can be on */
 .count { color: var(--mute); font-size: .82rem; margin-left: 4px; }
 .linkbtn { margin-left: 6px; color: var(--accent); font-size: inherit; text-decoration: underline; }
 .ln { width: 48px; height: 20px; flex: none; overflow: visible; }
