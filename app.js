@@ -256,7 +256,7 @@
   }
   // The hub has dozens of connections; drawn all at once they are a tangle nobody can read. Its card spotlights its neighbours without lines,
   // and each neighbour draws its own line to the hub when hovered or selected.
-  const draw = id => drawEdges(isHub(id) ? [] : consOf(id).filter(e => els[other(e, id)]));
+  const draw = id => drawEdges(isHub(id) ? [] : consOf(id).filter(e => shown(other(e, id))));
   function drawEdges(list) {
     [ov, ovUnder].forEach(svg => { svg.setAttribute('width', stage.scrollWidth); svg.setAttribute('height', stage.scrollHeight); });
     // read every position first (one stage rect, one rect per card), then build the markup
@@ -273,7 +273,15 @@
 
   // ---------- dimming, filtering, pinning ----------
   // The hub never dims: the government counts inside its card are controls and must stay readable.
-  const setDim = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id) && !isHub(id)));
+  // `hide` removes the others from the layout (filters and search, so the matches close up at the top); otherwise they are only greyed.
+  const setDim = (show, hide = false) => Object.entries(els).forEach(([id, el]) => {
+    const out = !!show && !show.has(id) && !isHub(id);
+    el.classList.toggle('gone', out && hide);
+    el.classList.toggle('dim', out && !hide);
+  });
+  // Hovering greys the cards outside the spotlight but never moves anything (a card that moved from under the pointer would flicker); cards a filter hid stay hidden.
+  const dimOthers = show => Object.entries(els).forEach(([id, el]) => el.classList.toggle('dim', !!show && !show.has(id) && !isHub(id) && !el.classList.contains('gone')));
+  const shown = id => els[id] && !els[id].classList.contains('gone');
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
   // everything a search can match on a card, including its connection labels and badge names
   const HAYSTACKS = {};
@@ -289,7 +297,7 @@
     const t = term.trim().toLowerCase();
     if (filt === 'all' && !t) { setDim(null); showCount(null); return; }
     const hits = Object.values(N).filter(n => FILTERS[filt].test(n) && (!t || haystack(n).includes(t))).map(n => n.id);
-    setDim(new Set(hits));
+    setDim(new Set(hits), true);
     showCount(hits.length);
   }
   const reset = () => { ov.innerHTML = ovUnder.innerHTML = ''; applyFilter(); };
@@ -320,7 +328,7 @@
     draw(pinned);
   }
   // hover or keyboard focus on a card: spotlight it and draw its connections (unless something is pinned)
-  function previewCard(id) { setDim(neighbours(id)); showCount(null); draw(id); }
+  function previewCard(id) { dimOthers(neighbours(id)); showCount(null); draw(id); }
 
   // ---------- how is A connected to B ----------
   // Breadth-first search over the connections, ignoring their direction; optionally refusing to route through the hub.

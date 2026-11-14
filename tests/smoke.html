@@ -20,7 +20,7 @@ frame.addEventListener('load', async () => {
     await wait(300);
     const $ = s => doc.querySelector(s), $$ = s => [...doc.querySelectorAll(s)];
     const N = DATA.nodes, E = DATA.edges; // the page's own data, loaded below (the page's policy forbids reading it with eval)
-    const dimmed = () => $$('.card.dim').length;
+    const dimmed = () => $$('.card.dim, .card.gone').length; // greyed (hover, selection) or hidden (filter, search)
     const shown = () => $$('.card').length - dimmed();
 
     // structure
