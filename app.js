@@ -428,7 +428,7 @@
   const bubble = (id, x, y, r) => {
     const n = N[id], face = PICS[id]
       ? `<clipPath id="gc-${id}"><circle cx="${x}" cy="${y}" r="${r - 2}"/></clipPath><image href="img/${id}.webp" x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}" preserveAspectRatio="xMidYMid slice" clip-path="url(#gc-${id})"/>`
-      : (PERSON.has(id) ? `<text class="ini" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">${esc(initials(n.name))}</text>` : '');
+      : (PERSON.has(id) ? `<text class="ini" aria-hidden="true" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">${esc(initials(n.name))}</text>` : '');
     return `<circle class="bub" cx="${x}" cy="${y}" r="${r}"/>${face}<circle class="rim" cx="${x}" cy="${y}" r="${r}"/>`;
   };
   function connectionGraph(id) {
