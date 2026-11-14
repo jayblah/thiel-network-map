@@ -7,6 +7,12 @@
 // Edge: a, b, label, kind (strong|normal|weak|plain).
 const DATA={
  hub:"T", // id of the central card (Peter Thiel); app.js, build-static.js and the digest read it from here
+ // Data added or corrected, newest first, shown from the version number in the footer. Describe content only, never code.
+ updates:[
+ {"date":"2026-11-13","items":["Peter Thiel's card gains a short list of his core beliefs, the first linked to his Cato Unbound essay","New portrait for Peter Thiel","Pronomos Capital and The Network State link to their own sites","Outlet names moved out of card text and into each card's Sources"]},
+ {"date":"2026-11-12","items":["Added Jacob Helberg, Witt, Johnson, Barbaccia, Ramaswamy, Luke Farritor, Tom Lee and Tom Farley","Government posts brought up to date","Sources added to 12 cards that had none, plus further Fortune, CNBC and Founders Fund sources","Removed Max Levchin, Reid Hoffman, Nosek and the Christian Nationalism card; removed an unsupported Sacks-Srinivasan tie and an unsupported Andreessen-Praxis tie","Portraits for Nick Land and Aron D'Souza; 53 more names, titles and places link out"]},
+ {"date":"2026-11-11","items":["35 secondary connections added; 12 connection labels corrected and 3 connections removed after an audit against the book","Crypto ties tagged on 14 cards","Ross Douthat, Max Chafkin and Paolo Benanti moved to a new Interviewers, Critics and Biographers section","Removed the Seven Mountains Mandate and Milo Yiannopoulos cards"]}
+ ],
  sections:[["infl",5],["pp",7],["neo",12],["pol",12],["prot",12],["faith",12],["net",12],["oth",12],["obs",12]],
  govKinds:[
  {"key":"official","color":"gold","icon":"official","pill":"In Government","title":"Holds or held a government role","reach":"In Government"},

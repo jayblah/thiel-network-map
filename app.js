@@ -170,8 +170,6 @@
       row('Marks', [
         lg('<i class="sw anti"></i>', 'Red dashed border: anti-democracy views'),
         lg('<i class="sw notch"></i>', 'Notched card: network state or startup city'),
-        lg('<span class="wp static cat-center">W</span>', 'Wikipedia article for the card'),
-        lg(`<span class="wp static cat-center">${EXT}</span>`, 'Link chosen for the card (article or interview)'),
         lg('<span class="wk">underlined</span>', 'Link for a name in the text'),
       ]) +
       row('Lines', [
@@ -212,7 +210,6 @@
       + (rel[n.id] ? `<div class="r">${fmt(rel[n.id])}</div>` : '')
       + lines
       + badges
-      + cornerLinks(n)
       + tail + '</div>';
   }
   const stat = (g, count) => `<button class="stat c-${g.color}" data-f="gov:${g.key}">${icon(g.icon)}<b>${count}</b>${g.reach}</button>`;
@@ -332,7 +329,7 @@
     draw(pinned);
   }
   // hover or keyboard focus on a card: spotlight it and draw its connections (unless something is pinned)
-  function previewCard(id) { dimOthers(neighbours(id)); showCount(null); draw(id); }
+  function previewCard(id) { dimOthers(neighbours(id)); draw(id); } // the filter's count stays put while a card is hovered
 
   // ---------- how is A connected to B ----------
   // Breadth-first search over the connections, ignoring their direction; optionally refusing to route through the hub.
@@ -495,6 +492,9 @@
   // ---------- start up ----------
   const VERSION = new URL(document.currentScript.src).searchParams.get('v'); // single source of truth: the ?v= in index.html
   $('#ver').textContent = `v${VERSION}`;
+  // the version opens the log of data added, by date
+  $('#updatesBody').innerHTML = `<h2 id="updatesTitle">Data updates</h2>` + DATA.updates.map(u => `<h3>${esc(new Date(u.date + 'T00:00:00').toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }))}</h3><ul>${u.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>`).join('');
+  $('#ver').addEventListener('click', () => { if (!$('#updates').open) $('#updates').showModal(); });
 
   renderLegend();
   renderChips();
@@ -508,7 +508,7 @@
   setLegend(savedLegend === null ? !NARROW.matches : savedLegend !== '0', true); // on a phone the legend starts closed unless the reader opened it before
 
   // the two dialogs: native <dialog> gives Esc-to-close and focus handling; also close on a click on the backdrop
-  [cardDlg, $('#help')].forEach(d => {
+  [cardDlg, $('#help'), $('#updates')].forEach(d => {
     d.addEventListener('click', e => { if (e.target === d) d.close(); });
     d.querySelector('.x').addEventListener('click', () => d.close());
   });

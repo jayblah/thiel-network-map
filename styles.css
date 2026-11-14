@@ -87,11 +87,14 @@ button { font: inherit; color: inherit; background: none; border: 0; padding: 0;
 
 /* header */
 header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 10px 18px; display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: center; }
-h1 { font-size: 1.15rem; margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+h1 { font-size: 1.9rem; line-height: 1.1; margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
 h1 small { font-weight: 400; color: var(--mute); font-size: .8rem; }
 h1 small a { color: var(--ink); text-decoration: underline dotted; text-underline-offset: 3px; }
 h1 small a:hover { color: var(--accent); }
-.ver { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--accent); color: var(--on-accent); align-self: center; }
+.ver { font: inherit; font-size: .75rem; font-weight: 700; padding: 2px 8px; border: 0; border-radius: 99px; background: var(--accent); color: var(--on-accent); align-self: center; cursor: pointer; }
+.credit a { color: var(--ink); text-decoration: underline dotted; text-underline-offset: 3px; }
+#updatesBody h3 { margin: 14px 0 4px; font-size: .95rem; }
+#updatesBody ul { margin: 0; padding-left: 1.2em; }
 .tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-left: auto; }
 .search { position: relative; display: inline-flex; align-items: center; }
 #q::-webkit-search-cancel-button { appearance: none; display: none; } /* replaced by #qClear, which looks the same in every browser */
@@ -122,8 +125,9 @@ input[type=search] { padding: 7px 12px; border: 1px solid var(--ctl); border-rad
 .sw.notch { background: none; border: 2px solid var(--mute); border-radius: 3px 9px 3px 9px; }
 
 /* footer */
-footer { flex: none; display: flex; justify-content: flex-end; padding: 6px 18px; border-top: 1px solid var(--line); background: var(--panel); color: var(--mute); font-size: .78rem; }
+footer { flex: none; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 4px 16px; padding: 6px 18px; border-top: 1px solid var(--line); background: var(--panel); color: var(--mute); font-size: .78rem; }
 footer a { color: var(--accent); }
+footer .right { display: inline-flex; align-items: center; gap: 12px; }
 
 /* layout */
 main { flex: 1; display: flex; min-height: 0; position: relative; }
@@ -147,7 +151,7 @@ svg#ov { z-index: 3; } /* most connection lines run over the cards (above their 
 /* phones: keep the chrome small so the cards get the screen */
 @media (max-width: 700px) {
   header { padding: 8px 12px; gap: 4px 10px; }
-  h1 { font-size: 1.05rem; }
+  h1 { font-size: 1.5rem; }
   h1 small { display: none; }
   .tools { margin-left: 0; width: 100%; gap: 6px; }
   #legendBtn { display: none; } /* the tab beside the filters does the same job on a phone */
