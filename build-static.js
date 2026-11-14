@@ -18,14 +18,14 @@ function render(data) {
   const rel = id => { const e = consOf(id).find(x => other(x, id) === HUB); return e ? e.label : ''; };
 
   const facts = n => [
-    ['Companies', n.cos], ['Thiel funding', n.fund], ['Crypto', n.crypto], ['Views', n.views],
+    ['Companies', n.cos], ['Funding', n.fund], ['Crypto', n.crypto], ['Views', n.views],
     ['Christian nationalism', n.faith], ['Core beliefs', n.beliefs && n.beliefs.join(' ')], ['Government reach', n.gov && n.gov.text],
   ].filter(([, v]) => v).map(([k, v]) => `<br>${k}: ${esc(v)}`).join('');
 
   const person = n => {
     const name = n.wiki ? `<a href="${esc(n.wiki)}">${esc(n.name)}</a>` : esc(n.name);
     const sub = n.sub.length ? ` (${esc(n.sub.join('; '))})` : '';
-    const link = n.id !== HUB && rel(n.id) ? `<br>Link to Thiel: ${esc(rel(n.id))}` : '';
+    const link = n.id !== HUB && rel(n.id) ? `<br>Link to ${esc(data.hubShort || N[HUB].name)}: ${esc(rel(n.id))}` : '';
     const cons = consOf(n.id).map(e => `${esc(N[other(e, n.id)].name)} (${esc(e.label)})`).join('; ');
     return `<li><strong>${name}</strong>${sub}${link}${facts(n)}${cons ? `<br>Connected to: ${cons}` : ''}</li>`;
   };

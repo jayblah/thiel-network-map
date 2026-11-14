@@ -1,4 +1,4 @@
-// Thiel network map behaviour. Content lives in data.js, styling in styles.css.
+// Network map behaviour. Content lives in data.js, styling in styles.css.
 // To add a badge/detail type or a filter chip, add one entry to FACETS. The kinds of government reach (govKinds) are in data.js.
 (() => {
   'use strict';
@@ -6,7 +6,8 @@
   const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
 
   // ---------- configuration ----------
-  const HUB = DATA.hub; // id of the central card (Peter Thiel), set in data.js
+  const HUB = DATA.hub; // id of the central card, set in data.js
+  const HUB_SHORT = DATA.hubShort || DATA.nodes[HUB].name; // how the central person is named in running text ("Thiel")
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { legend: 'thielLegend', theme: 'thielTheme' };
   const REPO = 'https://github.com/jayblah/corruptography'; // where corrections are reported
@@ -101,8 +102,8 @@
     facet({ key: 'faith', color: 'purple', icon: 'faith', label: 'Christian Nationalism', desc: 'Christian nationalist tie',
       head: 'Christian Nationalist Association',
       chip: 'Christian Nationalism', filter: n => n.faith || n.cat === 'faith' }),
-    facet({ key: 'fund', color: 'green', icon: 'fund', label: 'Funding', desc: 'Thiel funding',
-      head: 'Thiel Funding', chip: 'Funded by Thiel' }),
+    facet({ key: 'fund', color: 'green', icon: 'fund', label: 'Funding', desc: 'Funding',
+      head: 'Funding', chip: 'Funding' }),
     facet({ key: 'cos', color: 'pink', icon: 'cos', label: 'Companies', desc: 'Companies listed',
       head: 'Companies / Projects' }),
     facet({ key: 'crypto', color: 'sky', icon: 'crypto', label: 'Crypto', desc: 'Crypto tie',
@@ -372,8 +373,8 @@
     const viaHub = any.nodes.slice(1, -1).includes(HUB);
     const choice = (via, text, on) => `<button class="btn${on ? ' on' : ''}" data-via="${via}">${text}</button>`;
     const choices = avoid && viaHub
-      ? `<div class="via">${choice('avoid', `Without Thiel · ${steps(avoid.edges.length)}`, pathAvoid)}${choice('any', `Shortest · ${steps(any.edges.length)}, via Thiel`, !pathAvoid)}</div>`
-      : (viaHub ? '<p class="hint">Every route between them runs through Thiel.</p>' : '');
+      ? `<div class="via">${choice('avoid', `Without ${HUB_SHORT} · ${steps(avoid.edges.length)}`, pathAvoid)}${choice('any', `Shortest · ${steps(any.edges.length)}, via ${HUB_SHORT}`, !pathAvoid)}</div>`
+      : (viaHub ? `<p class="hint">Every route between them runs through ${HUB_SHORT}.</p>` : '');
     const hop = (e, from) => `<div class="hop">${arrow(e, from)} ${plain(e.label || 'connected')}</div>`;
     const list = currentPath.nodes.map((id, i) =>
       `<button class="btn con cat-${N[id].cat}" data-go="${esc(id)}"><b>${esc(N[id].name)}</b></button>` + (i < currentPath.edges.length ? hop(currentPath.edges[i], id) : '')).join('');
@@ -494,7 +495,7 @@
     const links = cornerLinks(n, `inline cat-${n.cat}`); // the same round links as on the card, beside the name
     cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${n.id === HUB ? '' : `<span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`}${links}</div>`
       + (n.sub.length ? `<div class="hint">${subText(n)}</div>` : '')
-      + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
+      + (rel[id] ? `<p><b>Link to ${esc(HUB_SHORT)}:</b> ${fmt(rel[id])}</p>` : '')
       + '<hr class="dsep"><div class="dtools"><button type="button" class="linkbtn" data-toggleall>Collapse all</button></div>'
       + facetHtml.panel(n)
       + pathBox(n)
