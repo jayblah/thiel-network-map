@@ -130,7 +130,7 @@
   };
 
   // ---------- state ----------
-  const stage = $('#stage'), ov = $('#ov'), ovUnder = $('#ovUnder'), cardDlg = $('#card'), cardBody = $('#cardBody'), searchBox = $('#q'), searchClear = $('#qClear');
+  const stage = $('#stage'), ov = $('#ov'), cardDlg = $('#card'), cardBody = $('#cardBody'), searchBox = $('#q'), searchClear = $('#qClear');
   const els = {}; // node id -> card element
   let pinned = null, filt = 'all', term = '', resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null, currentPaths = null; // 'how is A connected to B' state
@@ -221,7 +221,8 @@
       const ns = Object.values(N).filter(n => n.cat === k);
       return ns.length ? `<section class="sec cat-${k}" data-span="${span}"><h2>${CAT[k]}</h2><div class="grid">${ns.map(n => card(n)).join('')}</div></section>` : '';
     }).join('');
-    stage.insertAdjacentHTML('afterbegin', card(hub, { cls: 'hero', tail: reach }) + sections);
+    const beliefs = hub.beliefs ? `<ul class="beliefs">${hub.beliefs.map(b => `<li>${fmt(b)}</li>`).join('')}</ul>` : '';
+    stage.insertAdjacentHTML('afterbegin', card(hub, { cls: 'hero', lines: beliefs, tail: reach }) + sections);
     $$('.card').forEach(c => { els[c.dataset.id] = c; });
     $$('.sec').forEach(sec => sec.style.setProperty('--span', sec.dataset.span)); // set from script: a strict policy forbids inline style attributes
   }
@@ -258,23 +259,21 @@
   // and each neighbour draws its own line to the hub when hovered or selected.
   const draw = id => drawEdges(isHub(id) ? [] : consOf(id).filter(e => shown(other(e, id))));
   function drawEdges(list) {
-    [ov, ovUnder].forEach(svg => { svg.setAttribute('width', stage.scrollWidth); svg.setAttribute('height', stage.scrollHeight); });
+    ov.setAttribute('width', stage.scrollWidth); ov.setAttribute('height', stage.scrollHeight);
     // read every position first (one stage rect, one rect per card), then build the markup
     const origin = stage.getBoundingClientRect(), boxes = {};
     const boxOf = nid => boxes[nid] ||= (r => ({ x: r.left - origin.left, y: r.top - origin.top, w: r.width, h: r.height }))(els[nid].getBoundingClientRect());
     const paths = list.map((e, i) => edgeSvg(e, i, boxOf));
     const heads = [...new Set(list.map(e => HEAD[e.kind] && `${HEAD[e.kind]}-${edgeCat(e)}`).filter(Boolean))];
     const markers = heads.map(id => markerSvg(id, ...id.split('-'))).join('');
-    // Lines run over the cards so they are easy to see, except those touching the hub: they would cross its text, so they run under the cards.
-    const touchesHub = list.map(e => isHub(e.a) || isHub(e.b));
-    ov.innerHTML = `<defs>${markers}</defs>${paths.filter((_, i) => !touchesHub[i]).join('')}`;
-    ovUnder.innerHTML = paths.filter((_, i) => touchesHub[i]).join('');
+    ov.innerHTML = `<defs>${markers}</defs>${paths.join('')}`; // every line runs over the cards so it is easy to see
   }
 
   // ---------- dimming, filtering, pinning ----------
   // The hub never dims: the government counts inside its card are controls and must stay readable.
   // `hide` removes the others from the layout (filters and search, so the matches close up at the top); otherwise they are only greyed.
   const setDim = (show, hide = false) => Object.entries(els).forEach(([id, el]) => {
+    stage.classList.toggle('flat', !!show && hide); // a filter packs the matches into one grid, not a row per section
     const out = !!show && !show.has(id) && !isHub(id);
     el.classList.toggle('gone', out && hide);
     el.classList.toggle('dim', out && !hide);
@@ -285,7 +284,7 @@
   function neighbours(id) { const s = new Set([id]); consOf(id).forEach(e => s.add(other(e, id))); return s; }
   // everything a search can match on a card, including its connection labels and badge names
   const HAYSTACKS = {};
-  const haystack = n => HAYSTACKS[n.id] ||= [n.name, n.cos, n.views, n.faith, n.fund, n.crypto, n.gov && n.gov.text, n.sub.join(' '), rel[n.id] || '',
+  const haystack = n => HAYSTACKS[n.id] ||= [n.name, n.cos, n.views, n.faith, n.beliefs, n.fund, n.crypto, n.gov && n.gov.text, n.sub.join(' '), rel[n.id] || '',
     ...consOf(n.id).map(e => e.label), ...FACETS.flatMap(f => f.badges ? f.badges(n).map(s => s.label) : [])].join(' ').toLowerCase();
   const TOTAL = Object.keys(N).length;
   const showCount = k => {
@@ -300,7 +299,7 @@
     setDim(new Set(hits), true);
     showCount(hits.length);
   }
-  const reset = () => { ov.innerHTML = ovUnder.innerHTML = ''; applyFilter(); };
+  const reset = () => { ov.innerHTML = ''; applyFilter(); };
   function unpin() {
     pinned = pathTo = currentPath = currentPaths = null;
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });

@@ -87,7 +87,7 @@ frame.addEventListener('load', async () => {
     win.location.hash = '';
     await wait(50);
     card.dispatchEvent(new win.MouseEvent('mouseover', { bubbles: true, relatedTarget: doc.body }));
-    const lines = () => $('#ov').innerHTML + $('#ovUnder').innerHTML;
+    const lines = () => $('#ov').innerHTML;
     const drawn = lines();
     card.querySelector('.n').dispatchEvent(new win.MouseEvent('mouseout', { bubbles: true, relatedTarget: card.querySelector('.s') || card }));
     check('moving within a card keeps its connections drawn', drawn !== '' && lines() === drawn);
