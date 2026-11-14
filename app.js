@@ -75,7 +75,8 @@
     const tip = title ? ` title="${esc(title)}"` : '';
     return f ? `<button type="button" class="${cls}"${data}${tip}>${iconed(ic, esc(label))}</button>` : `<span class="${cls}"${tip}>${iconed(ic, esc(label))}</span>`;
   }
-  const block = (color, head, body, ic) => `<div class="dsec c-${color}"><span class="h">${iconed(ic, head)}</span>${body}</div>`;
+  // A section of the details view: collapsible, open by default; `extra` (badges) sits beside the heading.
+  const block = (color, head, body, ic, extra = '') => `<details class="dsec c-${color}" open><summary class="h">${iconed(ic, head)}${extra}</summary>${body}</details>`;
 
   // Facets: one entry per kind of badge / detail block / filter chip. Fields:
   //   key + color + icon       identity (key is also the filter id and, by default, the node field it reads)
@@ -112,6 +113,10 @@
       head: 'Government Reach', lead: true, chip: 'Government Reach' }),
   ];
 
+  // The order of the blocks in a card's details (the order of FACETS drives the badges and chips instead). Christian nationalism comes last.
+  const PANEL_ORDER = ['cos', 'views', 'gov', 'fund', 'crypto', 'faith'];
+  const FACET_BY_KEY = Object.fromEntries(FACETS.map(f => [f.key, f]));
+
   // Filters: "everyone", one per facet, the anti-democracy chip, and one per kind of government reach.
   const FILTERS = { all: { chip: 'Everyone', test: () => true } };
   FACETS.forEach(f => {
@@ -123,9 +128,9 @@
 
   const facetHtml = {
     pills: n => FACETS.flatMap(f => f.badges ? f.badges(n) : []).map(s => pill(s.label, s.color, { icon: s.icon, f: s.f, title: s.title, compact: true })).join(''),
-    panel: n => FACETS.filter(f => f.head && f.has(n)).map(f => {
-      const lead = f.lead ? `<div>${f.badges(n).map(s => pill(s.label, s.color, { icon: s.icon, title: s.title })).join(' ')}</div>` : '';
-      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `${lead}<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon);
+    panel: n => PANEL_ORDER.map(k => FACET_BY_KEY[k]).filter(f => f.head && f.has(n)).map(f => {
+      const lead = f.lead ? f.badges(n).map(s => pill(s.label, s.color, { icon: s.icon, title: s.title })).join(' ') : '';
+      return block(f.color, typeof f.head === 'function' ? f.head(n) : f.head, `<div class="body">${fmt(f.text(n) || f.fallback)}</div>`, f.icon, lead);
     }).join(''),
   };
 
@@ -378,10 +383,10 @@
     if (sel) sel.value = pathTo || '';
     syncUrl();
   }
-  const pathBox = n => `<div class="dsec c-accent"><span class="h">How is ${esc(n.name)} connected to…</span>`
-    + `<select id="pathSel" aria-label="Find the connection to another card"><option value="">Choose a card</option>`
+  const pathBox = n => block('accent', `How is ${esc(n.name)} connected to…`,
+    `<select id="pathSel" aria-label="Find the connection to another card"><option value="">Choose a card</option>`
     + Object.values(N).filter(x => x.id !== n.id).sort((x, y) => x.name.localeCompare(y.name)).map(x => `<option value="${esc(x.id)}">${esc(x.name)}</option>`).join('')
-    + `</select><div id="pathResult"></div></div>`;
+    + `</select><div id="pathResult"></div>`);
 
   // ---------- the address bar mirrors the view, so any view can be shared ----------
   function syncUrl() {
@@ -418,7 +423,7 @@
 
   // The connections of one card as a star: the card in the middle, each connected card on an ellipse around it.
   // Written by hand (a star needs no layout engine, and the strict policy rules out a library loaded from elsewhere).
-  const GRAPH = { w: 800, h: 500, rx: 270, ry: 180, r: 21, rc: 38, maxNodes: 16 }; // size, ellipse radii, bubble radii, most bubbles shown (the hub has dozens: it keeps the list)
+  const GRAPH = { w: 880, h: 500, rx: 270, ry: 180, r: 21, rc: 38, maxNodes: 16 }; // size, ellipse radii, bubble radii, most bubbles shown (the hub has dozens: it keeps the list)
   const nameLines = name => {
     if (name.length <= 14 || !name.includes(' ')) return [name];
     const mid = name.length / 2, spaces = [...name].map((c, i) => c === ' ' ? i : -1).filter(i => i >= 0);
@@ -471,7 +476,7 @@
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
     const links = cornerLinks(n, `inline cat-${n.cat}`); // the same round links as on the card, beside the name
-    cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${links}</div>${n.id === HUB ? '' : `<span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`}`
+    cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${n.id === HUB ? '' : `<span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`}${links}</div>`
       + (n.sub.length ? `<div class="hint">${subText(n)}</div>` : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
       + '<hr class="dsep">'
