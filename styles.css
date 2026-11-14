@@ -288,6 +288,8 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .graph .rim { fill: none; stroke: var(--c); stroke-width: 3; }
 .graph .gnode:hover .rim, .graph .gnode:focus-visible .rim { stroke: var(--ink); stroke-width: 4; }
 .graph .gnode:focus { outline: none; }
+.graph .ini { font-size: 14px; font-weight: 700; fill: var(--ink); pointer-events: none; }
+.graph .ini.big { font-size: 24px; }
 .graph .lbl { font-size: 15px; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
 .graph .gnode:hover .lbl, .graph .gnode:focus-visible .lbl { font-weight: 700; }
 .gcap { min-height: 2.6em; margin: 2px 0 6px; font-size: .85rem; color: var(--mute); }
