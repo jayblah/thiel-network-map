@@ -13,7 +13,7 @@ for (const [name, u] of Object.entries(ENT || {})) if (isWikipedia(u)) add(u, `t
 async function check(url) {
   for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const res = await fetch(url, { redirect: 'follow', headers: { 'user-agent': 'thiel-network-map-link-check (github.com/jayblah/thiel-network-map)' } });
+      const res = await fetch(url, { redirect: 'follow', headers: { 'user-agent': 'corruptography-link-check (github.com/jayblah/corruptography)' } });
       if (res.ok) return null;
       if (res.status !== 429 && res.status < 500) return `HTTP ${res.status}`;
     } catch { /* retry */ }

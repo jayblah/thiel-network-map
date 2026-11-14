@@ -2,7 +2,7 @@
 
 An interactive map of the people, companies and projects connected to Peter Thiel, as described in *The Nerd Reich* by Gil Duran.
 
-Live site: https://jayblah.github.io/thiel-network-map/
+Live site: https://jayblah.github.io/corruptography/
 
 ## Using it
 

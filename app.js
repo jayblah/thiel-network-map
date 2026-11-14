@@ -9,7 +9,7 @@
   const HUB = DATA.hub; // id of the central card (Peter Thiel), set in data.js
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { legend: 'thielLegend', theme: 'thielTheme' };
-  const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
+  const REPO = 'https://github.com/jayblah/corruptography'; // where corrections are reported
   const WIKI = 'https://en.wikipedia.org/';
   const NEW_TAB = ' (opens in a new tab)';
   const EXT = '&#8599;'; // the north-east arrow that marks a link out
@@ -107,7 +107,8 @@
       head: 'Companies / Projects' }),
     facet({ key: 'crypto', color: 'sky', icon: 'crypto', label: 'Crypto', desc: 'Crypto tie',
       head: 'Crypto', chip: 'Crypto' }),
-    facet({ key: 'net', color: 'net', icon: 'net', has: n => n.cat === 'net', chip: 'Network States' }),
+    // the network states and startup cities themselves, and the people with a documented tie to one (founder, funder, backer)
+    facet({ key: 'net', color: 'net', icon: 'net', has: n => n.cat === 'net' || consOf(n.id).some(e => N[other(e, n.id)].cat === 'net'), chip: 'Network States' }),
     facet({ key: 'gov', color: 'navy', icon: 'official', label: 'Government Reach', has: n => n.gov, text: n => n.gov.text,
       specs: GOV.map(govSpec), badges: n => n.gov ? n.gov.kinds.map(k => govSpec(GOV_BY_KEY[k])) : [],
       head: 'Government Reach', lead: true, chip: 'Government Reach' }),
@@ -441,6 +442,8 @@
       : ''; // no initials: text inside the link would have to be part of its accessible name
     return `<circle class="bub" cx="${x}" cy="${y}" r="${r}"/>${face}<circle class="rim" cx="${x}" cy="${y}" r="${r}"/>`;
   };
+  // Initials for a person with no photo. Kept out of the link itself (text inside a link must be part of its accessible name), so the outer ones sit in their own aria-hidden layer that ignores the pointer.
+  const mono = (id, x, y, cls = '') => PICS[id] || !PERSON.has(id) ? '' : `<text class="ini ${cls}" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">${esc(initials(N[id].name))}</text>`;
   function connectionGraph(id) {
     const cons = consOf(id), { w, h, rx, ry, r, rc } = GRAPH, cx = w / 2, cy = h / 2, k = cons.length;
     const spots = cons.map((e, i) => { const a = (k === 1 ? 0 : -Math.PI / 2 + 2 * Math.PI * i / k); return { e, a, x: cx + rx * Math.cos(a), y: cy + ry * Math.sin(a) }; });
@@ -462,7 +465,7 @@
       const cap = `${arrow(e, id)} ${esc(n.name)}: ${plain(e.label || '')}`;
       return `<g class="gnode cat-${n.cat}" data-go="${esc(o)}" data-cap="${esc(cap)}" tabindex="0" role="link" aria-label="${esc(n.name)}: ${esc(e.label || '')}">${bubble(o, x, y, r)}<text class="lbl" aria-hidden="true" x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${label}</text></g>`;
     }).join('');
-    return `<svg class="graph cat-${N[id].cat}" viewBox="0 0 ${w} ${h}" role="group" aria-label="Connections of ${esc(N[id].name)}"><defs>${markers}</defs>${lines}<g class="gnode centre" aria-hidden="true">${bubble(id, cx, cy, rc)}</g>${nodes}</svg>`
+    return `<svg class="graph cat-${N[id].cat}" viewBox="0 0 ${w} ${h}" role="group" aria-label="Connections of ${esc(N[id].name)}"><defs>${markers}</defs>${lines}<g class="gnode centre" aria-hidden="true">${bubble(id, cx, cy, rc)}${mono(id, cx, cy, 'big')}</g>${nodes}<g class="inis" aria-hidden="true">${spots.map(({ e, x, y }) => mono(other(e, id), x, y)).join('')}</g></svg>`
       + `<div class="gcap" aria-hidden="true" data-idle="Hover or focus a bubble to see how it connects; select it to open its card.">Hover or focus a bubble to see how it connects; select it to open its card.</div>`;
   }
   // the graph for a card with a handful of connections; the full list stays beneath it for screen readers, touch and the hub's dozens
