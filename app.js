@@ -94,7 +94,7 @@
   };
   const FACETS = [
     facet({ key: 'views', color: 'red', icon: 'views', label: 'Views', desc: 'Anti-democracy / exit views',
-      has: n => n.anti || n.views, fallback: 'Flagged in the book as echoing these views',
+      has: n => n.anti || n.views, fallback: 'Flagged as echoing these views',
       head: n => n.anti ? 'Anti-Democracy / Exit Views' : 'Views',
       chip: 'Anti-Democracy / Exit Views', chipId: 'anti', chipTest: n => n.anti }),
     facet({ key: 'faith', color: 'purple', icon: 'faith', label: 'Christian Nationalism', desc: 'Christian nationalist tie',
