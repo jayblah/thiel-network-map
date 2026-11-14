@@ -3,10 +3,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <!-- Only this site's own files, plus the one inline script below (allowed by its hash; check.js verifies the hash). Nothing is fetched from elsewhere. -->
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-cMYhH4FVmG5sCEHeeBsOpsdsujY76rGXi8fF4uAhnGA='; style-src 'self'; img-src 'self' data:; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
-<title>Thiel Network Map</title>
+<title>Corruptography™</title>
 <meta name="description" content="An interactive map of the people, companies and projects connected to Peter Thiel, as described in The Nerd Reich by Gil Duran. Filter by badge, trace connections and find how any two are linked.">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Peter Thiel's Network: an interactive map">
+<meta property="og:title" content="Corruptography™: an interactive map">
 <meta property="og:description" content="An interactive map of the people, companies and projects connected to Peter Thiel, as described in The Nerd Reich by Gil Duran. Filter by badge, trace connections and find how any two are linked.">
 <meta property="og:url" content="https://jayblah.github.io/thiel-network-map/">
 <meta property="og:image" content="https://jayblah.github.io/thiel-network-map/social.png">
@@ -17,10 +17,10 @@
      so the main area can stay hidden until it is built (no layout shift). Keep the storage key in step with STORE.theme in app.js. -->
 <script>try { var t = localStorage.getItem('thielTheme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) { /* storage blocked */ } document.documentElement.classList.add('js');</script>
 <!-- The ?v= on these three files is the page version (shown in the header). Change it with: node bump-version.js <version> -->
-<link rel="stylesheet" href="styles.css?v=1.105">
+<link rel="stylesheet" href="styles.css?v=1.106">
 </head><body>
 <header>
- <h1>Peter Thiel's Network </h1>
+ <h1>Corruptography™</h1>
  <div class="tools">
   <div class="search">
    <input type="search" id="q" placeholder="Search a name or company" aria-label="Search a name or company">
@@ -137,8 +137,8 @@
 </noscript><div id="stage"><svg id="ov"></svg></div></div>
 </main>
 <footer>
- <span class="credit"><button type="button" class="ver" id="ver" title="What data was added, by date" aria-haspopup="dialog"></button> Inspired by <a href="https://www.thenerdreich.com/" target="_blank" rel="noopener"><i>The Nerd Reich</i></a> by <a href="https://www.gilduran.com/" target="_blank" rel="noopener">Gil Duran</a></span>
- <a id="report" target="_blank" rel="noopener">Report a correction</a>
+ <span class="credit">Inspired by <a href="https://www.thenerdreich.com/" target="_blank" rel="noopener"><i>The Nerd Reich</i></a> by <a href="https://www.gilduran.com/" target="_blank" rel="noopener">Gil Duran</a></span>
+ <span class="right"><a id="report" target="_blank" rel="noopener">Report a correction</a> <button type="button" class="ver" id="ver" title="What data was added, by date" aria-haspopup="dialog"></button></span>
 </footer>
 
 <template id="howto">
@@ -161,6 +161,6 @@
  <div id="cardBody"></div>
 </dialog>
 
-<script src="data.js?v=1.105"></script>
-<script src="app.js?v=1.105"></script>
+<script src="data.js?v=1.106"></script>
+<script src="app.js?v=1.106"></script>
 </body></html>
