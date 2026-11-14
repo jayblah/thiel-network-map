@@ -6,6 +6,7 @@
 //   wiki, sources [{l,u,s:ok|blocked}]. Empty fields are simply left out.
 // Edge: a, b, label, kind (strong|normal|weak|plain).
 const DATA={
+ hubShort:"Thiel", // the hub as named in running text ("Link to Thiel", "Without Thiel")
  hub:"T", // id of the central card (Peter Thiel); app.js, build-static.js and the digest read it from here
  // Data added or corrected, newest first, shown from the version number in the footer. Describe content only, never code.
  updates:[
