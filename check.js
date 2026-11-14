@@ -51,7 +51,7 @@ const PEOPLE = DATA.people || [], PICS = DATA.portraits || {};
 for (const id of PEOPLE) if (!N[id]) bad(`people: no card "${id}"`);
 for (const [id, c] of Object.entries(PICS)) {
   if (!PEOPLE.includes(id)) bad(`portrait ${id}: not listed in people`);
-  if (!Array.isArray(c) || c.length !== 3 || !c[0] || (c[2] && (!c[1] || !/^https:\/\/commons\.wikimedia\.org\//.test(c[2])))) bad(`portrait ${id}: needs [photographer, licence, Commons page address] (a photo supplied by the owner may leave the licence and address empty)`);
+  if (!Array.isArray(c) || c.length !== 3 || !c[0] || (c[1] && !/^https:\/\/commons\.wikimedia\.org\//.test(c[2])) || (c[2] && !/^https:\/\//.test(c[2]))) bad(`portrait ${id}: needs [photographer, licence, page address]; a licence needs a Commons address, and a credit with no licence may carry any https source link or none`);
   for (const f of [`img/${id}.webp`, `img/${id}-lg.webp`]) if (!fs.existsSync(f)) bad(`portrait ${id}: missing ${f}`);
 }
 
