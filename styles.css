@@ -26,24 +26,25 @@
   /* facet text colours below are >= 4.5:1 on the page, panel and every category tint in their theme */
   /* facet colours: themed text/border colour (--x) and fixed pill background with white text (--x-solid) */
   --red: light-dark(#c21919, #ff7474);       --red-solid: #d92020;
-  --purple: light-dark(#6b42db, #a990ff);    --purple-solid: #7c4dff;
+  --purple: light-dark(#4b5565, #aab4c8);    --purple-solid: #475569;
   --green: light-dark(#11702c, #3ccf68);     --green-solid: #128035;
-  --pink: light-dark(#a3158e, #f07ad8);      --pink-solid: #a3158e;
-  --sky: light-dark(#0369a1, #38bdf8);       --sky-solid: #0369a1;
-  --navy: light-dark(#1e3a8a, #7aa2ff);      --navy-solid: #1e3a8a;
-  --gold: light-dark(#915300, #ffb340);      --gold-solid: #a15c00;
-  --slate: light-dark(#475569, #aab4c8);     --slate-solid: #475569;
-  --teal: light-dark(#0a6e69, #34d8cf);      --teal-solid: #0b7a75;
+  --pink: light-dark(#4b5565, #aab4c8);      --pink-solid: #475569;
+  --sky: light-dark(#4b5565, #aab4c8);       --sky-solid: #475569;
+  --navy: light-dark(#4b5565, #aab4c8);      --navy-solid: #475569;
+  --gold: light-dark(#4b5565, #aab4c8);      --gold-solid: #475569;
+  --slate: light-dark(#4b5565, #aab4c8);     --slate-solid: #475569;
+  --teal: light-dark(#4b5565, #aab4c8);      --teal-solid: #475569;
 
+  /* EXPERIMENT: category and facet colours are one neutral slate; only red (anti-democracy) and green (money) carry meaning. The original palette is in git history (v1.108). */
   /* category box colours (same in both themes) */
-  --cat-infl: #3b6fc9; --cat-pp: #2e9d44; --cat-neo: #e0780b; --cat-pol: #d6246e;
-  --cat-prot: #0f9d94; --cat-oth: #7b8394; --cat-obs: #8a6d5a; --cat-net: #c79a0a; --cat-faith: #7c4dff; --cat-center: #1d2433;
+  --cat-infl: #7b8394; --cat-pp: #7b8394; --cat-neo: #7b8394; --cat-pol: #7b8394;
+  --cat-prot: #7b8394; --cat-oth: #7b8394; --cat-obs: #7b8394; --cat-net: #7b8394; --cat-faith: #7b8394; --cat-center: #1d2433;
 
   /* category text colours: each >= 4.5:1 (WCAG 2.1 AA) on the page, panel and that category's card/section tints */
-  --t-infl: light-dark(#305aa3, #7297d8);  --t-pp: light-dark(#1f6b2e, #52ae64);
-  --t-neo: light-dark(#8f4d07, #e38623);   --t-pol: light-dark(#a71c56, #e3689b);
-  --t-prot: light-dark(#0a6963, #35ada5);  --t-oth: light-dark(#595e6b, #949ba8);  --t-obs: light-dark(#6e5242, #b99a87);
-  --t-net: light-dark(#775c06, #c79a0a);   --t-faith: light-dark(#633ecc, #a281ff);
+  --t-infl: light-dark(#4b5565, #aab4c8);  --t-pp: light-dark(#4b5565, #aab4c8);
+  --t-neo: light-dark(#4b5565, #aab4c8);   --t-pol: light-dark(#4b5565, #aab4c8);
+  --t-prot: light-dark(#4b5565, #aab4c8);  --t-oth: light-dark(#4b5565, #aab4c8);  --t-obs: light-dark(#4b5565, #aab4c8);
+  --t-net: light-dark(#4b5565, #aab4c8);   --t-faith: light-dark(#4b5565, #aab4c8);
   --t-center: var(--ink);
 }
 :root[data-theme=light] { color-scheme: light; }
