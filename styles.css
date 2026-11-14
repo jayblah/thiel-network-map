@@ -187,8 +187,9 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .pic.mono { display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .95rem; letter-spacing: .02em; color: var(--ink); background: color-mix(in srgb, var(--c) 22%, var(--panel)); }
 .card.dim .pic { filter: grayscale(1); border-color: var(--line); }
 .card.hero .pic { width: 84px; height: 84px; border-color: var(--hero-white); }
-.card.hero .hd { justify-content: center; align-items: center; gap: 16px; }
-.card.hero .t { flex: 0 1 auto; }
+.card.hero .hd { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; } /* the name and companies are centred on the card; the portrait hangs to their left */
+.card.hero .pic { justify-self: end; }
+@media (max-width: 700px) { .card.hero .hd { grid-template-columns: 1fr; justify-items: center; } .card.hero .pic { justify-self: center; } } /* on a phone the portrait sits above the name */
 .card .n { display: block; width: 100%; text-align: left; font-weight: 700; font-size: 1rem; line-height: 1.2; color: var(--t); cursor: pointer; }
 .card .n::after { content: ""; position: absolute; inset: 0; border-radius: 10px; } /* whole card is the click target, via the real button */
 .card .n:focus-visible { outline: none; }
@@ -203,6 +204,8 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .card.hero .n { color: var(--hero-white); font-size: 1.75rem; text-align: center; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
+.card.gone { display: none; } /* filtered out: removed from the layout so the remaining cards close up */
+.sec:not(:has(.card:not(.gone))) { display: none; }
 .card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; } /* everything outside the spotlight loses its colour... */
 .card.dim :is(.pills, .wp, .wk) { filter: grayscale(1); } /* ...except money, which stays green (a filter on the whole card would grey it too) */
 .card.dim.anti { border: 3px solid var(--line); }
