@@ -94,10 +94,10 @@
     return f;
   };
   const FACETS = [
-    facet({ key: 'views', color: 'red', icon: 'views', label: 'Views', desc: 'Anti-democracy / exit views',
+    facet({ key: 'views', color: 'red', icon: 'views', label: 'Views', desc: 'Anti-democracy views',
       has: n => n.anti || n.views, fallback: 'Flagged as echoing these views',
-      head: n => n.anti ? 'Anti-Democracy / Exit Views' : 'Views',
-      chip: 'Anti-Democracy / Exit Views', chipId: 'anti', chipTest: n => n.anti }),
+      head: n => n.anti ? 'Anti-Democracy' : 'Views',
+      chip: 'Anti-Democracy', chipId: 'anti', chipTest: n => n.anti }),
     facet({ key: 'faith', color: 'purple', icon: 'faith', label: 'Christian Nationalism', desc: 'Christian nationalist tie',
       head: 'Christian Nationalist Association',
       chip: 'Christian Nationalism', filter: n => n.faith || n.cat === 'faith' }),
@@ -109,9 +109,9 @@
       head: 'Crypto', chip: 'Crypto' }),
     // the network states and startup cities themselves, and the people with a documented tie to one (founder, funder, backer)
     facet({ key: 'net', color: 'net', icon: 'net', has: n => n.cat === 'net' || consOf(n.id).some(e => N[other(e, n.id)].cat === 'net'), chip: 'Network States' }),
-    facet({ key: 'gov', color: 'navy', icon: 'official', label: 'Government Reach', has: n => n.gov, text: n => n.gov.text,
+    facet({ key: 'gov', color: 'navy', icon: 'official', label: 'Government', has: n => n.gov, text: n => n.gov.text,
       specs: GOV.map(govSpec), badges: n => n.gov ? n.gov.kinds.map(k => govSpec(GOV_BY_KEY[k])) : [],
-      head: 'Government Reach', lead: true, chip: 'Government Reach' }),
+      head: 'Government', lead: true, chip: 'Government' }),
   ];
 
   // The order of the blocks in a card's details (the order of FACETS drives the badges and chips instead). Christian nationalism comes last.
