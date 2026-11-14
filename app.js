@@ -415,6 +415,53 @@
     const o = other(e, id);
     return `<button class="btn con cat-${N[o].cat}" data-go="${esc(o)}">${arrow(e, id)} <b>${esc(N[o].name)}</b><span>${plain(e.label || '')}</span></button>`;
   };
+
+  // The connections of one card as a star: the card in the middle, each connected card on an ellipse around it.
+  // Written by hand (a star needs no layout engine, and the strict policy rules out a library loaded from elsewhere).
+  const GRAPH = { w: 800, h: 500, rx: 270, ry: 180, r: 21, rc: 38, maxNodes: 16 }; // size, ellipse radii, bubble radii, most bubbles shown (the hub has dozens: it keeps the list)
+  const nameLines = name => {
+    if (name.length <= 14 || !name.includes(' ')) return [name];
+    const mid = name.length / 2, spaces = [...name].map((c, i) => c === ' ' ? i : -1).filter(i => i >= 0);
+    const at = spaces.sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid))[0];
+    return [name.slice(0, at), name.slice(at + 1)];
+  };
+  const bubble = (id, x, y, r) => {
+    const n = N[id], face = PICS[id]
+      ? `<clipPath id="gc-${id}"><circle cx="${x}" cy="${y}" r="${r - 2}"/></clipPath><image href="img/${id}.webp" x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}" preserveAspectRatio="xMidYMid slice" clip-path="url(#gc-${id})"/>`
+      : (PERSON.has(id) ? `<text class="ini" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central">${esc(initials(n.name))}</text>` : '');
+    return `<circle class="bub" cx="${x}" cy="${y}" r="${r}"/>${face}<circle class="rim" cx="${x}" cy="${y}" r="${r}"/>`;
+  };
+  function connectionGraph(id) {
+    const cons = consOf(id), { w, h, rx, ry, r, rc } = GRAPH, cx = w / 2, cy = h / 2, k = cons.length;
+    const spots = cons.map((e, i) => { const a = (k === 1 ? 0 : -Math.PI / 2 + 2 * Math.PI * i / k); return { e, a, x: cx + rx * Math.cos(a), y: cy + ry * Math.sin(a) }; });
+    const heads = new Set(), lines = spots.map(({ e, a, x, y }) => {
+      const cat = edgeCat(e), head = HEAD[e.kind];
+      if (head) heads.add(`${head}-${cat}`);
+      // the line runs from the one acting to the other, trimmed to the bubble edges
+      const from = e.a === id ? [cx, cy, rc] : [x, y, r], to = e.a === id ? [x, y, r] : [cx, cy, rc];
+      const dx = to[0] - from[0], dy = to[1] - from[1], len = Math.hypot(dx, dy) || 1, ux = dx / len, uy = dy / len;
+      return `<path class="edge ${e.kind} cat-${cat}" d="M${from[0] + ux * (from[2] + 2)},${from[1] + uy * (from[2] + 2)} L${to[0] - ux * (to[2] + 2)},${to[1] - uy * (to[2] + 2)}"${head ? ` marker-end="url(#dg-${head}-${cat})"` : ''}/>`;
+    }).join('');
+    const markers = [...heads].map(m => markerSvg('dg-' + m, ...m.split('-'))).join('');
+    const nodes = spots.map(({ e, a, x, y }) => {
+      const o = other(e, id), n = N[o], s = Math.sin(a), c = Math.cos(a), lines2 = nameLines(n.name);
+      const below = s > .7, above = s < -.7, side = !below && !above;
+      const lx = side ? x + (c > 0 ? 1 : -1) * (r + 8) : x, ly = (below ? y + r + 17 : above ? y - r - 8 - 18 * (lines2.length - 1) : y - 9 * (lines2.length - 1));
+      const anchor = side ? (c > 0 ? 'start' : 'end') : 'middle';
+      const label = lines2.map((t, i) => `<tspan x="${lx}" dy="${i ? 18 : 0}">${esc(t)}</tspan>`).join('');
+      const cap = `${arrow(e, id)} ${esc(n.name)}: ${plain(e.label || '')}`;
+      return `<g class="gnode cat-${n.cat}" data-go="${esc(o)}" data-cap="${esc(cap)}" tabindex="0" role="link" aria-label="${esc(n.name)}: ${esc(e.label || '')}">${bubble(o, x, y, r)}<text class="lbl" x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle">${label}</text></g>`;
+    }).join('');
+    return `<svg class="graph cat-${N[id].cat}" viewBox="0 0 ${w} ${h}" role="group" aria-label="Connections of ${esc(N[id].name)}"><defs>${markers}</defs>${lines}<g class="gnode centre" aria-hidden="true">${bubble(id, cx, cy, rc)}</g>${nodes}</svg>`
+      + `<div class="gcap" aria-hidden="true" data-idle="Hover or focus a bubble to see how it connects; select it to open its card.">Hover or focus a bubble to see how it connects; select it to open its card.</div>`;
+  }
+  // the graph for a card with a handful of connections; the full list stays beneath it for screen readers, touch and the hub's dozens
+  const connectionsHtml = id => {
+    const cons = consOf(id), list = cons.map(e => connectionButton(e, id)).join('');
+    return cons.length && cons.length <= GRAPH.maxNodes
+      ? connectionGraph(id) + `<details class="conlist"><summary>List view</summary>${list}</details>`
+      : list;
+  };
   // the larger portrait in the card dialog, with its credit (the licences ask for one)
   const portraitCredit = id => {
     const c = PICS[id];
@@ -430,7 +477,7 @@
       + '<hr class="dsep">'
       + facetHtml.panel(n)
       + pathBox(n)
-      + block('mute', `Connections (${cons.length})`, cons.map(e => connectionButton(e, id)).join(''))
+      + block('mute', `Connections (${cons.length})`, connectionsHtml(id))
       + sourcesHtml(n)
       + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, `Report a correction for this card ${EXT}`);
     cardBody.scrollTop = 0;
@@ -493,6 +540,10 @@
     const c = cardOf(e.target);
     if (c) pin(c.dataset.id);
   });
+  // the connection graph: its caption follows the bubble under the pointer or focus; Enter or Space opens the card
+  const capOf = el => { const g = el && el.closest ? el.closest('.gnode[data-cap]') : null, cap = cardBody.querySelector('.gcap'); if (cap) cap.innerHTML = g ? g.dataset.cap : cap.dataset.idle; };
+  ['mouseover', 'mouseout', 'focusin', 'focusout'].forEach(t => cardBody.addEventListener(t, e => capOf(t.endsWith('out') ? null : e.target)));
+  cardBody.addEventListener('keydown', e => { const g = e.target.closest ? e.target.closest('.gnode[data-go]') : null; if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); pin(g.dataset.go); } });
   function setSearch(value) { setTerm(value); clearSelection(); }
   searchBox.addEventListener('input', () => setSearch(searchBox.value));
   searchClear.addEventListener('click', () => { setSearch(''); searchBox.focus(); });
