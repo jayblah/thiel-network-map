@@ -9,7 +9,7 @@
   const HUB = DATA.hub; // id of the central card (Peter Thiel), set in data.js
   const BEND = { max: 120, ratio: .25 };   // how far connection lines curve
   const STORE = { legend: 'thielLegend', theme: 'thielTheme' };
-  const REPO = 'https://github.com/jayblah/thiel-network-map'; // where corrections are reported
+  const REPO = 'https://github.com/jayblah/corruptography'; // where corrections are reported
   const WIKI = 'https://en.wikipedia.org/';
   const NEW_TAB = ' (opens in a new tab)';
   const EXT = '&#8599;'; // the north-east arrow that marks a link out

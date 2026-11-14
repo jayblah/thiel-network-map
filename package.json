@@ -1,5 +1,5 @@
 {
-  "name": "thiel-network-map",
+  "name": "corruptography",
   "private": true,
   "description": "Development tooling only. The site itself has no dependencies and no build step.",
   "scripts": {
