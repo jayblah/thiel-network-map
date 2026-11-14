@@ -288,6 +288,8 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .graph .rim { fill: none; stroke: var(--c); stroke-width: 3; }
 .graph .gnode:hover .rim, .graph .gnode:focus-visible .rim { stroke: var(--ink); stroke-width: 4; }
 .graph .gnode:focus { outline: none; }
+.graph.dense .lbl { opacity: 0; font-size: 21px; stroke-width: 5px; } /* a crowded graph names a bubble only while it is hovered or focused */
+.graph.dense .gnode:hover .lbl, .graph.dense .gnode:focus-visible .lbl { opacity: 1; }
 .graph .ini { font-size: 14px; font-weight: 700; fill: var(--ink); pointer-events: none; }
 .graph .ini.big { font-size: 24px; }
 .graph .lbl { font-size: 15px; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
