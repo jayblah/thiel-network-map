@@ -14,7 +14,7 @@ const { loadData } = require('../data-loader.js');
 
 process.chdir(path.resolve(__dirname, '..'));
 const DATA = loadData();
-const UA = 'thiel-network-map-research/1.0 (+https://github.com/jayblah/thiel-network-map)';
+const UA = 'corruptography-research/1.0 (+https://github.com/jayblah/corruptography)';
 const SNAPSHOT = process.env.SNAPSHOT || path.join(__dirname, 'snapshot.json');
 const out = [];
 const say = (...lines) => out.push(...lines);
