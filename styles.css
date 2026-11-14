@@ -267,6 +267,17 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .dsec .h { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-bottom: 2px; color: var(--k); }
 .dsec .body { margin-top: 2px; }
 .dsec .fine { font-size: .8rem; margin-top: 4px; }
+.graph { display: block; width: 100%; height: auto; margin: 4px 0 2px; }
+.graph .gnode { cursor: pointer; }
+.graph .centre { cursor: default; }
+.graph .bub { fill: color-mix(in srgb, var(--c) 22%, var(--panel)); }
+.graph .rim { fill: none; stroke: var(--c); stroke-width: 3; }
+.graph .gnode:hover .rim, .graph .gnode:focus-visible .rim { stroke: var(--ink); stroke-width: 4; }
+.graph .gnode:focus { outline: none; }
+.graph .lbl { font-size: 15px; fill: var(--ink); paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; }
+.graph .gnode:hover .lbl, .graph .gnode:focus-visible .lbl { font-weight: 700; }
+.gcap { min-height: 2.6em; margin: 2px 0 6px; font-size: .85rem; color: var(--mute); }
+.conlist summary { cursor: pointer; color: var(--mute); font-size: .85rem; padding: 4px 0; }
 .con { display: block; width: 100%; text-align: left; border-radius: 10px; margin: 4px 0; padding: 7px 10px; border-left: 5px solid var(--c); }
 .con.cat-center { border-left-color: var(--hero-faint); } /* the hub's own colour is near-black, invisible against the dark theme */
 .con b { color: var(--t); }
