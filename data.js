@@ -252,7 +252,7 @@ const DATA={
   "Ramaswamy":["Gage Skidmore","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Vivek_Ramaswamy_(55241367373)_(cropped).jpg"],
   "Farritor":["HaeB","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Luke_Farritor_(AI_Tinkerers_SF,_October_2023)_-2.jpg"],
   "Lee":["Xuthoria","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Consensus_2026_-_Tom_Lee_04_(cropped).jpg"],
-  "T":["Gage Skidmore","CC BY-SA 3.0","https://commons.wikimedia.org/wiki/File:Peter_Thiel_by_Gage_Skidmore.jpg"],
+  "T":["Supplied by the site owner","",""],
   "Girard":["Vicq","Public domain","https://commons.wikimedia.org/wiki/File:Ren%C3%A9_Girard.jpg"],
   "Strauss":["Monozigote","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Leo_Strauss_USA_1939.jpg"],
   "Schmitt":["ABC","Public domain","https://commons.wikimedia.org/wiki/File:1929_report_on_Carl_Schmitt.jpg"],

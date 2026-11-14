@@ -471,7 +471,7 @@
   const portraitCredit = id => {
     const c = PICS[id];
     return c ? `<figure class="dpic"><img src="img/${id}-lg.webp" alt="" width="240" height="240">`
-      + `<figcaption>Photo: ${extLink('', c[2], `${esc(c[0])}<span class="sr">${NEW_TAB}</span>`)}, ${esc(c[1])}</figcaption></figure>` : '';
+      + `<figcaption>Photo: ${c[2] ? extLink('', c[2], `${esc(c[0])}<span class="sr">${NEW_TAB}</span>`) : esc(c[0])}${c[1] ? ', ' + esc(c[1]) : ''}</figcaption></figure>` : '';
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
