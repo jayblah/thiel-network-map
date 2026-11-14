@@ -9,7 +9,7 @@ const DATA={
  hub:"T", // id of the central card (Peter Thiel); app.js, build-static.js and the digest read it from here
  // Data added or corrected, newest first, shown from the version number in the footer. Describe content only, never code.
  updates:[
- {"date":"2026-11-14","items":["The Network States filter now includes the people tied to a network state or startup city (founders, funders, backers), not only the places themselves"]},
+ {"date":"2026-11-14","items":["The Network States filter now includes the people tied to a network state or startup city (founders, funders, backers), not only the places themselves","Peter Thiel's portrait credit corrected to The Asahi Shimbun/Getty Images/File, via CNN"]},
  {"date":"2026-11-13","items":["Peter Thiel's card gains a short list of his core beliefs, the first linked to his Cato Unbound essay","New portrait for Peter Thiel","Pronomos Capital and The Network State link to their own sites","Outlet names moved out of card text and into each card's Sources"]},
  {"date":"2026-11-12","items":["Added Jacob Helberg, Witt, Johnson, Barbaccia, Ramaswamy, Luke Farritor, Tom Lee and Tom Farley","Government posts brought up to date","Sources added to 12 cards that had none, plus further Fortune, CNBC and Founders Fund sources","Removed Max Levchin, Reid Hoffman, Nosek and the Christian Nationalism card; removed an unsupported Sacks-Srinivasan tie and an unsupported Andreessen-Praxis tie","Portraits for Nick Land and Aron D'Souza; 53 more names, titles and places link out"]},
  {"date":"2026-11-11","items":["35 secondary connections added; 12 connection labels corrected and 3 connections removed after an audit against the book","Crypto ties tagged on 14 cards","Ross Douthat, Max Chafkin and Paolo Benanti moved to a new Interviewers, Critics and Biographers section","Removed the Seven Mountains Mandate and Milo Yiannopoulos cards"]}
@@ -259,7 +259,7 @@ const DATA={
   "Ramaswamy":["Gage Skidmore","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Vivek_Ramaswamy_(55241367373)_(cropped).jpg"],
   "Farritor":["HaeB","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Luke_Farritor_(AI_Tinkerers_SF,_October_2023)_-2.jpg"],
   "Lee":["Xuthoria","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Consensus_2026_-_Tom_Lee_04_(cropped).jpg"],
-  "T":["Supplied by the site owner","",""],
+  "T":["The Asahi Shimbun/Getty Images/File, via CNN","",""],
   "Girard":["Vicq","Public domain","https://commons.wikimedia.org/wiki/File:Ren%C3%A9_Girard.jpg"],
   "Strauss":["Monozigote","CC BY-SA 4.0","https://commons.wikimedia.org/wiki/File:Leo_Strauss_USA_1939.jpg"],
   "Schmitt":["ABC","Public domain","https://commons.wikimedia.org/wiki/File:1929_report_on_Carl_Schmitt.jpg"],
