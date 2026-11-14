@@ -137,7 +137,7 @@
   // ---------- state ----------
   const stage = $('#stage'), ov = $('#ov'), cardDlg = $('#card'), cardBody = $('#cardBody'), searchBox = $('#q'), searchClear = $('#qClear');
   const els = {}; // node id -> card element
-  let pinned = null, filt = 'all', term = '', resizeFrame = 0;
+  let pinned = null, term = '', resizeFrame = 0;
   let pathTo = null, pathAvoid = true, currentPath = null, currentPaths = null; // 'how is A connected to B' state
 
   // ---------- legend toggle ----------
@@ -185,7 +185,14 @@
     $('#filters').insertAdjacentHTML('beforeend', chips + '<span id="count" class="count" aria-live="polite"></span>');
   }
   // everything that sets a filter (chips, badges, counts) shows which one is active; choosing Government Reach also lights the four kinds of government badge under it
-  const syncFilterButtons = () => $$('[data-f]').forEach(b => b.classList.toggle('on', b.dataset.f === filt || (filt === 'gov' && b.dataset.f.startsWith('gov:'))));
+  // The chosen filters: any number, and a card must match all of them. Empty means everyone.
+  const sel = new Set();
+  const matchesFilters = n => [...sel].every(k => FILTERS[k].test(n));
+  const syncFilterButtons = () => $$('[data-f]').forEach(b => {
+    const k = b.dataset.f, on = k === 'all' ? !sel.size : sel.has(k) || (sel.has('gov') && k.startsWith('gov:'));
+    b.classList.toggle('on', on);
+    if (b.classList.contains('chip')) b.setAttribute('aria-pressed', on);
+  });
 
   // ---------- cards and sections ----------
   // A person's portrait: a round photo when a freely licensed one exists, otherwise their initials in the card's colour.
@@ -290,14 +297,14 @@
     ...consOf(n.id).map(e => e.label), ...FACETS.flatMap(f => f.badges ? f.badges(n).map(s => s.label) : [])].join(' ').toLowerCase();
   const TOTAL = Object.keys(N).length;
   const showCount = k => {
-    const name = filt === 'all' ? '' : `${esc(FILTERS[filt].name)} · `;
+    const name = sel.size ? `${[...sel].map(k => esc(FILTERS[k].name)).join(' + ')} · ` : '';
     $('#count').innerHTML = k === null ? '' : `${name}${k ? `${k} of ${TOTAL} shown` : 'No matches'} <button type="button" class="linkbtn" data-clear>Clear</button>`;
   };
   function applyFilter() {
     if (pinned) return;
     const t = term.trim().toLowerCase();
-    if (filt === 'all' && !t) { setDim(null); showCount(null); return; }
-    const hits = Object.values(N).filter(n => FILTERS[filt].test(n) && (!t || haystack(n).includes(t))).map(n => n.id);
+    if (!sel.size && !t) { setDim(null); showCount(null); return; }
+    const hits = Object.values(N).filter(n => matchesFilters(n) && (!t || haystack(n).includes(t))).map(n => n.id);
     setDim(new Set(hits), true);
     showCount(hits.length);
   }
@@ -307,9 +314,9 @@
     $$('.card.sel').forEach(c => { c.classList.remove('sel'); c.querySelector('.n').removeAttribute('aria-pressed'); });
   }
   function clearSelection() { unpin(); if (cardDlg.open) cardDlg.close(); reset(); syncUrl(); }
-  function setFilter(k) { filt = k; syncFilterButtons(); clearSelection(); }
+  // 'all' clears every filter; any other key is switched on or off and the rest stay as they were
+  function setFilter(k) { if (k === 'all') sel.clear(); else if (!sel.delete(k)) sel.add(k); syncFilterButtons(); clearSelection(); }
   function setTerm(value) { term = value; searchBox.value = value; searchClear.hidden = !value; } // the search text and its box, kept in step
-  const toggleFilter = k => setFilter(filt === k && k !== 'all' ? 'all' : k); // clicking the active filter again clears it
   function pin(id) {
     unpin();
     pinned = id;
@@ -390,14 +397,15 @@
     const p = new URLSearchParams();
     if (pinned) p.set('card', pinned);
     if (pathTo) { p.set('to', pathTo); if (!pathAvoid) p.set('via', 'any'); }
-    if (filt !== 'all') p.set('filter', filt);
+    if (sel.size) p.set('filter', [...sel].join(','));
     if (term.trim()) p.set('q', term.trim());
     const h = p.toString();
     history.replaceState(null, '', location.pathname + location.search + (h ? '#' + h : ''));
   }
   function applyHash() {
     const p = new URLSearchParams(location.hash.slice(1)), card = p.get('card'), to = p.get('to');
-    filt = FILTERS[p.get('filter')] ? p.get('filter') : 'all';
+    sel.clear();
+    (p.get('filter') || '').split(',').filter(k => FILTERS[k] && k !== 'all').forEach(k => sel.add(k));
     setTerm(p.get('q') || '');
     pathAvoid = p.get('via') !== 'any';
     syncFilterButtons();
@@ -542,7 +550,7 @@
     const via = e.target.closest('[data-via]');
     if (via) { pathAvoid = via.dataset.via === 'avoid'; computePath(); paintSelection(); renderPath(); syncUrl(); return; }
     const f = e.target.closest('[data-f]');
-    if (f) { toggleFilter(f.dataset.f); return; }
+    if (f) { setFilter(f.dataset.f); return; }
     if (e.target.closest('[data-toggleall]')) { const open = !sections().some(d => d.open); sections().forEach(d => { d.open = open; }); syncToggleAll(); return; }
     const go = e.target.closest('[data-go]');
     if (go) { pin(go.dataset.go); return; }
