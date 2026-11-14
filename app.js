@@ -565,14 +565,13 @@
   function setSearch(value) { setTerm(value); clearSelection(); }
   searchBox.addEventListener('input', () => setSearch(searchBox.value));
   searchClear.addEventListener('click', () => { setSearch(''); searchBox.focus(); });
-  // light/dark: an explicit choice (saved) overrides the operating-system setting
-  const root = document.documentElement, themeSwitch = $('#theme'), systemDark = matchMedia('(prefers-color-scheme:dark)');
-  const isDark = () => root.dataset.theme ? root.dataset.theme === 'dark' : systemDark.matches;
+  // light/dark: dark unless the reader chose light (saved)
+  const root = document.documentElement, themeSwitch = $('#theme');
+  const isDark = () => root.dataset.theme !== 'light';
   const syncThemeSwitch = () => themeSwitch.setAttribute('aria-checked', isDark());
   const savedTheme = storage.get(STORE.theme);
   if (savedTheme === 'light' || savedTheme === 'dark') root.dataset.theme = savedTheme;
   syncThemeSwitch();
-  systemDark.addEventListener('change', syncThemeSwitch);
   themeSwitch.addEventListener('click', () => {
     root.dataset.theme = isDark() ? 'light' : 'dark';
     storage.set(STORE.theme, root.dataset.theme);

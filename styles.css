@@ -1,9 +1,9 @@
 /* Thiel network map styles.
    Theming: every colour that changes between light and dark is defined ONCE with light-dark().
-   The theme button sets data-theme on <html>, which pins color-scheme; with no choice it follows the OS. */
+   The theme button sets data-theme on <html>, which pins color-scheme; with no choice the page is dark. */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark; /* dark unless the reader chose light */
 
   /* surface and text */
   --bg: light-dark(#eef0f5, #0f121a);
