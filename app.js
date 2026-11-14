@@ -471,7 +471,7 @@
   const portraitCredit = id => {
     const c = PICS[id];
     return c ? `<figure class="dpic"><img src="img/${id}-lg.webp" alt="" width="240" height="240">`
-      + `<figcaption>Photo: ${extLink('', c[2], `${esc(c[0])}<span class="sr">${NEW_TAB}</span>`)}, ${esc(c[1])}</figcaption></figure>` : '';
+      + `<figcaption>Photo: ${c[2] ? extLink('', c[2], `${esc(c[0])}<span class="sr">${NEW_TAB}</span>`) : esc(c[0])}${c[1] ? ', ' + esc(c[1]) : ''}</figcaption></figure>` : '';
   };
   function showDetails(id) {
     const n = N[id], cons = consOf(id);
@@ -479,7 +479,7 @@
     cardBody.innerHTML = portraitCredit(id) + `<div class="dtitle"><h2 id="cardTitle">${esc(n.name)}</h2>${n.id === HUB ? '' : `<span class="cat cat-${n.cat}">${CAT[n.cat] || ''}</span>`}${links}</div>`
       + (n.sub.length ? `<div class="hint">${subText(n)}</div>` : '')
       + (rel[id] ? `<p><b>Link to Thiel:</b> ${fmt(rel[id])}</p>` : '')
-      + '<hr class="dsep">'
+      + '<hr class="dsep"><div class="dtools"><button type="button" class="linkbtn" data-toggleall>Collapse all</button></div>'
       + facetHtml.panel(n)
       + pathBox(n)
       + block('mute', `Connections (${cons.length})`, connectionsHtml(id))
@@ -487,6 +487,10 @@
       + extLink('wl', `${REPO}/issues/new?title=${encodeURIComponent('Correction: ' + n.name)}`, `Report a correction for this card ${EXT}`);
     cardBody.scrollTop = 0;
   }
+  // "Collapse all" / "Expand all": the button offers whichever applies to the sections as they stand now
+  const sections = () => [...cardBody.querySelectorAll('details.dsec')];
+  const syncToggleAll = () => { const b = cardBody.querySelector('[data-toggleall]'); if (b) b.textContent = sections().some(d => d.open) ? 'Collapse all' : 'Expand all'; };
+  cardBody.addEventListener('toggle', syncToggleAll, true); // `toggle` does not bubble, so listen while it travels down
 
   // ---------- start up ----------
   const VERSION = new URL(document.currentScript.src).searchParams.get('v'); // single source of truth: the ?v= in index.html
@@ -539,6 +543,7 @@
     if (via) { pathAvoid = via.dataset.via === 'avoid'; computePath(); paintSelection(); renderPath(); syncUrl(); return; }
     const f = e.target.closest('[data-f]');
     if (f) { toggleFilter(f.dataset.f); return; }
+    if (e.target.closest('[data-toggleall]')) { const open = !sections().some(d => d.open); sections().forEach(d => { d.open = open; }); syncToggleAll(); return; }
     const go = e.target.closest('[data-go]');
     if (go) { pin(go.dataset.go); return; }
     if (e.target.closest('a')) return; // external links

@@ -171,6 +171,8 @@ svg#ov { z-index: 3; } /* most connection lines run over the cards (above their 
 .pill.on, .stat.on { outline: 3px solid var(--accent); outline-offset: 1px; }
 .ic { width: 1.1em; height: 1.1em; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .dsec .h .ic { vertical-align: -.17em; margin-right: 4px; }
+.dsec .h .pill .ic { margin: 0; vertical-align: baseline; } /* the badge beside a heading keeps its own spacing */
+.dtitle .cat { margin: 0; } /* centred on the name: its bottom margin pushed it up */
 .stat .ic { width: 1.2em; height: 1.2em; color: var(--k); align-self: center; }
 
 /* category sections and cards */
@@ -270,6 +272,7 @@ dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
 .dsec:not([open]) > summary.h::before { content: "\25B8"; }
 .dsec > summary.h:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 .dsec .h { display: block; font-size: .75rem; text-transform: uppercase; letter-spacing: .07em; font-weight: 700; margin-bottom: 2px; color: var(--k); }
+.dtools { text-align: right; margin: -6px 0 -8px; }
 .dsec .body { margin-top: 2px; }
 .dsec .fine { font-size: .8rem; margin-top: 4px; }
 .graph { display: block; width: 100%; height: auto; margin: 4px 0 2px; }
