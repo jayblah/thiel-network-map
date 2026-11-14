@@ -217,6 +217,7 @@ svg#ov { z-index: 3; } /* most connection lines run over the cards (above their 
 @media (max-width: 900px) { #stage.flat .card:not(.hero) { grid-column: auto; } }
 .beliefs { list-style: none; margin: 14px auto 0; padding: 0; max-width: 64rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; text-align: left; font-size: .9rem; color: var(--hero-ink); }
 .beliefs li { position: relative; padding: 3px 0 3px 1.1em; }
+@media (max-width: 700px) { .beliefs { grid-template-columns: 1fr; } } /* one column on a phone */
 .beliefs li::before { content: "\2022"; position: absolute; left: 0; color: var(--hero-faint); }
 .card.gone { display: none; } /* filtered out: removed from the layout so the remaining cards close up */
 .sec:not(:has(.card:not(.gone))) { display: none; }
