@@ -215,7 +215,7 @@ svg#ov { z-index: 3; } /* most connection lines run over the cards (above their 
 #stage.flat .card:not(.hero) { grid-column: span 3; }
 @media (max-width: 1100px) { #stage.flat .card:not(.hero) { grid-column: span 4; } }
 @media (max-width: 900px) { #stage.flat .card:not(.hero) { grid-column: auto; } }
-.beliefs { list-style: none; margin: 14px auto 0; padding: 0; max-width: 44rem; text-align: left; font-size: .9rem; color: var(--hero-ink); }
+.beliefs { list-style: none; margin: 14px auto 0; padding: 0; max-width: 64rem; display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; text-align: left; font-size: .9rem; color: var(--hero-ink); }
 .beliefs li { position: relative; padding: 3px 0 3px 1.1em; }
 .beliefs li::before { content: "\2022"; position: absolute; left: 0; color: var(--hero-faint); }
 .card.gone { display: none; } /* filtered out: removed from the layout so the remaining cards close up */
