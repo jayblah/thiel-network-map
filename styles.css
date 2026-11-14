@@ -136,9 +136,8 @@ main { flex: 1; display: flex; min-height: 0; position: relative; }
 html:not(.js) :is(.bar, .tools, footer) { display: none; } /* these need the script */
 .ver:empty { display: none; }
 #stage { position: relative; padding: 20px; display: grid; gap: 18px; grid-template-columns: repeat(12, 1fr); max-width: 1700px; margin: 0 auto; }
-svg#ov, svg#ovUnder { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+svg#ov { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
 svg#ov { z-index: 3; } /* most connection lines run over the cards (above their z-index of 2) so they are easy to see */
-svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the cards */
 .sec { grid-column: span var(--span, 12); } /* --span is set per section from data.js */
 @media (max-width: 900px) {
   main { flex-direction: column; }
@@ -204,6 +203,14 @@ svg#ovUnder { z-index: 1; } /* lines to and from the Thiel card run under the ca
 .card.hero .n { color: var(--hero-white); font-size: 1.75rem; text-align: center; }
 .card.hero .s, .card.hero .r { color: var(--hero-ink); }
 /* Spotlight: cards outside the highlighted set turn flat grey but stay fully legible (no opacity fade) */
+#stage.flat .sec, #stage.flat .grid { display: contents; } /* filtered: the matching cards share one grid, filling each row... */
+#stage.flat .sec h2 { display: none; }
+#stage.flat .card:not(.hero) { grid-column: span 3; }
+@media (max-width: 1100px) { #stage.flat .card:not(.hero) { grid-column: span 4; } }
+@media (max-width: 900px) { #stage.flat .card:not(.hero) { grid-column: auto; } }
+.beliefs { list-style: none; margin: 14px auto 0; padding: 0; max-width: 44rem; text-align: left; font-size: .9rem; color: var(--hero-ink); }
+.beliefs li { position: relative; padding: 3px 0 3px 1.1em; }
+.beliefs li::before { content: "\2022"; position: absolute; left: 0; color: var(--hero-faint); }
 .card.gone { display: none; } /* filtered out: removed from the layout so the remaining cards close up */
 .sec:not(:has(.card:not(.gone))) { display: none; }
 .card.dim { background: var(--panel); border: 2px solid var(--line); box-shadow: none; } /* everything outside the spotlight loses its colour... */
@@ -298,7 +305,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
 @media print {
   :root, :root[data-theme=dark] { color-scheme: light; }
   html, body { height: auto; overflow: visible; display: block; background: #fff; color: #000; }
-  .tools, .filters, #legendTab, footer, svg#ov, svg#ovUnder, .ver, .wp, .linkbtn, #count { display: none !important; }
+  .tools, .filters, #legendTab, footer, svg#ov, .ver, .wp, .linkbtn, #count { display: none !important; }
   header, .bar { background: none; border: 0; padding: 0 0 6px; }
   #legend { background: none; border: 1px solid #999; }
   main { display: block; }
@@ -311,7 +318,7 @@ marker.line path, marker.hollow path { fill: none; stroke: var(--c); stroke-widt
   .card .n { color: #000; }
   .card.hero { margin-bottom: 12px; background: #fff; color: #000; border: 2px solid #000; --money: var(--money-light); }
   .card.hero .n, .reach h2 { color: #000; }
-  .card.hero .s, .card.hero .r, .reach { color: #222; }
+  .card.hero .s, .card.hero .r, .reach, .beliefs { color: #222; }
   .reach .stat { border-width: 1.5px; }
   .pill, .sw, .sec h2::before { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 }
